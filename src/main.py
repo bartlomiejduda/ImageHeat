@@ -11,6 +11,8 @@ import tkinter as tk
 import center_tk_window
 from reversebox.common.logger import get_logger
 
+from src.GUI.image_heat_gui_main import ImageHeatGUI
+
 VERSION_NUM = "v0.1.0"
 
 logger = get_logger("main")
@@ -27,7 +29,7 @@ def main():
     logger.info("Starting main...")
 
     root = tk.Tk()
-    ImageHeatGui(root, VERSION_NUM, MAIN_DIRECTORY)  # start GUI
+    ImageHeatGUI(root, VERSION_NUM, MAIN_DIRECTORY)  # start GUI
     root.lift()
     center_tk_window.center_on_screen(root)
     try:
