@@ -1,0 +1,31 @@
+default_language_version:
+    python: python3.11
+
+repos:
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+    -   id: check-added-large-files
+        args: ['--maxkb=600']
+    -   id: end-of-file-fixer
+        exclude: tests_io/data/.*
+    -   id: trailing-whitespace
+    -   id: check-docstring-first
+    -   id: mixed-line-ending
+    -   id: requirements-txt-fixer
+    -   id: check-executables-have-shebangs
+-   repo: https://github.com/pycqa/isort
+    rev: 5.12.0
+    hooks:
+      - id: isort
+        args: ["--profile", "black"]
+        name: isort (python)
+-   repo: https://github.com/psf/black
+    rev: 23.7.0
+    hooks:
+    -   id: black
+        exclude: tests_io/data/.*
+-   repo: https://github.com/pycqa/flake8
+    rev: 6.0.0
+    hooks:
+    -   id: flake8

@@ -1,0 +1,11 @@
+[tool.black]
+line-length = 120
+target-version = ['py311']
+extend-exclude = '''
+/(
+  | blib2to3
+  | tests/data
+  | profiling
+  | src/scripts
+)/
+'''
