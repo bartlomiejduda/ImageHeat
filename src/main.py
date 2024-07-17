@@ -11,9 +11,9 @@ import tkinter as tk
 import center_tk_window
 from reversebox.common.logger import get_logger
 
-from src.GUI.image_heat_gui_main import ImageHeatGUI
+from src.GUI.gui_main import ImageHeatGUI
 
-VERSION_NUM = "v0.1.0"
+VERSION_NUM = "v0.2.0"
 
 logger = get_logger("main")
 

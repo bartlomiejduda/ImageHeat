@@ -12,6 +12,9 @@ from tkinter import filedialog, messagebox, ttk
 from PIL import Image, ImageTk
 from reversebox.common.logger import get_logger
 
+from src.GUI.about_window import AboutWindow
+from src.Image.constants import PIXEL_FORMATS, SWIZZLING_TYPES
+
 # default app settings
 WINDOW_HEIGHT = 500
 WINDOW_WIDTH = 700
@@ -31,13 +34,13 @@ class ImageHeatGUI:
         master.minsize(WINDOW_WIDTH, WINDOW_HEIGHT)
         master.geometry(f"{WINDOW_WIDTH}x{WINDOW_HEIGHT}")
         self.current_dir = os.path.dirname(os.path.abspath(__file__))
-        self.icon_dir = self.MAIN_DIRECTORY + "\\data\\icon.ico"
+        self.icon_path = self.MAIN_DIRECTORY + "\\data\\img\\icon.ico"
         self.gui_font = ('Arial', 8)
 
         try:
-            self.master.iconbitmap(self.icon_dir)
+            self.master.iconbitmap(self.icon_path)
         except tk.TclError:
-            logger.info("Can't load the icon file from %s", self.icon_dir)
+            logger.info("Can't load the icon file from %s", self.icon_path)
 
         ########################
         # MAIN FRAME           #
@@ -49,7 +52,7 @@ class ImageHeatGUI:
         # IMAGE PARAMETERS BOX #
         ########################
         self.parameters_labelframe = tk.LabelFrame(self.main_frame, text="Image Parameters", font=self.gui_font)
-        self.parameters_labelframe.place(x=5, y=5, width=160, height=310)
+        self.parameters_labelframe.place(x=5, y=5, width=160, height=210)
 
         ###################################
         # IMAGE PARAMETERS - IMAGE WIDTH  #
@@ -94,11 +97,10 @@ class ImageHeatGUI:
         self.pixel_format_label = tk.Label(self.parameters_labelframe, text="Pixel Format", anchor="w", font=self.gui_font)
         self.pixel_format_label.place(x=5, y=95, width=60, height=20)
 
-        self.PIXEL_FORMATS = ["RGB8888", "RGB565"]
         self.pixel_format_combobox = ttk.Combobox(self.parameters_labelframe,
-                                                  values=self.PIXEL_FORMATS, font=self.gui_font, state='readonly')
+                                                  values=PIXEL_FORMATS, font=self.gui_font, state='readonly')
         self.pixel_format_combobox.place(x=5, y=115, width=135, height=20)
-        self.pixel_format_combobox.set(self.PIXEL_FORMATS[0])
+        self.pixel_format_combobox.set(PIXEL_FORMATS[0])
 
         ####################################
         # IMAGE PARAMETERS - SWIZZLING     #
@@ -106,69 +108,12 @@ class ImageHeatGUI:
         self.swizzling_label = tk.Label(self.parameters_labelframe, text="Swizzling Type", anchor="w", font=self.gui_font)
         self.swizzling_label.place(x=5, y=140, width=100, height=20)
 
-        self.SWIZZLING_TYPES = ["None", "PS1 Swizzle", "PS2 Swizzle", "PSP Swizzle"]
+
+        self.current_swizzling = tk.StringVar()
         self.swizzling_combobox = ttk.Combobox(self.parameters_labelframe,
-                                               values=self.SWIZZLING_TYPES, font=self.gui_font, state='readonly')
+                                               values=SWIZZLING_TYPES, textvariable=self.current_swizzling, font=self.gui_font, state='readonly')
         self.swizzling_combobox.place(x=5, y=160, width=135, height=20)
-        self.swizzling_combobox.set(self.SWIZZLING_TYPES[0])
-
-        #####################################
-        # IMAGE PARAMETERS - CHECKBOXES     #
-        #####################################
-
-        self.vertical_flip_checkbox = tk.Checkbutton(self.parameters_labelframe, text="V Flip (top-down)", anchor="w")
-        self.vertical_flip_checkbox.place(x=5, y=190, width=140, height=20)
-
-        self.horizontal_flip_checkbox = tk.Checkbutton(self.parameters_labelframe, text="H Flip (left-right)", anchor="w")
-        self.horizontal_flip_checkbox.place(x=5, y=210, width=140, height=20)
-
-        self.invert_colors_checkbox = tk.Checkbutton(self.parameters_labelframe, text="Invert colors", anchor="w")
-        self.invert_colors_checkbox.place(x=5, y=230, width=140, height=20)
-
-
-        ####################################
-        # IMAGE PARAMETERS - ZOOM          #
-        ####################################
-        self.zoom_label = tk.Label(self.parameters_labelframe, text="Zoom", anchor="w", font=self.gui_font)
-        self.zoom_label.place(x=5, y=260, width=100, height=20)
-
-        self.ZOOM_TYPES = ["1x", "2x", "3x", "4x", "5x", "10x"]
-        self.zoom_combobox = ttk.Combobox(self.parameters_labelframe,
-                                          values=self.ZOOM_TYPES, font=self.gui_font, state='readonly')
-        self.zoom_combobox.place(x=40, y=260, width=50, height=20)
-        self.zoom_combobox.set(self.ZOOM_TYPES[0])
-
-
-
-
-
-        ##########################
-        # PALETTE PARAMETERS BOX #
-        ##########################
-        self.palette_parameters_labelframe = tk.LabelFrame(self.main_frame, text="Palette Parameters", font=self.gui_font)
-        self.palette_parameters_labelframe.place(x=5, y=320, width=160, height=170)
-
-        ##########################################
-        # PALETTE PARAMETERS BOX - PALETTE TYPE  #
-        ##########################################
-        self.palette_type_label = tk.Label(self.palette_parameters_labelframe, text="Palette type", anchor="w", font=self.gui_font)
-        self.palette_type_label.place(x=5, y=5, width=100, height=20)
-
-        self.PALETTE_TYPES = ["RGB", "Other"]
-        self.palette_type_combobox = ttk.Combobox(self.palette_parameters_labelframe,
-                                                  values=self.PALETTE_TYPES, font=self.gui_font, state='readonly')
-        self.palette_type_combobox.place(x=5, y=25, width=140, height=20)
-        self.palette_type_combobox.set(self.PALETTE_TYPES[0])
-
-        ##########################################
-        # PALETTE PARAMETERS BOX - OFFSET  #
-        ##########################################
-        self.palette_offset_label = tk.Label(self.palette_parameters_labelframe, text="Palette offset", anchor="w", font=self.gui_font)
-        self.palette_offset_label.place(x=5, y=45, width=90, height=20)
-
-        self.palette_offset_spinbox = tk.Spinbox(self.palette_parameters_labelframe, from_=0, to=sys.maxsize)
-        self.palette_offset_spinbox.place(x=5, y=65, width=60, height=20)
-
+        self.swizzling_combobox.set(SWIZZLING_TYPES[0])
 
 
 
@@ -254,10 +199,6 @@ class ImageHeatGUI:
         master.bind_all("<Control-q>", lambda x: self.quit_program())
         self.menubar.add_cascade(label="File", menu=self.filemenu)
 
-        self.toolsmenu = tk.Menu(self.menubar, tearoff=0)
-        self.toolsmenu.add_command(label="Options", command=lambda: None)
-        self.menubar.add_cascade(label="Tools", menu=self.toolsmenu)
-
         self.helpmenu = tk.Menu(self.menubar, tearoff=0)
         self.helpmenu.add_command(
             label="About...", command=lambda: self.show_about_window()
@@ -291,7 +232,8 @@ class ImageHeatGUI:
         logger.info("Loading file %s...", in_file_name)
 
     def show_about_window(self):
-        pass
+        if not any(isinstance(x, tk.Toplevel) for x in self.master.winfo_children()):
+            AboutWindow(self)
 
     @staticmethod
     def set_text_in_box(in_box, in_text):
