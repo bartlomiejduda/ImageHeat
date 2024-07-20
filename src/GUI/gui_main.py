@@ -6,14 +6,16 @@ import math
 import os
 import sys
 import tkinter as tk
-import webbrowser
 from tkinter import filedialog, messagebox, ttk
+from typing import Optional
 
 from PIL import Image, ImageTk
 from reversebox.common.logger import get_logger
 
 from src.GUI.about_window import AboutWindow
+from src.GUI.gui_params import GuiParams
 from src.Image.constants import PIXEL_FORMATS, SWIZZLING_TYPES
+from src.Image.heatimage import HeatImage
 
 # default app settings
 WINDOW_HEIGHT = 500
@@ -36,6 +38,8 @@ class ImageHeatGUI:
         self.current_dir = os.path.dirname(os.path.abspath(__file__))
         self.icon_path = self.MAIN_DIRECTORY + "\\data\\img\\icon.ico"
         self.gui_font = ('Arial', 8)
+        self.opened_image: Optional[HeatImage] = None
+        self.gui_params: GuiParams = GuiParams()
 
         try:
             self.master.iconbitmap(self.icon_path)
@@ -158,22 +162,18 @@ class ImageHeatGUI:
         # IMAGE BOX - IMAGE CANVAS   #
         ##############################
 
-        self.PREVIEW_HEIGHT = 200
-        self.PREVIEW_WIDTH = 300
+        self.CANVAS_HEIGHT = 200
+        self.CANVAS_WIDTH = 300
 
-        im = Image.new('RGB', (self.PREVIEW_WIDTH, self.PREVIEW_HEIGHT))
-        # draw = ImageDraw.Draw(im)
-        # for x in range(100):
-        #     draw.point((x, 15), fill="red")
-        # draw.ellipse((25, 25, 75, 75), fill=(255, 6, 6))
-        for x in range(self.PREVIEW_WIDTH):
-            for y in range(math.floor(self.PREVIEW_HEIGHT / 2)):
+        im = Image.new('RGB', (self.CANVAS_WIDTH, self.CANVAS_HEIGHT))
+        for x in range(self.CANVAS_WIDTH):
+            for y in range(math.floor(self.CANVAS_HEIGHT / 2)):
                 im.putpixel((x, y), (44, 44, 44))
 
         self.canvas = tk.Canvas(self.image_labelframe)
         self.image = ImageTk.PhotoImage(im)
         self.image_id = self.canvas.create_image(0, 0, anchor="nw", image=self.image)
-        self.canvas.place(x=5, y=5, height=self.PREVIEW_HEIGHT, width=self.PREVIEW_WIDTH)
+        self.canvas.place(x=5, y=5, height=self.CANVAS_HEIGHT, width=self.CANVAS_WIDTH)
 
 
 
@@ -211,25 +211,43 @@ class ImageHeatGUI:
     #                                             methods                                                #
     ######################################################################################################
 
-    def quit_program(self):
+    def quit_program(self) -> bool:
         logger.info("Quit GUI...")
         self.master.destroy()
+        return True
 
-    def open_file(self):
+    def set_gui_params(self) -> bool:  # TODO - get values from GUI
+        self.gui_params.img_height = 20
+        self.gui_params.img_width = 20
+        self.gui_params.pixel_format = "DXT1"
+        self.gui_params.img_start_offset = 0
+        self.gui_params.img_end_offset = 5000
+        return True
+
+    def open_file(self) -> bool:
         try:
             in_file = filedialog.askopenfile(
                 mode="rb"
             )
             if not in_file:
-                return
+                return False
             in_file_path = in_file.name
             in_file_name = in_file_path.split("/")[-1]
         except Exception as error:
             logger.error("Failed to open file! Error: %s", error)
             messagebox.showwarning("Warning", "Failed to open file!")
-            return
+            return False
 
-        logger.info("Loading file %s...", in_file_name)
+        logger.info(f"Loading file {in_file_name}...")
+
+        self.set_gui_params()  # get gui params from GUI elements
+        self.gui_params.img_file_path = in_file_path
+        self.opened_image = HeatImage(self.gui_params)
+        self.opened_image.image_reload()
+        self.init_image_preview_logic()
+
+        logger.info("Image has been opened successfully")
+        return True
 
     def show_about_window(self):
         if not any(isinstance(x, tk.Toplevel) for x in self.master.winfo_children()):
@@ -246,8 +264,38 @@ class ImageHeatGUI:
     def close_toplevel_window(wind):
         wind.destroy()
 
-    @staticmethod
-    def web_callback(url):
-        webbrowser.open_new(url)
+    def init_image_preview_logic(self) -> bool:
+
+        try:
+            pil_img = Image.frombuffer(
+                "RGBA",
+                (int(self.gui_params.img_width), int(self.gui_params.img_height)),
+                self.opened_image.decoded_image_data,
+                "raw",
+                "RGBA",
+                0,
+                1,
+            )
+
+            self.ph_img = ImageTk.PhotoImage(pil_img)
+
+            self.preview_instance = tk.Canvas(
+                self.image_labelframe,
+                bg="#595959",
+                width=self.CANVAS_WIDTH,
+                height=self.CANVAS_HEIGHT,
+            )
+            self.preview_instance.create_image(
+                int(self.CANVAS_WIDTH / 2),
+                int(self.CANVAS_HEIGHT / 2),
+                anchor="center",
+                image=self.ph_img,
+            )
+            self.preview_instance.place(x=5, y=5)
+
+        except Exception as error:
+            logger.error(f"Error occurred while generating preview... Error: {error}")
+
+        return True
 
 # fmt: on
