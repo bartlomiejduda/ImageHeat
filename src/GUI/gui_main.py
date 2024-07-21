@@ -11,15 +11,16 @@ from typing import Optional
 
 from PIL import Image, ImageTk
 from reversebox.common.logger import get_logger
+from tkhtmlview import HTMLLabel
 
 from src.GUI.about_window import AboutWindow
 from src.GUI.gui_params import GuiParams
-from src.Image.constants import PIXEL_FORMATS, SWIZZLING_TYPES
+from src.Image.constants import PIXEL_FORMATS_NAMES, SWIZZLING_TYPES
 from src.Image.heatimage import HeatImage
 
 # default app settings
 WINDOW_HEIGHT = 500
-WINDOW_WIDTH = 700
+WINDOW_WIDTH = 1000
 
 logger = get_logger(__name__)
 
@@ -64,7 +65,9 @@ class ImageHeatGUI:
         self.width_label = tk.Label(self.parameters_labelframe, text="Img Width", anchor="w", font=self.gui_font)
         self.width_label.place(x=5, y=5, width=60, height=20)
 
-        self.width_spinbox = tk.Spinbox(self.parameters_labelframe, from_=0, to=sys.maxsize)
+        self.current_width = tk.StringVar()
+        self.width_spinbox = tk.Spinbox(self.parameters_labelframe, textvariable=self.current_width, from_=0, to=sys.maxsize,
+                                        command=self.gui_reload_image_on_gui_element_change)
         self.width_spinbox.place(x=5, y=25, width=60, height=20)
 
         ######################################
@@ -73,7 +76,9 @@ class ImageHeatGUI:
         self.height_label = tk.Label(self.parameters_labelframe, text="Img Height", anchor="w", font=self.gui_font)
         self.height_label.place(x=80, y=5, width=60, height=20)
 
-        self.height_spinbox = tk.Spinbox(self.parameters_labelframe, from_=0, to=sys.maxsize)
+        self.current_height = tk.StringVar()
+        self.height_spinbox = tk.Spinbox(self.parameters_labelframe, textvariable=self.current_height, from_=0, to=sys.maxsize,
+                                         command=self.gui_reload_image_on_gui_element_change)
         self.height_spinbox.place(x=80, y=25, width=60, height=20)
 
 
@@ -83,7 +88,9 @@ class ImageHeatGUI:
         self.img_start_offset_label = tk.Label(self.parameters_labelframe, text="Start Offset", anchor="w", font=self.gui_font)
         self.img_start_offset_label.place(x=5, y=50, width=60, height=20)
 
-        self.img_start_offset_spinbox = tk.Spinbox(self.parameters_labelframe, from_=0, to=sys.maxsize)
+        self.current_start_offset = tk.StringVar()
+        self.img_start_offset_spinbox = tk.Spinbox(self.parameters_labelframe, textvariable=self.current_start_offset, from_=0, to=sys.maxsize,
+                                                   command=self.gui_reload_image_on_gui_element_change)
         self.img_start_offset_spinbox.place(x=5, y=70, width=60, height=20)
 
         ##########################################
@@ -92,19 +99,26 @@ class ImageHeatGUI:
         self.img_end_offset_label = tk.Label(self.parameters_labelframe, text="End Offset", anchor="w", font=self.gui_font)
         self.img_end_offset_label.place(x=80, y=50, width=60, height=20)
 
-        self.img_end_offset_spinbox = tk.Spinbox(self.parameters_labelframe, from_=0, to=sys.maxsize)
+        self.current_end_offset = tk.StringVar()
+        self.img_end_offset_spinbox = tk.Spinbox(self.parameters_labelframe, textvariable=self.current_end_offset, from_=0, to=sys.maxsize,
+                                                 command=self.gui_reload_image_on_gui_element_change)
         self.img_end_offset_spinbox.place(x=80, y=70, width=60, height=20)
 
         ####################################
         # IMAGE PARAMETERS - PIXEL FORMAT  #
         ####################################
+
         self.pixel_format_label = tk.Label(self.parameters_labelframe, text="Pixel Format", anchor="w", font=self.gui_font)
         self.pixel_format_label.place(x=5, y=95, width=60, height=20)
 
+        def reload_image_callback(event):
+            self.gui_reload_image_on_gui_element_change()
+
         self.pixel_format_combobox = ttk.Combobox(self.parameters_labelframe,
-                                                  values=PIXEL_FORMATS, font=self.gui_font, state='readonly')
+                                                  values=PIXEL_FORMATS_NAMES, font=self.gui_font, state='readonly')
+        self.pixel_format_combobox.bind("<<ComboboxSelected>>", reload_image_callback)
         self.pixel_format_combobox.place(x=5, y=115, width=135, height=20)
-        self.pixel_format_combobox.set(PIXEL_FORMATS[0])
+        self.pixel_format_combobox.set(PIXEL_FORMATS_NAMES[0])
 
         ####################################
         # IMAGE PARAMETERS - SWIZZLING     #
@@ -124,56 +138,30 @@ class ImageHeatGUI:
         ##########################
         # INFO BOX #
         ##########################
-        self.info_labelframe = tk.LabelFrame(self.main_frame, text="Info", font=self.gui_font)
-        self.info_labelframe.place(x=-170, y=5, width=165, height=160, relx=1)
 
-        self.file_name_label = tk.Label(self.info_labelframe, text="File name:", font=self.gui_font, anchor="w")
-        self.file_name_label.place(x=5, y=5, width=145, height=20)
+        self.info_labelframe = tk.LabelFrame(self.main_frame, text="Info", font=self.gui_font)
+        self.info_labelframe.place(x=-200, y=5, width=195, height=110, relx=1)
+
+        self.file_name_label = HTMLLabel(self.info_labelframe, html=self._get_html_for_label("File name: ", ""))
+        self.file_name_label.place(x=5, y=5, width=175, height=20)
 
         self.file_size_label = tk.Label(self.info_labelframe, text="File size:", font=self.gui_font, anchor="w")
-        self.file_size_label.place(x=5, y=25, width=145, height=20)
-
-        self.file_offset_label = tk.Label(self.info_labelframe, text="File offset:", font=self.gui_font, anchor="w")
-        self.file_offset_label.place(x=5, y=45, width=145, height=20)
-
-        self.file_displayed_label = tk.Label(self.info_labelframe, text="Displayed:", font=self.gui_font, anchor="w")
-        self.file_displayed_label.place(x=5, y=65, width=145, height=20)
+        self.file_size_label.place(x=5, y=25, width=175, height=20)
 
         self.mouse_x_label = tk.Label(self.info_labelframe, text="Mouse X:", font=self.gui_font, anchor="w")
-        self.mouse_x_label.place(x=5, y=85, width=145, height=20)
+        self.mouse_x_label.place(x=5, y=45, width=175, height=20)
 
         self.mouse_x_label = tk.Label(self.info_labelframe, text="Mouse Y:", font=self.gui_font, anchor="w")
-        self.mouse_x_label.place(x=5, y=105, width=145, height=20)
-
-
-
-
-
-
+        self.mouse_x_label.place(x=5, y=65, width=175, height=20)
 
 
         ########################
         # IMAGE BOX            #
         ########################
-        self.image_labelframe = tk.LabelFrame(self.main_frame, text="Image preview", font=self.gui_font)
-        self.image_labelframe.place(x=170, y=5, relwidth=1, relheight=1, height=-15, width=-345)
+        self.image_preview_labelframe = tk.LabelFrame(self.main_frame, text="Image preview", font=self.gui_font)
+        self.image_preview_labelframe.place(x=170, y=5, relwidth=1, relheight=1, height=-15, width=-375)
 
-        ##############################
-        # IMAGE BOX - IMAGE CANVAS   #
-        ##############################
 
-        self.CANVAS_HEIGHT = 200
-        self.CANVAS_WIDTH = 300
-
-        im = Image.new('RGB', (self.CANVAS_WIDTH, self.CANVAS_HEIGHT))
-        for x in range(self.CANVAS_WIDTH):
-            for y in range(math.floor(self.CANVAS_HEIGHT / 2)):
-                im.putpixel((x, y), (44, 44, 44))
-
-        self.canvas = tk.Canvas(self.image_labelframe)
-        self.image = ImageTk.PhotoImage(im)
-        self.image_id = self.canvas.create_image(0, 0, anchor="nw", image=self.image)
-        self.canvas.place(x=5, y=5, height=self.CANVAS_HEIGHT, width=self.CANVAS_WIDTH)
 
 
 
@@ -216,12 +204,52 @@ class ImageHeatGUI:
         self.master.destroy()
         return True
 
-    def set_gui_params(self) -> bool:  # TODO - get values from GUI
-        self.gui_params.img_height = 20
-        self.gui_params.img_width = 20
-        self.gui_params.pixel_format = "DXT1"
-        self.gui_params.img_start_offset = 0
-        self.gui_params.img_end_offset = 5000
+    def _get_html_for_label(self, text_header: str, text_value: str) -> str:
+        html: str = f'''<div style="font-family: Arial; font-size: 8px;">
+                        <span>{text_header}</span>
+                        <span style="color: blue">{text_value}</span>
+                        </div>
+        '''
+        return html
+
+    def get_gui_params_from_gui_elements(self) -> bool:
+        self.gui_params.img_height = int(self.height_spinbox.get())
+        self.gui_params.img_width = int(self.width_spinbox.get())
+        self.gui_params.pixel_format = self.pixel_format_combobox.get()
+        self.gui_params.img_start_offset = int(self.img_start_offset_spinbox.get())
+        self.gui_params.img_end_offset = int(self.img_end_offset_spinbox.get())
+        return True
+
+    def calculate_image_dimensions(self) -> tuple:
+        number_of_pixels: int = self.gui_params.total_file_size // 4
+        pixel_sqrt: int = int(math.floor(math.sqrt(number_of_pixels)))
+        return pixel_sqrt, pixel_sqrt
+
+    def set_gui_elements_at_file_open(self) -> bool:
+        self.pixel_format_combobox.set(PIXEL_FORMATS_NAMES[0])  # RGBA8888
+        img_width, img_height = self.calculate_image_dimensions()
+        self.current_width.set(img_width)
+        self.current_height.set(img_height)
+        self.current_start_offset.set("0")
+        self.current_end_offset.set(str(self.gui_params.total_file_size))
+
+        # info labels
+        self.file_name_label.set_html(self._get_html_for_label("File name: ", self.gui_params.img_file_name))
+
+
+        # TODO - set max value for end offset
+        return True
+
+    def gui_reload_image_on_gui_element_change(self) -> bool:
+        self.get_gui_params_from_gui_elements()
+
+        # heat image logic
+        if self.opened_image:
+            self.opened_image.gui_params = self.gui_params
+            self.opened_image.image_reload()
+            self.init_image_preview_logic()
+        else:
+            logger.info("Image is not opened yet...")
         return True
 
     def open_file(self) -> bool:
@@ -240,8 +268,14 @@ class ImageHeatGUI:
 
         logger.info(f"Loading file {in_file_name}...")
 
-        self.set_gui_params()  # get gui params from GUI elements
+        # gui params logic
         self.gui_params.img_file_path = in_file_path
+        self.gui_params.img_file_name = in_file_name
+        self.gui_params.total_file_size = os.path.getsize(in_file_path)
+        self.set_gui_elements_at_file_open()
+        self.get_gui_params_from_gui_elements()
+
+        # heat image logic
         self.opened_image = HeatImage(self.gui_params)
         self.opened_image.image_reload()
         self.init_image_preview_logic()
@@ -280,18 +314,18 @@ class ImageHeatGUI:
             self.ph_img = ImageTk.PhotoImage(pil_img)
 
             self.preview_instance = tk.Canvas(
-                self.image_labelframe,
+                self.image_preview_labelframe,
                 bg="#595959",
-                width=self.CANVAS_WIDTH,
-                height=self.CANVAS_HEIGHT,
+                width=self.gui_params.img_width,
+                height=self.gui_params.img_height,
             )
             self.preview_instance.create_image(
-                int(self.CANVAS_WIDTH / 2),
-                int(self.CANVAS_HEIGHT / 2),
-                anchor="center",
+                int(self.gui_params.img_width),
+                int(self.gui_params.img_height),
+                anchor="se",
                 image=self.ph_img,
             )
-            self.preview_instance.place(x=5, y=5)
+            self.preview_instance.place(x=0, y=0)
 
         except Exception as error:
             logger.error(f"Error occurred while generating preview... Error: {error}")

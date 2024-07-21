@@ -7,6 +7,7 @@ from typing import Optional
 from reversebox.common.logger import get_logger
 
 from src.GUI.gui_params import GuiParams
+from src.Image.constants import PIXEL_FORMATS_NAMES
 
 logger = get_logger(__name__)
 
@@ -26,8 +27,8 @@ class HeatImage:
 
     def image_decode(self) -> bool:
         logger.info("Image decode start...")
-        # if self.gui_params.pixel_format not in SupportedPixelFormats:
-        #     raise Exception("Not supported pixel format!")
+        if self.gui_params.pixel_format not in PIXEL_FORMATS_NAMES:
+            raise Exception("Not supported pixel format!")
 
         self.decoded_image_data = self.encoded_image_data  # TODO
         return True
