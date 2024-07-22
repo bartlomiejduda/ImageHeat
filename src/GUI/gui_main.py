@@ -37,10 +37,11 @@ class ImageHeatGUI:
         master.minsize(WINDOW_WIDTH, WINDOW_HEIGHT)
         master.geometry(f"{WINDOW_WIDTH}x{WINDOW_HEIGHT}")
         self.current_dir = os.path.dirname(os.path.abspath(__file__))
-        self.icon_path = self.MAIN_DIRECTORY + "\\data\\img\\icon.ico"
+        self.icon_path = self.MAIN_DIRECTORY + "\\data\\img\\heat_icon.ico"
         self.gui_font = ('Arial', 8)
         self.opened_image: Optional[HeatImage] = None
         self.gui_params: GuiParams = GuiParams()
+        self.preview_instance = None
 
         try:
             self.master.iconbitmap(self.icon_path)
@@ -142,17 +143,17 @@ class ImageHeatGUI:
         self.info_labelframe = tk.LabelFrame(self.main_frame, text="Info", font=self.gui_font)
         self.info_labelframe.place(x=-200, y=5, width=195, height=110, relx=1)
 
-        self.file_name_label = HTMLLabel(self.info_labelframe, html=self._get_html_for_label("File name: ", ""))
+        self.file_name_label = HTMLLabel(self.info_labelframe, html=self._get_html_for_infobox_label("File name: ", ""), wrap=None)
         self.file_name_label.place(x=5, y=5, width=175, height=20)
 
-        self.file_size_label = tk.Label(self.info_labelframe, text="File size:", font=self.gui_font, anchor="w")
+        self.file_size_label = HTMLLabel(self.info_labelframe, html=self._get_html_for_infobox_label("File size: ", ""), wrap=None)
         self.file_size_label.place(x=5, y=25, width=175, height=20)
 
-        self.mouse_x_label = tk.Label(self.info_labelframe, text="Mouse X:", font=self.gui_font, anchor="w")
+        self.mouse_x_label = HTMLLabel(self.info_labelframe, html=self._get_html_for_infobox_label("Mouse X: ", ""), wrap=None)
         self.mouse_x_label.place(x=5, y=45, width=175, height=20)
 
-        self.mouse_x_label = tk.Label(self.info_labelframe, text="Mouse Y:", font=self.gui_font, anchor="w")
-        self.mouse_x_label.place(x=5, y=65, width=175, height=20)
+        self.mouse_y_label = HTMLLabel(self.info_labelframe, html=self._get_html_for_infobox_label("Mouse Y: ", ""), wrap=None)
+        self.mouse_y_label.place(x=5, y=65, width=175, height=20)
 
 
         ########################
@@ -160,8 +161,6 @@ class ImageHeatGUI:
         ########################
         self.image_preview_labelframe = tk.LabelFrame(self.main_frame, text="Image preview", font=self.gui_font)
         self.image_preview_labelframe.place(x=170, y=5, relwidth=1, relheight=1, height=-15, width=-375)
-
-
 
 
 
@@ -204,7 +203,7 @@ class ImageHeatGUI:
         self.master.destroy()
         return True
 
-    def _get_html_for_label(self, text_header: str, text_value: str) -> str:
+    def _get_html_for_infobox_label(self, text_header: str, text_value: str) -> str:
         html: str = f'''<div style="font-family: Arial; font-size: 8px;">
                         <span>{text_header}</span>
                         <span style="color: blue">{text_value}</span>
@@ -232,12 +231,14 @@ class ImageHeatGUI:
         self.current_height.set(img_height)
         self.current_start_offset.set("0")
         self.current_end_offset.set(str(self.gui_params.total_file_size))
+        self.img_end_offset_spinbox.config(to=self.gui_params.total_file_size)  # set max value for end offset
 
         # info labels
-        self.file_name_label.set_html(self._get_html_for_label("File name: ", self.gui_params.img_file_name))
+        self.file_name_label.set_html(self._get_html_for_infobox_label("File name: ", self.gui_params.img_file_name))
+        self.file_size_label.set_html(self._get_html_for_infobox_label("File size: ", str(self.gui_params.total_file_size)))
+        self.mouse_x_label.set_html(self._get_html_for_infobox_label("Mouse X: ", str(0)))
+        self.mouse_y_label.set_html(self._get_html_for_infobox_label("Mouse Y: ", str(0)))
 
-
-        # TODO - set max value for end offset
         return True
 
     def gui_reload_image_on_gui_element_change(self) -> bool:
@@ -313,12 +314,16 @@ class ImageHeatGUI:
 
             self.ph_img = ImageTk.PhotoImage(pil_img)
 
+            if self.preview_instance:
+                self.preview_instance.destroy()  # destroy canvas to prevent memory leak
+
             self.preview_instance = tk.Canvas(
                 self.image_preview_labelframe,
                 bg="#595959",
                 width=self.gui_params.img_width,
                 height=self.gui_params.img_height,
             )
+
             self.preview_instance.create_image(
                 int(self.gui_params.img_width),
                 int(self.gui_params.img_height),
@@ -329,6 +334,13 @@ class ImageHeatGUI:
 
         except Exception as error:
             logger.error(f"Error occurred while generating preview... Error: {error}")
+
+        def mouse_motion(event):
+            x, y = event.x, event.y
+            self.mouse_x_label.set_html(self._get_html_for_infobox_label("Mouse X: ", str(x)))
+            self.mouse_y_label.set_html(self._get_html_for_infobox_label("Mouse Y: ", str(y)))
+
+        self.preview_instance.bind('<Motion>', mouse_motion)
 
         return True
 

@@ -16,6 +16,7 @@ class PixelFormat:
 
 SUPPORTED_PIXEL_FORMATS: list[PixelFormat] = [
     PixelFormat(format_name="RGBA8888", format_type=ImageFormats.RGBA8888),
+    PixelFormat(format_name="RGB565", format_type=ImageFormats.RGB565),
     PixelFormat(format_name="DXT1", format_type=ImageFormats.DXT1),
 ]
 
