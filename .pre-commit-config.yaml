@@ -6,7 +6,7 @@ repos:
     rev: v4.4.0
     hooks:
     -   id: check-added-large-files
-        args: ['--maxkb=600']
+        args: ['--maxkb=800']
     -   id: end-of-file-fixer
         exclude: tests_io/data/.*
     -   id: trailing-whitespace

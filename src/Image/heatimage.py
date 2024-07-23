@@ -46,6 +46,10 @@ class HeatImage:
             self.decoded_image_data = image_decoder.decode_compressed_image(
                 self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, ImageFormats.DXT1
             )
+        elif self.gui_params.pixel_format == "YUY2":
+            self.decoded_image_data = image_decoder.decode_yuv_image(
+                self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, ImageFormats.YUY2
+            )
         else:
             raise Exception("[2] Not supported pixel format!")
 

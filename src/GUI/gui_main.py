@@ -144,16 +144,16 @@ class ImageHeatGUI:
         self.info_labelframe.place(x=-200, y=5, width=195, height=110, relx=1)
 
         self.file_name_label = HTMLLabel(self.info_labelframe, html=self._get_html_for_infobox_label("File name: ", ""), wrap=None)
-        self.file_name_label.place(x=5, y=5, width=175, height=20)
+        self.file_name_label.place(x=5, y=5, width=175, height=18)
 
         self.file_size_label = HTMLLabel(self.info_labelframe, html=self._get_html_for_infobox_label("File size: ", ""), wrap=None)
-        self.file_size_label.place(x=5, y=25, width=175, height=20)
+        self.file_size_label.place(x=5, y=25, width=175, height=18)
 
         self.mouse_x_label = HTMLLabel(self.info_labelframe, html=self._get_html_for_infobox_label("Mouse X: ", ""), wrap=None)
-        self.mouse_x_label.place(x=5, y=45, width=175, height=20)
+        self.mouse_x_label.place(x=5, y=45, width=175, height=18)
 
         self.mouse_y_label = HTMLLabel(self.info_labelframe, html=self._get_html_for_infobox_label("Mouse Y: ", ""), wrap=None)
-        self.mouse_y_label.place(x=5, y=65, width=175, height=20)
+        self.mouse_y_label.place(x=5, y=65, width=175, height=18)
 
 
         ########################
