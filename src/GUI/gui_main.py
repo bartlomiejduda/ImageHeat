@@ -300,7 +300,39 @@ class ImageHeatGUI:
         wind.destroy()
 
     def init_image_preview_logic(self) -> bool:
+        if self.opened_image.is_preview_error:
+            self.execute_error_preview_logic()
+        else:
+            self.execute_image_preview_logic()
+        return True
 
+    def execute_error_preview_logic(self) -> bool:
+        pil_img = Image.open(self.MAIN_DIRECTORY + "\\data\\img\\preview_not_supported.png")
+        pil_img = pil_img.resize((500, 367))
+
+        if self.preview_instance:
+            self.preview_instance.destroy()  # destroy canvas to prevent memory leak
+
+        self.preview_instance = tk.Canvas(
+            self.image_preview_labelframe,
+            bg="#595959",
+            width=pil_img.width,
+            height=pil_img.height,
+        )
+
+        self.ph_img = ImageTk.PhotoImage(pil_img)
+
+        self.preview_instance.create_image(
+            int(pil_img.width),
+            int(pil_img.height),
+            anchor="se",
+            image=self.ph_img,
+        )
+        self.preview_instance.place(x=0, y=0)
+
+        return True
+
+    def execute_image_preview_logic(self) -> bool:
         try:
             pil_img = Image.frombuffer(
                 "RGBA",
@@ -335,12 +367,12 @@ class ImageHeatGUI:
         except Exception as error:
             logger.error(f"Error occurred while generating preview... Error: {error}")
 
-        def mouse_motion(event):
+        def _mouse_motion(event):
             x, y = event.x, event.y
             self.mouse_x_label.set_html(self._get_html_for_infobox_label("Mouse X: ", str(x)))
             self.mouse_y_label.set_html(self._get_html_for_infobox_label("Mouse Y: ", str(y)))
 
-        self.preview_instance.bind('<Motion>', mouse_motion)
+        self.preview_instance.bind('<Motion>', _mouse_motion)
 
         return True
 

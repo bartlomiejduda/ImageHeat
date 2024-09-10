@@ -15,10 +15,7 @@ class PixelFormat:
 
 
 SUPPORTED_PIXEL_FORMATS: list[PixelFormat] = [
-    PixelFormat(format_name="RGBA8888", format_type=ImageFormats.RGBA8888),
-    PixelFormat(format_name="RGB565", format_type=ImageFormats.RGB565),
-    PixelFormat(format_name="DXT1", format_type=ImageFormats.DXT1),
-    PixelFormat(format_name="YUY2", format_type=ImageFormats.YUY2),
+    PixelFormat(format_name=image_format.name, format_type=image_format) for image_format in ImageFormats
 ]
 
 PIXEL_FORMATS_NAMES: list = [pixel_format.format_name for pixel_format in SUPPORTED_PIXEL_FORMATS]
