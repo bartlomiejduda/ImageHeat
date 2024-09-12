@@ -45,6 +45,7 @@ class HeatImage:
         # TODO - add swizzling here
 
         if image_format in (ImageFormats.RGB121,
+
                             ImageFormats.RGBX2222,
                             ImageFormats.RGBA2222,
                             ImageFormats.RGB121_BYTE,
@@ -53,13 +54,80 @@ class HeatImage:
                             ImageFormats.GRAY8,
 
                             ImageFormats.GRAY8A,
-                            ImageFormats.GRAY16
+                            ImageFormats.GRAY16,
+                            ImageFormats.RGB565,
+                            ImageFormats.BGR565,
+                            ImageFormats.RGBX5551,
+                            ImageFormats.RGBA5551,
+                            ImageFormats.ARGB4444,
+                            ImageFormats.RGBA4444,
+                            ImageFormats.RGBX4444,
+                            ImageFormats.BGRX4444,
+                            ImageFormats.XRGB1555,
+                            ImageFormats.XBGR1555,
+                            ImageFormats.ARGB1555,
+                            ImageFormats.ABGR1555,
+
+                            ImageFormats.RGB888,
+                            ImageFormats.BGR888,
+
+                            ImageFormats.RGBA8888,
+                            ImageFormats.BGRA8888,
+                            ImageFormats.ARGB8888,
+                            ImageFormats.ABGR8888,
+                            ImageFormats.XRGB8888,
+                            ImageFormats.RGBX8888,
+                            ImageFormats.XBGR8888,
+                            ImageFormats.BGRX8888,
+
+                            ImageFormats.N64_RGB5A3,
+                            ImageFormats.N64_I4,
+                            ImageFormats.N64_I8,
+                            ImageFormats.N64_IA4,
+                            ImageFormats.N64_IA8
                             ):
             self.decoded_image_data = image_decoder.decode_image(
                 self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_format
             )
-        else:
+        elif image_format in (ImageFormats.N64_RGBA32, ImageFormats.N64_CMPR):
+            self.decoded_image_data = image_decoder.decode_n64_image(
+                self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_format
+            )
+        elif image_format in (ImageFormats.DXT1, ImageFormats.DXT3, ImageFormats.DXT5):
+            self.decoded_image_data = image_decoder.decode_compressed_image(
+                self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_format
+            )
+        elif image_format in (ImageFormats.GST121,
+                              ImageFormats.GST221,
+                              ImageFormats.GST421,
+                              ImageFormats.GST821,
+                              ImageFormats.GST122,
+                              ImageFormats.GST222,
+                              ImageFormats.GST422,
+                              ImageFormats.GST822):
             logger.error("[2] Not supported pixel format!")
+            self.is_preview_error = True
+        elif image_format in (ImageFormats.YUV410P,
+                              ImageFormats.YUV411P,
+                              ImageFormats.YUV411_UYYVYY411,
+                              ImageFormats.YUV420_NV12,
+                              ImageFormats.YUV420_NV21,
+                              ImageFormats.YUV420P,
+                              ImageFormats.YUVA420P,
+                              ImageFormats.YUV422P,
+                              ImageFormats.YUV422_UYVY,
+                              ImageFormats.YUV422_YUY2,
+                              ImageFormats.YUV440P,
+                              ImageFormats.YUV444P):
+            self.decoded_image_data = image_decoder.decode_yuv_image(
+                self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_format
+            )
+        elif image_format == ImageFormats.BUMPMAP_SR:
+            self.decoded_image_data = image_decoder.decode_bumpmap_image(
+                self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_format
+            )
+        else:
+            logger.error("[3] Not supported pixel format!")
             self.is_preview_error = True
 
         return True

@@ -71,6 +71,17 @@ class ImageHeatGUI:
                                         command=self.gui_reload_image_on_gui_element_change)
         self.width_spinbox.place(x=5, y=25, width=60, height=20)
 
+        def _decrease_width_by_arrow_key(event):
+            self.width_spinbox.invoke("buttondown")
+            self.master.focus()
+
+        def _increase_width_by_arrow_key(event):
+            self.width_spinbox.invoke("buttonup")
+            self.master.focus()
+
+        self.master.bind("<Left>", _decrease_width_by_arrow_key)
+        self.master.bind("<Right>", _increase_width_by_arrow_key)
+
         ######################################
         # IMAGE PARAMETERS - IMAGE HEIGHT    #
         ######################################
@@ -81,6 +92,17 @@ class ImageHeatGUI:
         self.height_spinbox = tk.Spinbox(self.parameters_labelframe, textvariable=self.current_height, from_=0, to=sys.maxsize,
                                          command=self.gui_reload_image_on_gui_element_change)
         self.height_spinbox.place(x=80, y=25, width=60, height=20)
+
+        def _decrease_height_by_arrow_key(event):
+            self.height_spinbox.invoke("buttondown")
+            self.master.focus()
+
+        def _increase_height_by_arrow_key(event):
+            self.height_spinbox.invoke("buttonup")
+            self.master.focus()
+
+        self.master.bind("<Up>", _decrease_height_by_arrow_key)
+        self.master.bind("<Down>", _increase_height_by_arrow_key)
 
 
         ###########################################
@@ -120,6 +142,28 @@ class ImageHeatGUI:
         self.pixel_format_combobox.bind("<<ComboboxSelected>>", reload_image_callback)
         self.pixel_format_combobox.place(x=5, y=115, width=135, height=20)
         self.pixel_format_combobox.set(PIXEL_FORMATS_NAMES[0])
+
+        def _get_previous_pixel_format_by_key(event):
+            selection = self.pixel_format_combobox.current()
+            last = len(self.pixel_format_combobox['values']) - 1
+            try:
+                self.pixel_format_combobox.current(selection - 1)
+            except tk.TclError:
+                self.pixel_format_combobox.current(last)
+            reload_image_callback(event)
+            self.master.focus()
+
+        def _get_next_pixel_format_by_key(event):
+            selection = self.pixel_format_combobox.current()
+            try:
+                self.pixel_format_combobox.current(selection + 1)
+            except tk.TclError:
+                self.pixel_format_combobox.current(0)
+            reload_image_callback(event)
+            self.master.focus()
+
+        self.master.bind("<z>", _get_previous_pixel_format_by_key)
+        self.master.bind("<x>", _get_next_pixel_format_by_key)
 
         ####################################
         # IMAGE PARAMETERS - SWIZZLING     #
