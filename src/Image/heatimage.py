@@ -5,8 +5,15 @@ License: GPL-3.0 License
 from typing import Optional
 
 from reversebox.common.logger import get_logger
+from reversebox.image.common import get_bpp_for_image_format
 from reversebox.image.image_decoder import ImageDecoder
 from reversebox.image.image_formats import ImageFormats
+from reversebox.image.swizzling.swizzle_bc import unswizzle_bc
+from reversebox.image.swizzling.swizzle_morton import unswizzle_morton
+from reversebox.image.swizzling.swizzle_morton_dreamcast import (
+    unswizzle_morton_dreamcast,
+)
+from reversebox.image.swizzling.swizzle_psp import unswizzle_psp
 
 from src.GUI.gui_params import GuiParams
 from src.Image.constants import PIXEL_FORMATS_NAMES
@@ -41,8 +48,31 @@ class HeatImage:
 
         image_decoder = ImageDecoder()
         image_format: ImageFormats = self.get_image_format_from_str(self.gui_params.pixel_format)
+        swizzling_type = self.gui_params.swizzling_type
 
-        # TODO - add swizzling here
+        if swizzling_type == "None":
+            pass
+        elif swizzling_type == "PSP":
+            self.encoded_image_data = unswizzle_psp(
+                self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, get_bpp_for_image_format(image_format)
+            )
+        elif swizzling_type == "XBOX/PS3 (Morton)":
+            self.encoded_image_data = unswizzle_morton(
+                self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height,
+                get_bpp_for_image_format(image_format)
+            )
+        elif swizzling_type == "Dreamcast":
+            self.encoded_image_data = unswizzle_morton_dreamcast(
+                self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height,
+                get_bpp_for_image_format(image_format)
+            )
+        elif swizzling_type == "BC":
+            self.encoded_image_data = unswizzle_bc(
+                self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, 8, 8,
+                get_bpp_for_image_format(image_format)
+            )
+        else:
+            logger.error(f"Swizzling type not supported! Type: {swizzling_type}")
 
         if image_format in (ImageFormats.RGB121,
 
@@ -79,6 +109,9 @@ class HeatImage:
                             ImageFormats.RGBX8888,
                             ImageFormats.XBGR8888,
                             ImageFormats.BGRX8888,
+
+                            ImageFormats.RGB48,
+                            ImageFormats.BGR48,
 
                             ImageFormats.N64_RGB5A3,
                             ImageFormats.N64_I4,

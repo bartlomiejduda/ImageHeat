@@ -21,8 +21,4 @@ SUPPORTED_PIXEL_FORMATS: list[PixelFormat] = [
 PIXEL_FORMATS_NAMES: list = [pixel_format.format_name for pixel_format in SUPPORTED_PIXEL_FORMATS]
 
 
-SWIZZLING_TYPES: list = [
-    "None",
-    "PSP Swizzling",
-    "XBOX/PS3 Swizzling (Morton Order)",
-]
+SWIZZLING_TYPES: list = ["None", "PSP", "XBOX/PS3 (Morton)", "Dreamcast", "BC"]

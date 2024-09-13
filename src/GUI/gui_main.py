@@ -116,6 +116,17 @@ class ImageHeatGUI:
                                                    command=self.gui_reload_image_on_gui_element_change)
         self.img_start_offset_spinbox.place(x=5, y=70, width=60, height=20)
 
+        def _decrease_start_offset_by_arrow_key(event):
+            self.img_start_offset_spinbox.invoke("buttondown")
+            self.master.focus()
+
+        def _increase_start_offset_by_arrow_key(event):
+            self.img_start_offset_spinbox.invoke("buttonup")
+            self.master.focus()
+
+        self.master.bind("<Control-Down>", _decrease_start_offset_by_arrow_key)
+        self.master.bind("<Control-Up>", _increase_start_offset_by_arrow_key)
+
         ##########################################
         # IMAGE PARAMETERS - IMAGE END OFFSET    #
         ##########################################
@@ -126,6 +137,17 @@ class ImageHeatGUI:
         self.img_end_offset_spinbox = tk.Spinbox(self.parameters_labelframe, textvariable=self.current_end_offset, from_=0, to=sys.maxsize,
                                                  command=self.gui_reload_image_on_gui_element_change)
         self.img_end_offset_spinbox.place(x=80, y=70, width=60, height=20)
+
+        def _decrease_end_offset_by_arrow_key(event):
+            self.img_end_offset_spinbox.invoke("buttondown")
+            self.master.focus()
+
+        def _increase_end_offset_by_arrow_key(event):
+            self.img_end_offset_spinbox.invoke("buttonup")
+            self.master.focus()
+
+        self.master.bind("<Shift-Down>", _decrease_end_offset_by_arrow_key)
+        self.master.bind("<Shift-Up>", _increase_end_offset_by_arrow_key)
 
         ####################################
         # IMAGE PARAMETERS - PIXEL FORMAT  #
@@ -175,8 +197,31 @@ class ImageHeatGUI:
         self.current_swizzling = tk.StringVar()
         self.swizzling_combobox = ttk.Combobox(self.parameters_labelframe,
                                                values=SWIZZLING_TYPES, textvariable=self.current_swizzling, font=self.gui_font, state='readonly')
+        self.swizzling_combobox.bind("<<ComboboxSelected>>", reload_image_callback)
         self.swizzling_combobox.place(x=5, y=160, width=135, height=20)
         self.swizzling_combobox.set(SWIZZLING_TYPES[0])
+
+        def _get_previous_swizzling_type_by_key(event):
+            selection = self.swizzling_combobox.current()
+            last = len(self.swizzling_combobox['values']) - 1
+            try:
+                self.swizzling_combobox.current(selection - 1)
+            except tk.TclError:
+                self.swizzling_combobox.current(last)
+            reload_image_callback(event)
+            self.master.focus()
+
+        def _get_next_swizzling_type_by_key(event):
+            selection = self.swizzling_combobox.current()
+            try:
+                self.swizzling_combobox.current(selection + 1)
+            except tk.TclError:
+                self.swizzling_combobox.current(0)
+            reload_image_callback(event)
+            self.master.focus()
+
+        self.master.bind("<a>", _get_previous_swizzling_type_by_key)
+        self.master.bind("<s>", _get_next_swizzling_type_by_key)
 
 
 
@@ -259,6 +304,7 @@ class ImageHeatGUI:
         self.gui_params.img_height = int(self.height_spinbox.get())
         self.gui_params.img_width = int(self.width_spinbox.get())
         self.gui_params.pixel_format = self.pixel_format_combobox.get()
+        self.gui_params.swizzling_type = self.swizzling_combobox.get()
         self.gui_params.img_start_offset = int(self.img_start_offset_spinbox.get())
         self.gui_params.img_end_offset = int(self.img_end_offset_spinbox.get())
         return True
