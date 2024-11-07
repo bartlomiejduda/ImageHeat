@@ -13,10 +13,11 @@ from reversebox.image.swizzling.swizzle_morton import unswizzle_morton
 from reversebox.image.swizzling.swizzle_morton_dreamcast import (
     unswizzle_morton_dreamcast,
 )
+from reversebox.image.swizzling.swizzle_morton_ps4 import unswizzle_ps4
 from reversebox.image.swizzling.swizzle_psp import unswizzle_psp
 
 from src.GUI.gui_params import GuiParams
-from src.Image.constants import PIXEL_FORMATS_NAMES
+from src.Image.constants import PIXEL_FORMATS_NAMES, get_swizzling_id
 
 logger = get_logger(__name__)
 
@@ -55,31 +56,36 @@ class HeatImage:
 
         image_decoder = ImageDecoder()
         image_format: ImageFormats = self.get_image_format_from_str(self.gui_params.pixel_format)
-        swizzling_type = self.gui_params.swizzling_type
+        swizzling_id = get_swizzling_id(self.gui_params.swizzling_type)
 
-        if swizzling_type == "None":
+        if swizzling_id == "none":
             pass
-        elif swizzling_type == "PSP":
+        elif swizzling_id == "psp":
             self.encoded_image_data = unswizzle_psp(
                 self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, get_bpp_for_image_format(image_format)
             )
-        elif swizzling_type == "XBOX/PS3 (Morton)":
+        elif swizzling_id == "morton":
             self.encoded_image_data = unswizzle_morton(
                 self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height,
                 get_bpp_for_image_format(image_format)
             )
-        elif swizzling_type == "Dreamcast":
+        elif swizzling_id == "dreamcast":
             self.encoded_image_data = unswizzle_morton_dreamcast(
                 self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height,
                 get_bpp_for_image_format(image_format)
             )
-        elif swizzling_type == "BC":
+        elif swizzling_id == "ps4":
+            self.encoded_image_data = unswizzle_ps4(
+                self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height,
+                get_bpp_for_image_format(image_format)
+            )
+        elif swizzling_id == "bc":
             self.encoded_image_data = unswizzle_bc(
                 self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, 8, 8,
                 get_bpp_for_image_format(image_format)
             )
         else:
-            logger.error(f"Swizzling type not supported! Type: {swizzling_type}")
+            logger.error(f"Swizzling type not supported! Type: {swizzling_id}")
 
         if image_format in (ImageFormats.RGB121,
 

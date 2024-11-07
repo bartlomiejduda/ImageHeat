@@ -13,7 +13,7 @@ from reversebox.common.logger import get_logger
 
 from src.GUI.gui_main import ImageHeatGUI
 
-VERSION_NUM = "v0.2.8"
+VERSION_NUM = "v0.3.0"
 
 logger = get_logger("main")
 

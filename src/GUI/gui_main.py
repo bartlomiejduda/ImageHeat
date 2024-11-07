@@ -15,7 +15,7 @@ from tkhtmlview import HTMLLabel
 
 from src.GUI.about_window import AboutWindow
 from src.GUI.gui_params import GuiParams
-from src.Image.constants import PIXEL_FORMATS_NAMES, SWIZZLING_TYPES
+from src.Image.constants import PIXEL_FORMATS_NAMES, SWIZZLING_TYPES_NAMES
 from src.Image.heatimage import HeatImage
 
 # default app settings
@@ -42,6 +42,7 @@ class ImageHeatGUI:
         self.opened_image: Optional[HeatImage] = None
         self.gui_params: GuiParams = GuiParams()
         self.preview_instance = None
+        self.validate_spinbox_command = (master.register(self.validate_spinbox), '%P')
 
         try:
             self.master.iconbitmap(self.icon_path)
@@ -70,6 +71,7 @@ class ImageHeatGUI:
         self.width_spinbox = tk.Spinbox(self.parameters_labelframe, textvariable=self.current_width, from_=0, to=sys.maxsize,
                                         command=self.gui_reload_image_on_gui_element_change)
         self.width_spinbox.place(x=5, y=25, width=60, height=20)
+        self.width_spinbox.configure(validate="key", validatecommand=self.validate_spinbox_command)
 
         def _decrease_width_by_arrow_key(event):
             self.width_spinbox.invoke("buttondown")
@@ -92,6 +94,7 @@ class ImageHeatGUI:
         self.height_spinbox = tk.Spinbox(self.parameters_labelframe, textvariable=self.current_height, from_=0, to=sys.maxsize,
                                          command=self.gui_reload_image_on_gui_element_change)
         self.height_spinbox.place(x=80, y=25, width=60, height=20)
+        self.height_spinbox.configure(validate="key", validatecommand=self.validate_spinbox_command)
 
         def _decrease_height_by_arrow_key(event):
             self.height_spinbox.invoke("buttondown")
@@ -115,6 +118,7 @@ class ImageHeatGUI:
         self.img_start_offset_spinbox = tk.Spinbox(self.parameters_labelframe, textvariable=self.current_start_offset, from_=0, to=sys.maxsize,
                                                    command=self.gui_reload_image_on_gui_element_change)
         self.img_start_offset_spinbox.place(x=5, y=70, width=60, height=20)
+        self.img_start_offset_spinbox.configure(validate="key", validatecommand=self.validate_spinbox_command)
 
         def _decrease_start_offset_by_arrow_key(event):
             self.img_start_offset_spinbox.invoke("buttondown")
@@ -137,6 +141,7 @@ class ImageHeatGUI:
         self.img_end_offset_spinbox = tk.Spinbox(self.parameters_labelframe, textvariable=self.current_end_offset, from_=0, to=sys.maxsize,
                                                  command=self.gui_reload_image_on_gui_element_change)
         self.img_end_offset_spinbox.place(x=80, y=70, width=60, height=20)
+        self.img_end_offset_spinbox.configure(validate="key", validatecommand=self.validate_spinbox_command)
 
         def _decrease_end_offset_by_arrow_key(event):
             self.img_end_offset_spinbox.invoke("buttondown")
@@ -158,6 +163,7 @@ class ImageHeatGUI:
 
         def reload_image_callback(event):
             self.gui_reload_image_on_gui_element_change()
+            self.master.focus()
 
         self.pixel_format_combobox = ttk.Combobox(self.parameters_labelframe,
                                                   values=PIXEL_FORMATS_NAMES, font=self.gui_font, state='readonly')
@@ -173,7 +179,6 @@ class ImageHeatGUI:
             except tk.TclError:
                 self.pixel_format_combobox.current(last)
             reload_image_callback(event)
-            self.master.focus()
 
         def _get_next_pixel_format_by_key(event):
             selection = self.pixel_format_combobox.current()
@@ -182,7 +187,6 @@ class ImageHeatGUI:
             except tk.TclError:
                 self.pixel_format_combobox.current(0)
             reload_image_callback(event)
-            self.master.focus()
 
         self.master.bind("<z>", _get_previous_pixel_format_by_key)
         self.master.bind("<x>", _get_next_pixel_format_by_key)
@@ -196,10 +200,10 @@ class ImageHeatGUI:
 
         self.current_swizzling = tk.StringVar()
         self.swizzling_combobox = ttk.Combobox(self.parameters_labelframe,
-                                               values=SWIZZLING_TYPES, textvariable=self.current_swizzling, font=self.gui_font, state='readonly')
+                                               values=SWIZZLING_TYPES_NAMES, textvariable=self.current_swizzling, font=self.gui_font, state='readonly')
         self.swizzling_combobox.bind("<<ComboboxSelected>>", reload_image_callback)
         self.swizzling_combobox.place(x=5, y=160, width=135, height=20)
-        self.swizzling_combobox.set(SWIZZLING_TYPES[0])
+        self.swizzling_combobox.set(SWIZZLING_TYPES_NAMES[0])
 
         def _get_previous_swizzling_type_by_key(event):
             selection = self.swizzling_combobox.current()
@@ -209,7 +213,6 @@ class ImageHeatGUI:
             except tk.TclError:
                 self.swizzling_combobox.current(last)
             reload_image_callback(event)
-            self.master.focus()
 
         def _get_next_swizzling_type_by_key(event):
             selection = self.swizzling_combobox.current()
@@ -218,12 +221,18 @@ class ImageHeatGUI:
             except tk.TclError:
                 self.swizzling_combobox.current(0)
             reload_image_callback(event)
-            self.master.focus()
 
         self.master.bind("<a>", _get_previous_swizzling_type_by_key)
         self.master.bind("<s>", _get_next_swizzling_type_by_key)
 
+        ##########################
+        # FORCE RELOAD #
+        ##########################
 
+        def _force_reload_image_by_pressing_enter(event):
+            reload_image_callback(event)
+
+        self.master.bind("<Return>", _force_reload_image_by_pressing_enter)
 
         ##########################
         # INFO BOX #
@@ -249,7 +258,7 @@ class ImageHeatGUI:
         ##########################
 
         self.controls_labelframe = tk.LabelFrame(self.main_frame, text="Controls", font=self.gui_font)
-        self.controls_labelframe.place(x=-200, y=115, width=195, height=150, relx=1)
+        self.controls_labelframe.place(x=-200, y=115, width=195, height=170, relx=1)
 
         self.controls_img_width_label = HTMLLabel(self.controls_labelframe, html=self._get_html_for_infobox_label("Img width -  ", "Left/Right"), wrap=None)
         self.controls_img_width_label.place(x=5, y=5, width=175, height=18)
@@ -269,12 +278,18 @@ class ImageHeatGUI:
         self.controls_swizzling_label = HTMLLabel(self.controls_labelframe, html=self._get_html_for_infobox_label("Swizzling -  ", "A/S"), wrap=None)
         self.controls_swizzling_label.place(x=5, y=105, width=175, height=18)
 
+        self.controls_swizzling_label = HTMLLabel(self.controls_labelframe, html=self._get_html_for_infobox_label("Reload img -  ", "Enter"), wrap=None)
+        self.controls_swizzling_label.place(x=5, y=125, width=175, height=18)
+
 
         ########################
         # IMAGE BOX            #
         ########################
         self.image_preview_labelframe = tk.LabelFrame(self.main_frame, text="Image preview", font=self.gui_font)
         self.image_preview_labelframe.place(x=170, y=5, relwidth=1, relheight=1, height=-15, width=-375)
+
+        self.image_preview_canvasframe = tk.Frame(self.image_preview_labelframe)
+        self.image_preview_canvasframe.place(x=5, y=5, relwidth=1, relheight=1, height=-10, width=-10)
 
 
 
@@ -325,13 +340,22 @@ class ImageHeatGUI:
         '''
         return html
 
+    def validate_spinbox(self, new_value):
+        return new_value.isdigit() or new_value == ""
+
+    def get_spinbox_value(self, spinbox: tk.Spinbox) -> int:
+        if spinbox.get() == "":
+            return 0
+        else:
+            return int(spinbox.get())
+
     def get_gui_params_from_gui_elements(self) -> bool:
-        self.gui_params.img_height = int(self.height_spinbox.get())
-        self.gui_params.img_width = int(self.width_spinbox.get())
+        self.gui_params.img_height = self.get_spinbox_value(self.height_spinbox)
+        self.gui_params.img_width = self.get_spinbox_value(self.width_spinbox)
         self.gui_params.pixel_format = self.pixel_format_combobox.get()
         self.gui_params.swizzling_type = self.swizzling_combobox.get()
-        self.gui_params.img_start_offset = int(self.img_start_offset_spinbox.get())
-        self.gui_params.img_end_offset = int(self.img_end_offset_spinbox.get())
+        self.gui_params.img_start_offset = self.get_spinbox_value(self.img_start_offset_spinbox)
+        self.gui_params.img_end_offset = self.get_spinbox_value(self.img_end_offset_spinbox)
         return True
 
     def calculate_image_dimensions(self) -> tuple:
@@ -429,10 +453,11 @@ class ImageHeatGUI:
             self.preview_instance.destroy()  # destroy canvas to prevent memory leak
 
         self.preview_instance = tk.Canvas(
-            self.image_preview_labelframe,
+            self.image_preview_canvasframe,
             bg="#595959",
             width=pil_img.width,
             height=pil_img.height,
+            highlightthickness=0
         )
 
         self.ph_img = ImageTk.PhotoImage(pil_img)
@@ -465,10 +490,11 @@ class ImageHeatGUI:
                 self.preview_instance.destroy()  # destroy canvas to prevent memory leak
 
             self.preview_instance = tk.Canvas(
-                self.image_preview_labelframe,
+                self.image_preview_canvasframe,
                 bg="#595959",
                 width=self.gui_params.img_width,
                 height=self.gui_params.img_height,
+                highlightthickness=0
             )
 
             self.preview_instance.create_image(
