@@ -244,6 +244,31 @@ class ImageHeatGUI:
         self.mouse_y_label = HTMLLabel(self.info_labelframe, html=self._get_html_for_infobox_label("Mouse Y: ", ""), wrap=None)
         self.mouse_y_label.place(x=5, y=65, width=175, height=18)
 
+        ##########################
+        # CONTROLS BOX #
+        ##########################
+
+        self.controls_labelframe = tk.LabelFrame(self.main_frame, text="Controls", font=self.gui_font)
+        self.controls_labelframe.place(x=-200, y=115, width=195, height=150, relx=1)
+
+        self.controls_img_width_label = HTMLLabel(self.controls_labelframe, html=self._get_html_for_infobox_label("Img width -  ", "Left/Right"), wrap=None)
+        self.controls_img_width_label.place(x=5, y=5, width=175, height=18)
+
+        self.controls_img_height_label = HTMLLabel(self.controls_labelframe, html=self._get_html_for_infobox_label("Img height -  ", "Up/Down"), wrap=None)
+        self.controls_img_height_label.place(x=5, y=25, width=175, height=18)
+
+        self.controls_start_offset_label = HTMLLabel(self.controls_labelframe, html=self._get_html_for_infobox_label("Start offset -  ", "CTRL+Up/CTRL+Down"), wrap=None)
+        self.controls_start_offset_label.place(x=5, y=45, width=185, height=18)
+
+        self.controls_end_offset_label = HTMLLabel(self.controls_labelframe, html=self._get_html_for_infobox_label("End offset -  ", "SHIFT+Up/SHIFT+Down"), wrap=None)
+        self.controls_end_offset_label.place(x=5, y=65, width=185, height=18)
+
+        self.controls_pixel_format_label = HTMLLabel(self.controls_labelframe, html=self._get_html_for_infobox_label("Pixel Format -  ", "Z/X"), wrap=None)
+        self.controls_pixel_format_label.place(x=5, y=85, width=175, height=18)
+
+        self.controls_swizzling_label = HTMLLabel(self.controls_labelframe, html=self._get_html_for_infobox_label("Swizzling -  ", "A/S"), wrap=None)
+        self.controls_swizzling_label.place(x=5, y=105, width=175, height=18)
+
 
         ########################
         # IMAGE BOX            #

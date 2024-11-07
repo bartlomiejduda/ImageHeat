@@ -26,15 +26,22 @@ logger = get_logger(__name__)
 class HeatImage:
     def __init__(self, gui_params: GuiParams):
         self.gui_params: GuiParams = gui_params
+        self.loaded_image_data: Optional[bytes] = None
         self.encoded_image_data: Optional[bytes] = None
         self.decoded_image_data: Optional[bytes] = None
         self.is_preview_error: bool = False
+        self.is_data_loaded_from_file: bool = False
 
     def image_read(self) -> bool:
-        img_file = open(self.gui_params.img_file_path, "rb")
-        img_file.seek(self.gui_params.img_start_offset)
-        data_size: int = self.gui_params.img_end_offset - self.gui_params.img_start_offset
-        self.encoded_image_data = img_file.read(data_size)
+        if not self.is_data_loaded_from_file:
+            logger.info("Reading image data from file")
+            img_file = open(self.gui_params.img_file_path, "rb")
+            self.loaded_image_data = img_file.read()
+            self.encoded_image_data = self.loaded_image_data
+            self.is_data_loaded_from_file = True
+        else:
+            self.encoded_image_data = self.loaded_image_data[self.gui_params.img_start_offset: self.gui_params.img_end_offset]
+
         return True
 
     def get_image_format_from_str(self, pixel_format: str) -> ImageFormats:
