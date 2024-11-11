@@ -1,5 +1,5 @@
 center_tk_window==1.0.0
-cx-Freeze==6.15.4
+cx-Freeze==7.2.4
 Pillow==10.1.0
 pre-commit==3.3.3
 pyperclip==1.8.2

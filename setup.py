@@ -14,7 +14,7 @@ executables = [
         "src/main.py",
         copyright="Copyright (C) 2024 Bartlomiej Duda",
         base=base,
-        icon="src/data/img/icon.ico",
+        icon="src/data/img/heat_icon.ico",
         target_name="ImageHeat-" + VERSION_NUM + ".exe",
     )
 ]
@@ -30,7 +30,7 @@ build_exe_options: dict = {
 options: dict = {"build_exe": build_exe_options}
 
 setup(
-    name="Imageheat " + VERSION_NUM,
+    name="ImageHeat " + VERSION_NUM,
     version=VERSION_NUM[1:],
     description="Tool for viewing graphics from games",
     options=options,
