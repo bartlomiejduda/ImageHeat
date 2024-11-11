@@ -22,11 +22,16 @@ There is also support for texture unswizzlig for popular platforms like PSP, PS2
 
 # Building on Windows
 
-1. Install  **[Python 3.11.6](https://www.python.org/downloads/release/python-3116/)**
-2. Install **[PyCharm 2023 (Community Edition)](https://www.jetbrains.com/pycharm/download/other.html)**
-3. Create virtualenv and activate it
-   - python3 -m venv \path\to\new\virtual\environment
-   - .\venv\Scripts\activate.bat
-4. Install all libraries from requirements.txt
-   - pip3 install -r requirements.txt
-5. Run the src\main.py file
+1. Download and install  **[Python 3.11.6](https://www.python.org/downloads/release/python-3116/)**. Remember to add Python to PATH during installation
+2. Download project's source code and save it in "ImageHeat-master" directory
+3. Go to the directory containing source code
+   - ```cd ImageHeat-master```
+4. Create virtualenv and activate it
+   - ```python -m venv my_env```
+   - ```.\my_env\Scripts\activate.bat```
+5. Install all libraries from requirements.txt file
+   - ```pip install -r requirements.txt```
+6. Add project's directory to PYTHONPATH environment variable
+   - ```set PYTHONPATH=C:\Users\user\Desktop\ImageHeat-master```
+7. Run the src\main.py file
+   - ```python src\main.py```
