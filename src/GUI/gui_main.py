@@ -5,6 +5,7 @@ License: GPL-3.0 License
 import math
 import os
 import sys
+import time
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 from typing import Optional
@@ -15,7 +16,11 @@ from tkhtmlview import HTMLLabel
 
 from src.GUI.about_window import AboutWindow
 from src.GUI.gui_params import GuiParams
-from src.Image.constants import PIXEL_FORMATS_NAMES, SWIZZLING_TYPES_NAMES
+from src.Image.constants import (
+    DEFAULT_PIXEL_FORMAT_NAME,
+    PIXEL_FORMATS_NAMES,
+    SWIZZLING_TYPES_NAMES,
+)
 from src.Image.heatimage import HeatImage
 
 # default app settings
@@ -169,7 +174,7 @@ class ImageHeatGUI:
                                                   values=PIXEL_FORMATS_NAMES, font=self.gui_font, state='readonly')
         self.pixel_format_combobox.bind("<<ComboboxSelected>>", reload_image_callback)
         self.pixel_format_combobox.place(x=5, y=115, width=135, height=20)
-        self.pixel_format_combobox.set(PIXEL_FORMATS_NAMES[0])
+        self.pixel_format_combobox.set(DEFAULT_PIXEL_FORMAT_NAME)
 
         def _get_previous_pixel_format_by_key(event):
             selection = self.pixel_format_combobox.current()
@@ -358,18 +363,24 @@ class ImageHeatGUI:
         self.gui_params.img_end_offset = self.get_spinbox_value(self.img_end_offset_spinbox)
         return True
 
-    def calculate_image_dimensions(self) -> tuple:
+    def _calculate_image_dimensions_at_file_open(self) -> tuple:
         number_of_pixels: int = self.gui_params.total_file_size // 4
         pixel_sqrt: int = int(math.floor(math.sqrt(number_of_pixels)))
         return pixel_sqrt, pixel_sqrt
 
+    def _calculate_end_offset_at_file_open(self, file_size: int) -> int:
+        MAX_END_OFFSET: int = 5242880  # 5 MB
+        if file_size > MAX_END_OFFSET:
+            return MAX_END_OFFSET
+        return file_size
+
     def set_gui_elements_at_file_open(self) -> bool:
-        self.pixel_format_combobox.set(PIXEL_FORMATS_NAMES[0])  # RGBA8888
-        img_width, img_height = self.calculate_image_dimensions()
+        self.pixel_format_combobox.set(DEFAULT_PIXEL_FORMAT_NAME)
+        img_width, img_height = self._calculate_image_dimensions_at_file_open()
         self.current_width.set(img_width)
         self.current_height.set(img_height)
         self.current_start_offset.set("0")
-        self.current_end_offset.set(str(self.gui_params.total_file_size))
+        self.current_end_offset.set(str(self._calculate_end_offset_at_file_open(self.gui_params.total_file_size)))
         self.img_end_offset_spinbox.config(to=self.gui_params.total_file_size)  # set max value for end offset
 
         # info labels
@@ -473,11 +484,15 @@ class ImageHeatGUI:
         return True
 
     def execute_image_preview_logic(self) -> bool:
+        logger.info("Init image preview...")
+        start_time = time.time()
+        preview_data_size: int = int(self.gui_params.img_width) * int(self.gui_params.img_height) * 4
+        preview_data: bytes = self.opened_image.decoded_image_data[:preview_data_size]
         try:
             pil_img = Image.frombuffer(
                 "RGBA",
                 (int(self.gui_params.img_width), int(self.gui_params.img_height)),
-                self.opened_image.decoded_image_data,
+                preview_data,
                 "raw",
                 "RGBA",
                 0,
@@ -515,6 +530,8 @@ class ImageHeatGUI:
 
         self.preview_instance.bind('<Motion>', _mouse_motion)
 
+        execution_time = time.time() - start_time
+        logger.info(f"Image preview for pixel_format={self.gui_params.pixel_format} finished successfully. Time: {round(execution_time, 2)} seconds.")
         return True
 
 # fmt: on

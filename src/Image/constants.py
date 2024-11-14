@@ -56,4 +56,5 @@ def get_swizzling_id(swizzling_name: str) -> str:
 check_swizzling_codes()
 
 PIXEL_FORMATS_NAMES: list = [pixel_format.format_name for pixel_format in SUPPORTED_PIXEL_FORMATS]
+DEFAULT_PIXEL_FORMAT_NAME = "RGB565"
 SWIZZLING_TYPES_NAMES: list = [swizzling_type.display_name for swizzling_type in SUPPORTED_SWIZZLING_TYPES]

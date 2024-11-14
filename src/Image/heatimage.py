@@ -2,6 +2,7 @@
 Copyright © 2024  Bartłomiej Duda
 License: GPL-3.0 License
 """
+import time
 from typing import Optional
 
 from reversebox.common.logger import get_logger
@@ -34,7 +35,7 @@ class HeatImage:
         self.is_preview_error: bool = False
         self.is_data_loaded_from_file: bool = False
 
-    def image_read(self) -> bool:
+    def _image_read(self) -> bool:
         if not self.is_data_loaded_from_file:
             logger.info("Reading image data from file")
             img_file = open(self.gui_params.img_file_path, "rb")
@@ -46,17 +47,17 @@ class HeatImage:
 
         return True
 
-    def get_image_format_from_str(self, pixel_format: str) -> ImageFormats:
+    def _get_image_format_from_str(self, pixel_format: str) -> ImageFormats:
         return ImageFormats[pixel_format]
 
-    def image_decode(self) -> bool:
+    def _image_decode(self) -> bool:
         logger.info("Image decode start...")
         if self.gui_params.pixel_format not in PIXEL_FORMATS_NAMES:
             logger.error("[1] Not supported pixel format!")
             self.is_preview_error = True
 
         image_decoder = ImageDecoder()
-        image_format: ImageFormats = self.get_image_format_from_str(self.gui_params.pixel_format)
+        image_format: ImageFormats = self._get_image_format_from_str(self.gui_params.pixel_format)
 
         # unswizzling logic
         swizzling_id = get_swizzling_id(self.gui_params.swizzling_type)
@@ -180,8 +181,10 @@ class HeatImage:
 
     def image_reload(self) -> bool:
         logger.info("Image reload start")
+        start_time = time.time()
         self.is_preview_error = False
-        self.image_read()
-        self.image_decode()
-        logger.info("Image reload finished successfully")
+        self._image_read()
+        self._image_decode()
+        execution_time = time.time() - start_time
+        logger.info(f"Image reload for pixel_format={self.gui_params.pixel_format} finished successfully. Time: {round(execution_time, 2)} seconds.")
         return True

@@ -13,11 +13,11 @@ from reversebox.common.logger import get_logger
 
 from src.GUI.gui_main import ImageHeatGUI
 
-VERSION_NUM = "v0.3.2"
+VERSION_NUM = "v0.3.3"
 
 logger = get_logger("main")
 
-MAIN_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
+MAIN_DIRECTORY = os.getcwd()
 
 
 def main():
