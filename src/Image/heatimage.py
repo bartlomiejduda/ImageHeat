@@ -17,6 +17,7 @@ from reversebox.image.swizzling.swizzle_morton_dreamcast import (
 from reversebox.image.swizzling.swizzle_morton_ps4 import unswizzle_ps4
 from reversebox.image.swizzling.swizzle_ps2 import unswizzle_ps2, unswizzle_ps2_ea_4bit
 from reversebox.image.swizzling.swizzle_psp import unswizzle_psp
+from reversebox.image.swizzling.swizzle_x360 import unswizzle_x360
 
 from src.GUI.gui_params import GuiParams
 from src.Image.constants import PIXEL_FORMATS_NAMES, get_swizzling_id
@@ -78,6 +79,8 @@ class HeatImage:
             self.encoded_image_data = unswizzle_morton_dreamcast(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_bpp)
         elif swizzling_id == "ps4":
             self.encoded_image_data = unswizzle_ps4(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_bpp)
+        elif swizzling_id == "x360":
+            self.encoded_image_data = unswizzle_x360(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_bpp)
         elif swizzling_id == "ps2":
             self.encoded_image_data = unswizzle_ps2(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_bpp)
         elif swizzling_id == "ps2_ea_4bit":
