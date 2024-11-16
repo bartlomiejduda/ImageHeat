@@ -1,10 +1,8 @@
 center_tk_window==1.0.0
-cx-Freeze==7.2.4
-Pillow==10.1.0
-pre-commit==3.3.3
-pyperclip==1.8.2
-pytest==7.0.1
-pytz==2022.1
-rawutil==2.7.4
+cx-Freeze==7.2.5
+Pillow==11.0.0
+pre-commit==4.0.1
+pytest==8.3.3
+rawutil==2.8.1
 ReverseBox>=0.18.5
 tkhtmlview==0.3.1

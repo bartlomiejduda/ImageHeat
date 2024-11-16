@@ -2,6 +2,7 @@
 Copyright © 2024  Bartłomiej Duda
 License: GPL-3.0 License
 """
+
 import math
 import os
 import sys

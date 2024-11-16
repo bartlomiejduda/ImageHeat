@@ -2,6 +2,7 @@
 Copyright © 2024  Bartłomiej Duda
 License: GPL-3.0 License
 """
+
 from typing import Optional
 
 
