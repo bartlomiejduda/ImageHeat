@@ -109,6 +109,7 @@ class HeatImage:
                             ImageFormats.RGBA5551,
                             ImageFormats.ARGB4444,
                             ImageFormats.RGBA4444,
+                            ImageFormats.ABGR4444,
                             ImageFormats.RGBX4444,
                             ImageFormats.BGRX4444,
                             ImageFormats.XRGB1555,
