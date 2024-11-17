@@ -12,7 +12,9 @@ from tkinter import filedialog, messagebox, ttk
 from typing import Optional
 
 from PIL import Image, ImageTk
+from reversebox.common.common import get_file_extension_uppercase
 from reversebox.common.logger import get_logger
+from reversebox.image.pillow_wrapper import PillowWrapper
 from tkhtmlview import HTMLLabel
 
 from src.GUI.about_window import AboutWindow
@@ -314,6 +316,13 @@ class ImageHeatGUI:
             accelerator="Ctrl+O",
         )
         master.bind_all("<Control-o>", lambda x: self.open_file())
+
+        self.export_label: str = "Save As..."
+        self.filemenu.add_command(
+            label=self.export_label, command=lambda: self.export_image_file()
+        )
+        self.filemenu.entryconfig(self.export_label, state="disabled")
+
         self.filemenu.add_separator()
         self.filemenu.add_command(
             label="Quit", command=lambda: self.quit_program(), accelerator="Ctrl+Q"
@@ -432,7 +441,46 @@ class ImageHeatGUI:
         self.opened_image.image_reload()
         self.init_image_preview_logic()
 
+        # menu bar logic
+        self.filemenu.entryconfig(self.export_label, state="normal")
+
         logger.info("Image has been opened successfully")
+        return True
+
+    def export_image_file(self) -> bool:
+        if self.opened_image:
+            out_file = None
+            try:
+                out_file = filedialog.asksaveasfile(
+                    mode="wb",
+                    defaultextension=".dds",
+                    initialfile="exported_image",
+                    filetypes=(("DDS files", "*.dds"), ("PNG files", "*.png"), ("BMP files", "*.bmp")),
+                )
+            except Exception as error:
+                logger.error(f"Error: {error}")
+                messagebox.showwarning("Warning", "Failed to save file!")
+            if out_file is None:
+                return False  # user closed file dialog on purpose
+
+            # pack converted RGBA data
+            file_extension: str = get_file_extension_uppercase(out_file.name)
+            pillow_wrapper = PillowWrapper()
+            out_data = pillow_wrapper.get_pil_image_file_data_for_export(
+                self.opened_image.decoded_image_data, self.gui_params.img_width, self.gui_params.img_height, pillow_format=file_extension
+            )
+            if not out_data:
+                logger.error("Empty data to export!")
+                messagebox.showwarning("Warning", "Empty image data! Export not possible!")
+                return False
+
+            out_file.write(out_data)
+            out_file.close()
+            messagebox.showinfo("Info", "File saved successfully!")
+            logger.info(f"Image has been exported successfully to {out_file.name}")
+        else:
+            logger.info("Image is not opened yet...")
+
         return True
 
     def show_about_window(self):
