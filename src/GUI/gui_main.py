@@ -21,6 +21,7 @@ from src.GUI.about_window import AboutWindow
 from src.GUI.gui_params import GuiParams
 from src.Image.constants import (
     DEFAULT_PIXEL_FORMAT_NAME,
+    ENDIANESS_TYPES_NAMES,
     PIXEL_FORMATS_NAMES,
     SWIZZLING_TYPES_NAMES,
 )
@@ -67,7 +68,7 @@ class ImageHeatGUI:
         # IMAGE PARAMETERS BOX #
         ########################
         self.parameters_labelframe = tk.LabelFrame(self.main_frame, text="Image Parameters", font=self.gui_font)
-        self.parameters_labelframe.place(x=5, y=5, width=160, height=210)
+        self.parameters_labelframe.place(x=5, y=5, width=160, height=260)
 
         ###################################
         # IMAGE PARAMETERS - IMAGE WIDTH  #
@@ -200,17 +201,51 @@ class ImageHeatGUI:
         self.master.bind("<x>", _get_next_pixel_format_by_key)
 
         ####################################
+        # IMAGE PARAMETERS - ENDIANESS     #
+        ####################################
+
+        self.endianess_label = tk.Label(self.parameters_labelframe, text="Endianess Type", anchor="w", font=self.gui_font)
+        self.endianess_label.place(x=5, y=140, width=100, height=20)
+
+        self.current_endianess = tk.StringVar()
+        self.endianess_combobox = ttk.Combobox(self.parameters_labelframe, values=ENDIANESS_TYPES_NAMES, textvariable=self.current_endianess,
+                                               font=self.gui_font, state='readonly')
+        self.endianess_combobox.bind("<<ComboboxSelected>>", reload_image_callback)
+        self.endianess_combobox.place(x=5, y=160, width=135, height=20)
+        self.endianess_combobox.set(ENDIANESS_TYPES_NAMES[0])
+
+        def _get_previous_endianess_type_by_key(event):
+            selection = self.endianess_combobox.current()
+            last = len(self.endianess_combobox['values']) - 1
+            try:
+                self.endianess_combobox.current(selection - 1)
+            except tk.TclError:
+                self.endianess_combobox.current(last)
+            reload_image_callback(event)
+
+        def _get_next_endianess_type_by_key(event):
+            selection = self.endianess_combobox.current()
+            try:
+                self.endianess_combobox.current(selection + 1)
+            except tk.TclError:
+                self.endianess_combobox.current(0)
+            reload_image_callback(event)
+
+        self.master.bind("<q>", _get_previous_endianess_type_by_key)
+        self.master.bind("<w>", _get_next_endianess_type_by_key)
+
+
+        ####################################
         # IMAGE PARAMETERS - SWIZZLING     #
         ####################################
         self.swizzling_label = tk.Label(self.parameters_labelframe, text="Swizzling Type", anchor="w", font=self.gui_font)
-        self.swizzling_label.place(x=5, y=140, width=100, height=20)
-
+        self.swizzling_label.place(x=5, y=185, width=100, height=20)
 
         self.current_swizzling = tk.StringVar()
         self.swizzling_combobox = ttk.Combobox(self.parameters_labelframe,
                                                values=SWIZZLING_TYPES_NAMES, textvariable=self.current_swizzling, font=self.gui_font, state='readonly')
         self.swizzling_combobox.bind("<<ComboboxSelected>>", reload_image_callback)
-        self.swizzling_combobox.place(x=5, y=160, width=135, height=20)
+        self.swizzling_combobox.place(x=5, y=205, width=135, height=20)
         self.swizzling_combobox.set(SWIZZLING_TYPES_NAMES[0])
 
         def _get_previous_swizzling_type_by_key(event):
@@ -266,7 +301,7 @@ class ImageHeatGUI:
         ##########################
 
         self.controls_labelframe = tk.LabelFrame(self.main_frame, text="Controls", font=self.gui_font)
-        self.controls_labelframe.place(x=-200, y=115, width=195, height=170, relx=1)
+        self.controls_labelframe.place(x=-200, y=115, width=195, height=190, relx=1)
 
         self.controls_img_width_label = HTMLLabel(self.controls_labelframe, html=self._get_html_for_infobox_label("Img width -  ", "Left/Right"), wrap=None)
         self.controls_img_width_label.place(x=5, y=5, width=175, height=18)
@@ -283,11 +318,14 @@ class ImageHeatGUI:
         self.controls_pixel_format_label = HTMLLabel(self.controls_labelframe, html=self._get_html_for_infobox_label("Pixel Format -  ", "Z/X"), wrap=None)
         self.controls_pixel_format_label.place(x=5, y=85, width=175, height=18)
 
+        self.controls_endianess_label = HTMLLabel(self.controls_labelframe, html=self._get_html_for_infobox_label("Endianess -  ", "Q/W"), wrap=None)
+        self.controls_endianess_label.place(x=5, y=105, width=175, height=18)
+
         self.controls_swizzling_label = HTMLLabel(self.controls_labelframe, html=self._get_html_for_infobox_label("Swizzling -  ", "A/S"), wrap=None)
-        self.controls_swizzling_label.place(x=5, y=105, width=175, height=18)
+        self.controls_swizzling_label.place(x=5, y=125, width=175, height=18)
 
         self.controls_swizzling_label = HTMLLabel(self.controls_labelframe, html=self._get_html_for_infobox_label("Reload img -  ", "Enter"), wrap=None)
-        self.controls_swizzling_label.place(x=5, y=125, width=175, height=18)
+        self.controls_swizzling_label.place(x=5, y=145, width=175, height=18)
 
 
         ########################
@@ -368,6 +406,7 @@ class ImageHeatGUI:
         self.gui_params.img_height = self.get_spinbox_value(self.height_spinbox)
         self.gui_params.img_width = self.get_spinbox_value(self.width_spinbox)
         self.gui_params.pixel_format = self.pixel_format_combobox.get()
+        self.gui_params.endianess_type = self.endianess_combobox.get()
         self.gui_params.swizzling_type = self.swizzling_combobox.get()
         self.gui_params.img_start_offset = self.get_spinbox_value(self.img_start_offset_spinbox)
         self.gui_params.img_end_offset = self.get_spinbox_value(self.img_end_offset_spinbox)

@@ -9,6 +9,7 @@ from typing import Optional
 class GuiParams:
     def __init__(self):
         self.pixel_format: Optional[str] = None
+        self.endianess_type: Optional[str] = None
         self.swizzling_type: Optional[str] = None
         self.img_start_offset: int = 0
         self.img_end_offset: int = 0

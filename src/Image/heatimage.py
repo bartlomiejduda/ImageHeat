@@ -21,7 +21,7 @@ from reversebox.image.swizzling.swizzle_psp import unswizzle_psp
 from reversebox.image.swizzling.swizzle_x360 import unswizzle_x360
 
 from src.GUI.gui_params import GuiParams
-from src.Image.constants import PIXEL_FORMATS_NAMES, get_swizzling_id
+from src.Image.constants import PIXEL_FORMATS_NAMES, get_endianess_id, get_swizzling_id
 
 logger = get_logger(__name__)
 
@@ -60,6 +60,9 @@ class HeatImage:
 
         image_decoder = ImageDecoder()
         image_format: ImageFormats = self._get_image_format_from_str(self.gui_params.pixel_format)
+
+        # endianess logic
+        endianess_id: str = get_endianess_id(self.gui_params.endianess_type)
 
         # unswizzling logic
         swizzling_id = get_swizzling_id(self.gui_params.swizzling_type)
@@ -139,7 +142,7 @@ class HeatImage:
                             ImageFormats.N64_IA8
                             ):
             self.decoded_image_data = image_decoder.decode_image(
-                self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_format
+                self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_format, endianess_id
             )
         elif image_format in (ImageFormats.N64_RGBA32, ImageFormats.N64_CMPR):
             self.decoded_image_data = image_decoder.decode_n64_image(
