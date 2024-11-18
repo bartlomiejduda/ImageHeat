@@ -10,9 +10,10 @@ All formats supported by **[ReverseBox](https://github.com/bartlomiejduda/Revers
 
 There is also support for texture unswizzlig for popular platforms like PSP, PS2, PS3, PS4, XBOX etc.
 
-<img src="src\data\img\usage.png">
+<img src="src\data\img\usage.gif">
 <img src="src\data\img\usage2.png">
 <img src="src\data\img\usage3.png">
+<img src="src\data\img\usage4.png">
 
 
 # Dependencies

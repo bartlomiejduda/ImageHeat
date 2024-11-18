@@ -12,7 +12,10 @@ from tkinter import filedialog, messagebox, ttk
 from typing import Optional
 
 from PIL import Image, ImageTk
-from reversebox.common.common import get_file_extension_uppercase
+from reversebox.common.common import (
+    convert_from_bytes_to_mb_string,
+    get_file_extension_uppercase,
+)
 from reversebox.common.logger import get_logger
 from reversebox.image.pillow_wrapper import PillowWrapper
 from tkhtmlview import HTMLLabel
@@ -434,7 +437,7 @@ class ImageHeatGUI:
 
         # info labels
         self.file_name_label.set_html(self._get_html_for_infobox_label("File name: ", self.gui_params.img_file_name))
-        self.file_size_label.set_html(self._get_html_for_infobox_label("File size: ", str(self.gui_params.total_file_size)))
+        self.file_size_label.set_html(self._get_html_for_infobox_label("File size: ", str(self.gui_params.total_file_size) + " (" + convert_from_bytes_to_mb_string(self.gui_params.total_file_size) + ")"))
         self.mouse_x_label.set_html(self._get_html_for_infobox_label("Mouse X: ", str(0)))
         self.mouse_y_label.set_html(self._get_html_for_infobox_label("Mouse Y: ", str(0)))
 
