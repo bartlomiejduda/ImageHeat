@@ -1,6 +1,6 @@
 center_tk_window==1.0.0
 cx-Freeze==7.2.5
-Pillow==11.0.0
+Pillow==10.4.0
 pre-commit==4.0.1
 pytest==8.3.3
 rawutil==2.8.1
