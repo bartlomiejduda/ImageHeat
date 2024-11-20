@@ -1,3 +1,4 @@
+import platform
 import tkinter as tk
 import webbrowser
 
@@ -18,7 +19,8 @@ class AboutWindow:
         self.about_window.minsize(ABOUT_WINDOW_WIDTH, ABOUT_WINDOW_HEIGHT)
         self.about_window.maxsize(ABOUT_WINDOW_WIDTH, ABOUT_WINDOW_HEIGHT)
         self.about_window.resizable(False, False)
-        self.about_window.wm_attributes("-toolwindow", "True")  # remove default tkinter icon
+        if platform.uname().system != "Linux":  # linux doesn't support toolwindow option
+            self.about_window.wm_attributes("-toolwindow", "True")  # remove default tkinter icon
         self.about_window.attributes("-topmost", "true")  # about window always on top
 
         self.about_main_frame = tk.Frame(self.about_window, bg="#f0f0f0")

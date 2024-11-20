@@ -13,7 +13,7 @@ from reversebox.common.logger import get_logger
 
 from src.GUI.gui_main import ImageHeatGUI
 
-VERSION_NUM = "v0.4.0"
+VERSION_NUM = "v0.4.1"
 
 logger = get_logger("main")
 
@@ -28,7 +28,7 @@ def main():
 
     logger.info("Starting main...")
 
-    root = tk.Tk()
+    root = tk.Tk(className="ImageHeat")
     ImageHeatGUI(root, VERSION_NUM, MAIN_DIRECTORY)  # start GUI
     root.lift()
     center_tk_window.center_on_screen(root)

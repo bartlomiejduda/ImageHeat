@@ -5,6 +5,7 @@ License: GPL-3.0 License
 
 import math
 import os
+import platform
 import sys
 import time
 import tkinter as tk
@@ -49,7 +50,12 @@ class ImageHeatGUI:
         master.minsize(WINDOW_WIDTH, WINDOW_HEIGHT)
         master.geometry(f"{WINDOW_WIDTH}x{WINDOW_HEIGHT}")
         self.current_dir = os.path.dirname(os.path.abspath(__file__))
-        self.icon_path = self.MAIN_DIRECTORY + "\\data\\img\\heat_icon.ico"
+        if platform.uname().system == "Linux":
+            icon_filename = "heat_icon.png"
+        else:
+            icon_filename = "heat_icon.ico"
+        self.icon_path = os.path.join(self.MAIN_DIRECTORY, "data", "img", icon_filename)
+        self.preview_image_path = os.path.join(self.MAIN_DIRECTORY, "data", "img", "preview_not_supported.png")
         self.gui_font = ('Arial', 8)
         self.opened_image: Optional[HeatImage] = None
         self.gui_params: GuiParams = GuiParams()
@@ -57,7 +63,10 @@ class ImageHeatGUI:
         self.validate_spinbox_command = (master.register(self.validate_spinbox), '%P')
 
         try:
-            self.master.iconbitmap(self.icon_path)
+            if platform.uname().system == "Linux":
+                self.master.iconphoto(False, tk.PhotoImage(file=self.icon_path))
+            else:
+                self.master.iconbitmap(self.icon_path)
         except tk.TclError:
             logger.info("Can't load the icon file from %s", self.icon_path)
 
@@ -495,7 +504,7 @@ class ImageHeatGUI:
             try:
                 out_file = filedialog.asksaveasfile(
                     mode="wb",
-                    defaultextension=".dds",
+                    defaultextension="" if platform.uname().system == "Linux" else ".dds",
                     initialfile="exported_image",
                     filetypes=(("DDS files", "*.dds"), ("PNG files", "*.png"), ("BMP files", "*.bmp")),
                 )
@@ -548,7 +557,7 @@ class ImageHeatGUI:
         return True
 
     def execute_error_preview_logic(self) -> bool:
-        pil_img = Image.open(self.MAIN_DIRECTORY + "\\data\\img\\preview_not_supported.png")
+        pil_img = Image.open(self.preview_image_path)
         pil_img = pil_img.resize((500, 367))
 
         if self.preview_instance:
