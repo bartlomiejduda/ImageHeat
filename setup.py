@@ -8,6 +8,10 @@ base = None
 if sys.platform == "win32":
     base = "Win32GUI"
 
+if sys.platform == "linux":
+    target_name = "ImageHeat-" + VERSION_NUM + ".elf"
+else:
+    target_name = "ImageHeat-" + VERSION_NUM + ".exe"
 
 executables = [
     Executable(
@@ -15,7 +19,7 @@ executables = [
         copyright="Copyright (C) 2024 Bartlomiej Duda",
         base=base,
         icon="src/data/img/heat_icon.ico",
-        target_name="ImageHeat-" + VERSION_NUM + ".exe",
+        target_name=target_name,
     )
 ]
 
