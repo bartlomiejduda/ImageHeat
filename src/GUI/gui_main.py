@@ -13,6 +13,7 @@ from tkinter import filedialog, messagebox, ttk
 from typing import Optional
 
 from PIL import Image, ImageTk
+from PIL.Image import Transpose
 from reversebox.common.common import (
     convert_from_bytes_to_mb_string,
     get_file_extension_uppercase,
@@ -25,9 +26,15 @@ from src.GUI.about_window import AboutWindow
 from src.GUI.gui_params import GuiParams
 from src.Image.constants import (
     DEFAULT_PIXEL_FORMAT_NAME,
+    DEFAULT_ROTATE_NAME,
+    DEFAULT_ZOOM_NAME,
     ENDIANESS_TYPES_NAMES,
     PIXEL_FORMATS_NAMES,
+    ROTATE_TYPES_NAMES,
     SWIZZLING_TYPES_NAMES,
+    ZOOM_TYPES_NAMES,
+    get_rotate_id,
+    get_zoom_value,
 )
 from src.Image.heatimage import HeatImage
 
@@ -60,6 +67,8 @@ class ImageHeatGUI:
         self.opened_image: Optional[HeatImage] = None
         self.gui_params: GuiParams = GuiParams()
         self.preview_instance = None
+        self.ph_img = None
+        self.preview_final_pil_image = None
         self.validate_spinbox_command = (master.register(self.validate_spinbox), '%P')
 
         try:
@@ -339,6 +348,47 @@ class ImageHeatGUI:
         self.controls_swizzling_label = HTMLLabel(self.controls_labelframe, html=self._get_html_for_infobox_label("Reload img -  ", "Enter"), wrap=None)
         self.controls_swizzling_label.place(x=5, y=145, width=175, height=18)
 
+        ##########################
+        # POST-PROCESSING BOX #
+        ##########################
+
+        self.postprocessing_labelframe = tk.LabelFrame(self.main_frame, text="Post-processing", font=self.gui_font)
+        self.postprocessing_labelframe.place(x=-200, y=305, width=195, height=120, relx=1)
+
+        self.postprocessing_zoom_label = tk.Label(self.postprocessing_labelframe, text="Zoom", anchor="w", font=self.gui_font)
+        self.postprocessing_zoom_label.place(x=5, y=5, width=60, height=20)
+        self.postprocessing_zoom_combobox = ttk.Combobox(self.postprocessing_labelframe,
+                                                         values=ZOOM_TYPES_NAMES, font=self.gui_font, state='readonly')
+        self.postprocessing_zoom_combobox.bind("<<ComboboxSelected>>", reload_image_callback)
+        self.postprocessing_zoom_combobox.place(x=45, y=5, width=70, height=20)
+        self.postprocessing_zoom_combobox.set(DEFAULT_ZOOM_NAME)
+
+        # vertical flip
+        self.postprocessing_vertical_flip_variable = tk.StringVar(value="OFF")
+        self.postprocessing_vertical_flip_checkbutton = tk.Checkbutton(self.postprocessing_labelframe, text="Vertical Flip (Top-Down)",
+                                                                       variable=self.postprocessing_vertical_flip_variable, anchor="w",
+                                                                       onvalue="ON", offvalue="OFF",
+                                                                       command=self.gui_reload_image_on_gui_element_change)
+        self.postprocessing_vertical_flip_checkbutton.place(x=5, y=30, width=150, height=20)
+
+        # horizontal flip
+        self.postprocessing_horizontal_flip_variable = tk.StringVar(value="OFF")
+        self.postprocessing_horizontal_flip_checkbutton = tk.Checkbutton(self.postprocessing_labelframe,
+                                                                         text="Horizontal Flip (Left-Right)",
+                                                                         variable=self.postprocessing_horizontal_flip_variable, anchor="w",
+                                                                         onvalue="ON", offvalue="OFF",
+                                                                         command=self.gui_reload_image_on_gui_element_change)
+        self.postprocessing_horizontal_flip_checkbutton.place(x=5, y=50, width=170, height=20)
+
+        # rotate
+        self.postprocessing_rotate_label = tk.Label(self.postprocessing_labelframe, text="Rotate", anchor="w",
+                                                    font=self.gui_font)
+        self.postprocessing_rotate_label.place(x=5, y=75, width=60, height=20)
+        self.postprocessing_rotate_combobox = ttk.Combobox(self.postprocessing_labelframe,
+                                                           values=ROTATE_TYPES_NAMES, font=self.gui_font, state='readonly')
+        self.postprocessing_rotate_combobox.bind("<<ComboboxSelected>>", reload_image_callback)
+        self.postprocessing_rotate_combobox.place(x=50, y=75, width=110, height=20)
+        self.postprocessing_rotate_combobox.set(DEFAULT_ROTATE_NAME)
 
         ########################
         # IMAGE BOX            #
@@ -414,6 +464,11 @@ class ImageHeatGUI:
         else:
             return int(spinbox.get())
 
+    def checkbox_value_to_bool(self, checkbox_value: str) -> bool:
+        if checkbox_value.upper() == "ON":
+            return True
+        return False
+
     def get_gui_params_from_gui_elements(self) -> bool:
         self.gui_params.img_height = self.get_spinbox_value(self.height_spinbox)
         self.gui_params.img_width = self.get_spinbox_value(self.width_spinbox)
@@ -422,6 +477,13 @@ class ImageHeatGUI:
         self.gui_params.swizzling_type = self.swizzling_combobox.get()
         self.gui_params.img_start_offset = self.get_spinbox_value(self.img_start_offset_spinbox)
         self.gui_params.img_end_offset = self.get_spinbox_value(self.img_end_offset_spinbox)
+
+        # post-processing
+        self.gui_params.zoom_name = self.postprocessing_zoom_combobox.get()
+        self.gui_params.vertical_flip_flag = self.checkbox_value_to_bool(self.postprocessing_vertical_flip_variable.get())
+        self.gui_params.horizontal_flip_flag = self.checkbox_value_to_bool(self.postprocessing_horizontal_flip_variable.get())
+        self.gui_params.rotate_name = self.postprocessing_rotate_combobox.get()
+
         return True
 
     def _calculate_image_dimensions_at_file_open(self) -> tuple:
@@ -449,6 +511,14 @@ class ImageHeatGUI:
         self.file_size_label.set_html(self._get_html_for_infobox_label("File size: ", str(self.gui_params.total_file_size) + " (" + convert_from_bytes_to_mb_string(self.gui_params.total_file_size) + ")"))
         self.mouse_x_label.set_html(self._get_html_for_infobox_label("Mouse X: ", str(0)))
         self.mouse_y_label.set_html(self._get_html_for_infobox_label("Mouse Y: ", str(0)))
+
+        # post-processing
+        self.postprocessing_zoom_combobox.set(DEFAULT_ZOOM_NAME)
+        self.postprocessing_vertical_flip_variable.set("OFF")
+        self.postprocessing_vertical_flip_checkbutton.deselect()
+        self.postprocessing_horizontal_flip_variable.set("OFF")
+        self.postprocessing_horizontal_flip_checkbutton.deselect()
+        self.postprocessing_rotate_combobox.set(DEFAULT_ROTATE_NAME)
 
         return True
 
@@ -517,8 +587,8 @@ class ImageHeatGUI:
             # pack converted RGBA data
             file_extension: str = get_file_extension_uppercase(out_file.name)
             pillow_wrapper = PillowWrapper()
-            out_data = pillow_wrapper.get_pil_image_file_data_for_export(
-                self.opened_image.decoded_image_data, self.gui_params.img_width, self.gui_params.img_height, pillow_format=file_extension
+            out_data = pillow_wrapper.get_pil_image_file_data_for_export2(
+                self.preview_final_pil_image, pillow_format=file_extension
             )
             if not out_data:
                 logger.error("Empty data to export!")
@@ -586,18 +656,54 @@ class ImageHeatGUI:
     def execute_image_preview_logic(self) -> bool:
         logger.info("Init image preview...")
         start_time = time.time()
-        preview_data_size: int = int(self.gui_params.img_width) * int(self.gui_params.img_height) * 4
+        preview_img_width: int = int(self.gui_params.img_width)
+        preview_img_height: int = int(self.gui_params.img_height)
+        preview_data_size: int = preview_img_width * preview_img_height * 4
         preview_data: bytes = self.opened_image.decoded_image_data[:preview_data_size]
+        pil_img = None
+
         try:
-            pil_img = Image.frombuffer(
+            pil_img: Image = Image.frombuffer(
                 "RGBA",
-                (int(self.gui_params.img_width), int(self.gui_params.img_height)),
+                (preview_img_width, preview_img_height),
                 preview_data,
                 "raw",
                 "RGBA",
                 0,
                 1,
             )
+
+            # post-processing logic start
+            # zoom
+            zoom_value: float = get_zoom_value(self.gui_params.zoom_name)
+            preview_img_width = int(zoom_value * preview_img_width)
+            preview_img_height = int(zoom_value * preview_img_height)
+            pil_img = pil_img.resize((preview_img_width, preview_img_height))
+
+            # flipping
+            if self.gui_params.vertical_flip_flag:
+                pil_img = pil_img.transpose(Transpose.FLIP_TOP_BOTTOM)
+            if self.gui_params.horizontal_flip_flag:
+                pil_img = pil_img.transpose(Transpose.FLIP_LEFT_RIGHT)
+
+            # rotating
+            rotate_id = get_rotate_id(self.gui_params.rotate_name)
+            if rotate_id == "none":
+                pass
+            elif rotate_id == "rotate_90_left":
+                temp_width = preview_img_width
+                preview_img_width = preview_img_height
+                preview_img_height = temp_width
+                pil_img = pil_img.transpose(Transpose.ROTATE_90)
+            elif rotate_id == "rotate_90_right":
+                temp_width = preview_img_width
+                preview_img_width = preview_img_height
+                preview_img_height = temp_width
+                pil_img = pil_img.transpose(Transpose.ROTATE_270)
+            elif rotate_id == "rotate_180":
+                pil_img = pil_img.transpose(Transpose.ROTATE_180)
+            else:
+                logger.warning(f"Not supported rotate type selected! Rotate_id: {rotate_id}")
 
             self.ph_img = ImageTk.PhotoImage(pil_img)
 
@@ -607,14 +713,14 @@ class ImageHeatGUI:
             self.preview_instance = tk.Canvas(
                 self.image_preview_canvasframe,
                 bg="#595959",
-                width=self.gui_params.img_width,
-                height=self.gui_params.img_height,
+                width=preview_img_width,
+                height=preview_img_height,
                 highlightthickness=0
             )
 
             self.preview_instance.create_image(
-                int(self.gui_params.img_width),
-                int(self.gui_params.img_height),
+                preview_img_width,
+                preview_img_height,
                 anchor="se",
                 image=self.ph_img,
             )
@@ -629,6 +735,9 @@ class ImageHeatGUI:
             self.mouse_y_label.set_html(self._get_html_for_infobox_label("Mouse Y: ", str(y)))
 
         self.preview_instance.bind('<Motion>', _mouse_motion)
+
+        # assign final preview values
+        self.preview_final_pil_image = pil_img
 
         execution_time = time.time() - start_time
         logger.info(f"Image preview for pixel_format={self.gui_params.pixel_format} finished successfully. Time: {round(execution_time, 2)} seconds.")

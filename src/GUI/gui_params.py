@@ -5,6 +5,8 @@ License: GPL-3.0 License
 
 from typing import Optional
 
+from src.Image.constants import DEFAULT_ROTATE_NAME, DEFAULT_ZOOM_NAME
+
 
 class GuiParams:
     def __init__(self):
@@ -18,3 +20,9 @@ class GuiParams:
         self.img_height: Optional[int] = None
         self.img_file_path: Optional[str] = None
         self.img_file_name: Optional[str] = None
+
+        # post-processing
+        self.zoom_name: str = DEFAULT_ZOOM_NAME
+        self.vertical_flip_flag: bool = False
+        self.horizontal_flip_flag: bool = False
+        self.rotate_name: str = DEFAULT_ROTATE_NAME
