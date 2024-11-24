@@ -289,6 +289,78 @@ class ImageHeatGUI:
         self.master.bind("<a>", _get_previous_swizzling_type_by_key)
         self.master.bind("<s>", _get_next_swizzling_type_by_key)
 
+
+
+        ###########################
+        # PALETTE PARAMETERS BOX  #
+        ###########################
+        self.palette_parameters_labelframe = tk.LabelFrame(self.main_frame, text="Palette Parameters", font=self.gui_font)
+        self.palette_parameters_labelframe.place(x=5, y=265, width=160, height=120)
+
+
+        ########################################
+        # PALETTE PARAMETERS BOX  - LOAD FROM  #
+        ########################################
+        self.palette_load_from_label = tk.Label(self.palette_parameters_labelframe, text="Load From", anchor="w", font=self.gui_font)
+        self.palette_load_from_label.place(x=5, y=0, width=60, height=20)
+
+        self.palette_load_from_variable = tk.IntVar(value=1)
+
+        def palette_load_from_set_config() -> bool:
+            print("AAAAAA: " + str(self.palette_load_from_variable.get()))
+            return True
+
+        def palette_click_palfile_button() -> bool:
+            print("BBBB")
+            return True
+
+        self.palette_load_from_same_file_radio_button = tk.Radiobutton(self.palette_parameters_labelframe,
+                                                                       text="Same File", variable=self.palette_load_from_variable,
+                                                                       value=1, command=palette_load_from_set_config,
+                                                                       anchor="w", font=self.gui_font)
+        self.palette_load_from_same_file_radio_button.place(x=65, y=0, width=90, height=20)
+        self.palette_load_from_same_file_radio_button.select()
+
+        self.palette_load_from_another_file_radio_button = tk.Radiobutton(self.palette_parameters_labelframe,
+                                                                          text="Another File",
+                                                                          variable=self.palette_load_from_variable,
+                                                                          value=2, command=palette_load_from_set_config,
+                                                                          anchor="w", font=self.gui_font)
+        self.palette_load_from_another_file_radio_button.place(x=65, y=15, width=90, height=20)
+
+        self.palette_palfile_label = tk.Label(self.palette_parameters_labelframe, text="Palette File", anchor="w",
+                                              font=self.gui_font)
+        self.palette_palfile_label.place(x=5, y=35, width=60, height=20)
+
+        self.palette_palfile_button = tk.Button(self.palette_parameters_labelframe, text="Browse...", command=palette_click_palfile_button)
+        self.palette_palfile_button.place(x=70, y=35, width=80, height=20)
+
+        ###########################################
+        # PALETTE PARAMETERS BOX  - PAL OFFSET  #
+        ###########################################
+
+        self.palette_paloffset_label = tk.Label(self.palette_parameters_labelframe, text="Pal. Offset", anchor="w",
+                                                font=self.gui_font)
+        self.palette_paloffset_label.place(x=5, y=60, width=60, height=20)
+
+        self.palette_current_paloffset = tk.StringVar(value="0")
+        self.palette_paloffset_spinbox = tk.Spinbox(self.palette_parameters_labelframe, textvariable=self.palette_current_paloffset, from_=0, to=sys.maxsize,
+                                                    command=self.gui_reload_image_on_gui_element_change)
+        self.palette_paloffset_spinbox.place(x=75, y=60, width=70, height=20)
+        self.palette_paloffset_spinbox.configure(validate="key", validatecommand=self.validate_spinbox_command)
+
+        ###########################################
+        # PALETTE PARAMETERS BOX  - PS2 SWIZZLE   #
+        ###########################################
+
+        self.palette_ps2swizzle_variable = tk.StringVar(value="OFF")
+        self.palette_ps2swizzle_checkbutton = tk.Checkbutton(self.palette_parameters_labelframe,
+                                                             text="PS2 Palette Swizzle",
+                                                             variable=self.palette_ps2swizzle_variable,
+                                                             anchor="w", onvalue="ON", offvalue="OFF",
+                                                             font=self.gui_font, command=self.gui_reload_image_on_gui_element_change)
+        self.palette_ps2swizzle_checkbutton.place(x=5, y=80, width=140, height=20)
+
         ##########################
         # FORCE RELOAD #
         ##########################
@@ -367,7 +439,7 @@ class ImageHeatGUI:
         self.postprocessing_vertical_flip_variable = tk.StringVar(value="OFF")
         self.postprocessing_vertical_flip_checkbutton = tk.Checkbutton(self.postprocessing_labelframe, text="Vertical Flip (Top-Down)",
                                                                        variable=self.postprocessing_vertical_flip_variable, anchor="w",
-                                                                       onvalue="ON", offvalue="OFF",
+                                                                       onvalue="ON", offvalue="OFF", font=self.gui_font,
                                                                        command=self.gui_reload_image_on_gui_element_change)
         self.postprocessing_vertical_flip_checkbutton.place(x=5, y=30, width=150, height=20)
 
@@ -376,7 +448,7 @@ class ImageHeatGUI:
         self.postprocessing_horizontal_flip_checkbutton = tk.Checkbutton(self.postprocessing_labelframe,
                                                                          text="Horizontal Flip (Left-Right)",
                                                                          variable=self.postprocessing_horizontal_flip_variable, anchor="w",
-                                                                         onvalue="ON", offvalue="OFF",
+                                                                         onvalue="ON", offvalue="OFF", font=self.gui_font,
                                                                          command=self.gui_reload_image_on_gui_element_change)
         self.postprocessing_horizontal_flip_checkbutton.place(x=5, y=50, width=170, height=20)
 
