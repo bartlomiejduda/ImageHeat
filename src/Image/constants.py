@@ -129,6 +129,7 @@ SWIZZLING_TYPES_NAMES: list = [swizzling_type.display_name for swizzling_type in
 ENDIANESS_TYPES_NAMES: list = [endianess_type.display_name for endianess_type in SUPPORTED_ENDIANESS_TYPES]
 ZOOM_TYPES_NAMES: list = [zoom_type.display_name for zoom_type in SUPPORTED_ZOOM_TYPES]
 ROTATE_TYPES_NAMES: list = [rotate_type.display_name for rotate_type in SUPPORTED_ROTATE_TYPES]
+PALETTE_FORMATS_NAMES: list = ["pal", "gst"]
 
 DEFAULT_PIXEL_FORMAT_NAME: str = "RGB565"
 DEFAULT_ZOOM_NAME: str = "1x"

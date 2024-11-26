@@ -42,6 +42,7 @@ class HeatImage:
             logger.info("Reading image data from file")
             img_file = open(self.gui_params.img_file_path, "rb")
             self.loaded_image_data = img_file.read()
+            img_file.close()
             self.encoded_image_data = self.loaded_image_data
             self.is_data_loaded_from_file = True
         else:

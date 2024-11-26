@@ -10,6 +10,7 @@ from src.Image.constants import DEFAULT_ROTATE_NAME, DEFAULT_ZOOM_NAME
 
 class GuiParams:
     def __init__(self):
+        # image parameters
         self.pixel_format: Optional[str] = None
         self.endianess_type: Optional[str] = None
         self.swizzling_type: Optional[str] = None
@@ -20,6 +21,13 @@ class GuiParams:
         self.img_height: Optional[int] = None
         self.img_file_path: Optional[str] = None
         self.img_file_name: Optional[str] = None
+
+        # palette parameters
+        self.palette_loadfrom_value: Optional[int] = None
+        self.palette_file_path: Optional[str] = None
+        self.palette_offset: Optional[int] = None
+        self.palette_endianess: Optional[str] = None
+        self.palette_ps2_swizzle_flag: Optional[bool] = None
 
         # post-processing
         self.zoom_name: str = DEFAULT_ZOOM_NAME

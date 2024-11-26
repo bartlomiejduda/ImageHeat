@@ -29,6 +29,7 @@ from src.Image.constants import (
     DEFAULT_ROTATE_NAME,
     DEFAULT_ZOOM_NAME,
     ENDIANESS_TYPES_NAMES,
+    PALETTE_FORMATS_NAMES,
     PIXEL_FORMATS_NAMES,
     ROTATE_TYPES_NAMES,
     SWIZZLING_TYPES_NAMES,
@@ -191,13 +192,9 @@ class ImageHeatGUI:
         self.pixel_format_label = tk.Label(self.parameters_labelframe, text="Pixel Format", anchor="w", font=self.gui_font)
         self.pixel_format_label.place(x=5, y=95, width=60, height=20)
 
-        def reload_image_callback(event):
-            self.gui_reload_image_on_gui_element_change()
-            self.master.focus()
-
         self.pixel_format_combobox = ttk.Combobox(self.parameters_labelframe,
                                                   values=PIXEL_FORMATS_NAMES, font=self.gui_font, state='readonly')
-        self.pixel_format_combobox.bind("<<ComboboxSelected>>", reload_image_callback)
+        self.pixel_format_combobox.bind("<<ComboboxSelected>>", self.reload_image_callback)
         self.pixel_format_combobox.place(x=5, y=115, width=135, height=20)
         self.pixel_format_combobox.set(DEFAULT_PIXEL_FORMAT_NAME)
 
@@ -208,7 +205,7 @@ class ImageHeatGUI:
                 self.pixel_format_combobox.current(selection - 1)
             except tk.TclError:
                 self.pixel_format_combobox.current(last)
-            reload_image_callback(event)
+            self.reload_image_callback(event)
 
         def _get_next_pixel_format_by_key(event):
             selection = self.pixel_format_combobox.current()
@@ -216,7 +213,7 @@ class ImageHeatGUI:
                 self.pixel_format_combobox.current(selection + 1)
             except tk.TclError:
                 self.pixel_format_combobox.current(0)
-            reload_image_callback(event)
+            self.reload_image_callback(event)
 
         self.master.bind("<z>", _get_previous_pixel_format_by_key)
         self.master.bind("<x>", _get_next_pixel_format_by_key)
@@ -231,7 +228,7 @@ class ImageHeatGUI:
         self.current_endianess = tk.StringVar()
         self.endianess_combobox = ttk.Combobox(self.parameters_labelframe, values=ENDIANESS_TYPES_NAMES, textvariable=self.current_endianess,
                                                font=self.gui_font, state='readonly')
-        self.endianess_combobox.bind("<<ComboboxSelected>>", reload_image_callback)
+        self.endianess_combobox.bind("<<ComboboxSelected>>", self.reload_image_callback)
         self.endianess_combobox.place(x=5, y=160, width=135, height=20)
         self.endianess_combobox.set(ENDIANESS_TYPES_NAMES[0])
 
@@ -242,7 +239,7 @@ class ImageHeatGUI:
                 self.endianess_combobox.current(selection - 1)
             except tk.TclError:
                 self.endianess_combobox.current(last)
-            reload_image_callback(event)
+            self.reload_image_callback(event)
 
         def _get_next_endianess_type_by_key(event):
             selection = self.endianess_combobox.current()
@@ -250,7 +247,7 @@ class ImageHeatGUI:
                 self.endianess_combobox.current(selection + 1)
             except tk.TclError:
                 self.endianess_combobox.current(0)
-            reload_image_callback(event)
+            self.reload_image_callback(event)
 
         self.master.bind("<q>", _get_previous_endianess_type_by_key)
         self.master.bind("<w>", _get_next_endianess_type_by_key)
@@ -265,7 +262,7 @@ class ImageHeatGUI:
         self.current_swizzling = tk.StringVar()
         self.swizzling_combobox = ttk.Combobox(self.parameters_labelframe,
                                                values=SWIZZLING_TYPES_NAMES, textvariable=self.current_swizzling, font=self.gui_font, state='readonly')
-        self.swizzling_combobox.bind("<<ComboboxSelected>>", reload_image_callback)
+        self.swizzling_combobox.bind("<<ComboboxSelected>>", self.reload_image_callback)
         self.swizzling_combobox.place(x=5, y=205, width=135, height=20)
         self.swizzling_combobox.set(SWIZZLING_TYPES_NAMES[0])
 
@@ -276,7 +273,7 @@ class ImageHeatGUI:
                 self.swizzling_combobox.current(selection - 1)
             except tk.TclError:
                 self.swizzling_combobox.current(last)
-            reload_image_callback(event)
+            self.reload_image_callback(event)
 
         def _get_next_swizzling_type_by_key(event):
             selection = self.swizzling_combobox.current()
@@ -284,7 +281,7 @@ class ImageHeatGUI:
                 self.swizzling_combobox.current(selection + 1)
             except tk.TclError:
                 self.swizzling_combobox.current(0)
-            reload_image_callback(event)
+            self.reload_image_callback(event)
 
         self.master.bind("<a>", _get_previous_swizzling_type_by_key)
         self.master.bind("<s>", _get_next_swizzling_type_by_key)
@@ -295,7 +292,7 @@ class ImageHeatGUI:
         # PALETTE PARAMETERS BOX  #
         ###########################
         self.palette_parameters_labelframe = tk.LabelFrame(self.main_frame, text="Palette Parameters", font=self.gui_font)
-        self.palette_parameters_labelframe.place(x=5, y=265, width=160, height=120)
+        self.palette_parameters_labelframe.place(x=5, y=265, width=160, height=180)
 
 
         ########################################
@@ -306,17 +303,9 @@ class ImageHeatGUI:
 
         self.palette_load_from_variable = tk.IntVar(value=1)
 
-        def palette_load_from_set_config() -> bool:
-            print("AAAAAA: " + str(self.palette_load_from_variable.get()))
-            return True
-
-        def palette_click_palfile_button() -> bool:
-            print("BBBB")
-            return True
-
         self.palette_load_from_same_file_radio_button = tk.Radiobutton(self.palette_parameters_labelframe,
                                                                        text="Same File", variable=self.palette_load_from_variable,
-                                                                       value=1, command=palette_load_from_set_config,
+                                                                       value=1, command=self.gui_reload_image_on_gui_element_change,
                                                                        anchor="w", font=self.gui_font)
         self.palette_load_from_same_file_radio_button.place(x=65, y=0, width=90, height=20)
         self.palette_load_from_same_file_radio_button.select()
@@ -324,16 +313,17 @@ class ImageHeatGUI:
         self.palette_load_from_another_file_radio_button = tk.Radiobutton(self.palette_parameters_labelframe,
                                                                           text="Another File",
                                                                           variable=self.palette_load_from_variable,
-                                                                          value=2, command=palette_load_from_set_config,
+                                                                          value=2, command=self.gui_reload_image_on_gui_element_change,
                                                                           anchor="w", font=self.gui_font)
         self.palette_load_from_another_file_radio_button.place(x=65, y=15, width=90, height=20)
 
         self.palette_palfile_label = tk.Label(self.palette_parameters_labelframe, text="Palette File", anchor="w",
                                               font=self.gui_font)
-        self.palette_palfile_label.place(x=5, y=35, width=60, height=20)
+        self.palette_palfile_label.place(x=5, y=40, width=60, height=20)
 
-        self.palette_palfile_button = tk.Button(self.palette_parameters_labelframe, text="Browse...", command=palette_click_palfile_button)
-        self.palette_palfile_button.place(x=70, y=35, width=80, height=20)
+        self.palette_palfile_button = tk.Button(self.palette_parameters_labelframe, text="Browse...",
+                                                command=self.open_palette_file, font=self.gui_font)
+        self.palette_palfile_button.place(x=70, y=40, width=80, height=20)
 
         ###########################################
         # PALETTE PARAMETERS BOX  - PAL OFFSET  #
@@ -341,13 +331,27 @@ class ImageHeatGUI:
 
         self.palette_paloffset_label = tk.Label(self.palette_parameters_labelframe, text="Pal. Offset", anchor="w",
                                                 font=self.gui_font)
-        self.palette_paloffset_label.place(x=5, y=60, width=60, height=20)
+        self.palette_paloffset_label.place(x=5, y=70, width=60, height=20)
 
         self.palette_current_paloffset = tk.StringVar(value="0")
         self.palette_paloffset_spinbox = tk.Spinbox(self.palette_parameters_labelframe, textvariable=self.palette_current_paloffset, from_=0, to=sys.maxsize,
                                                     command=self.gui_reload_image_on_gui_element_change)
-        self.palette_paloffset_spinbox.place(x=75, y=60, width=70, height=20)
+        self.palette_paloffset_spinbox.place(x=75, y=70, width=70, height=20)
         self.palette_paloffset_spinbox.configure(validate="key", validatecommand=self.validate_spinbox_command)
+
+        #################################################
+        # PALETTE PARAMETERS BOX  - PALETTE ENDIANESS   #
+        #################################################
+
+        self.palette_endianess_label = tk.Label(self.palette_parameters_labelframe, text="Palette Endianess", anchor="w", font=self.gui_font)
+        self.palette_endianess_label.place(x=5, y=95, width=100, height=20)
+
+        self.palette_current_endianess = tk.StringVar()
+        self.palette_endianess_combobox = ttk.Combobox(self.palette_parameters_labelframe, values=ENDIANESS_TYPES_NAMES, textvariable=self.palette_current_endianess,
+                                                       font=self.gui_font, state='readonly')
+        self.palette_endianess_combobox.bind("<<ComboboxSelected>>", self.reload_image_callback)
+        self.palette_endianess_combobox.place(x=5, y=115, width=135, height=20)
+        self.palette_endianess_combobox.set(ENDIANESS_TYPES_NAMES[0])
 
         ###########################################
         # PALETTE PARAMETERS BOX  - PS2 SWIZZLE   #
@@ -359,14 +363,23 @@ class ImageHeatGUI:
                                                              variable=self.palette_ps2swizzle_variable,
                                                              anchor="w", onvalue="ON", offvalue="OFF",
                                                              font=self.gui_font, command=self.gui_reload_image_on_gui_element_change)
-        self.palette_ps2swizzle_checkbutton.place(x=5, y=80, width=140, height=20)
+        self.palette_ps2swizzle_checkbutton.place(x=5, y=140, width=140, height=20)
+
+
+        #####################################################
+        # PALETTE PARAMETERS BOX  - INITIAL DISABLE LOGIC   #
+        #####################################################
+
+        for child in self.palette_parameters_labelframe.winfo_children():
+            child.configure(state='disable')
+        self.palette_parameters_labelframe.configure(fg='grey')
 
         ##########################
         # FORCE RELOAD #
         ##########################
 
         def _force_reload_image_by_pressing_enter(event):
-            reload_image_callback(event)
+            self.reload_image_callback(event)
 
         self.master.bind("<Return>", _force_reload_image_by_pressing_enter)
 
@@ -431,7 +444,7 @@ class ImageHeatGUI:
         self.postprocessing_zoom_label.place(x=5, y=5, width=60, height=20)
         self.postprocessing_zoom_combobox = ttk.Combobox(self.postprocessing_labelframe,
                                                          values=ZOOM_TYPES_NAMES, font=self.gui_font, state='readonly')
-        self.postprocessing_zoom_combobox.bind("<<ComboboxSelected>>", reload_image_callback)
+        self.postprocessing_zoom_combobox.bind("<<ComboboxSelected>>", self.reload_image_callback)
         self.postprocessing_zoom_combobox.place(x=45, y=5, width=70, height=20)
         self.postprocessing_zoom_combobox.set(DEFAULT_ZOOM_NAME)
 
@@ -458,7 +471,7 @@ class ImageHeatGUI:
         self.postprocessing_rotate_label.place(x=5, y=75, width=60, height=20)
         self.postprocessing_rotate_combobox = ttk.Combobox(self.postprocessing_labelframe,
                                                            values=ROTATE_TYPES_NAMES, font=self.gui_font, state='readonly')
-        self.postprocessing_rotate_combobox.bind("<<ComboboxSelected>>", reload_image_callback)
+        self.postprocessing_rotate_combobox.bind("<<ComboboxSelected>>", self.reload_image_callback)
         self.postprocessing_rotate_combobox.place(x=50, y=75, width=110, height=20)
         self.postprocessing_rotate_combobox.set(DEFAULT_ROTATE_NAME)
 
@@ -484,10 +497,10 @@ class ImageHeatGUI:
         self.filemenu = tk.Menu(self.menubar, tearoff=0)
         self.filemenu.add_command(
             label="Open File",
-            command=lambda: self.open_file(),
+            command=lambda: self.open_image_file(),
             accelerator="Ctrl+O",
         )
-        master.bind_all("<Control-o>", lambda x: self.open_file())
+        master.bind_all("<Control-o>", lambda x: self.open_image_file())
 
         self.export_label: str = "Save As..."
         self.filemenu.add_command(
@@ -513,6 +526,31 @@ class ImageHeatGUI:
     ######################################################################################################
     #                                             methods                                                #
     ######################################################################################################
+
+    def reload_image_callback(self, event):
+        self.gui_reload_image_on_gui_element_change()
+        self.parameters_box_disable_enable_logic()
+        self.master.focus()
+
+    def check_if_paletted_format_chosen(self, pixel_format: str) -> bool:
+        for format_name in PALETTE_FORMATS_NAMES:
+            if format_name in pixel_format:
+                return True
+        return False
+
+    def parameters_box_disable_enable_logic(self):
+        if self.check_if_paletted_format_chosen(self.gui_params.pixel_format.lower()):
+            for child in self.palette_parameters_labelframe.winfo_children():
+                if child.widgetName == "ttk::combobox":
+                    child.configure(state='readonly')
+                else:
+                    child.configure(state='normal')
+            self.palette_parameters_labelframe.configure(fg='black')
+        else:
+            for child in self.palette_parameters_labelframe.winfo_children():
+                child.configure(state='disable')
+            self.palette_parameters_labelframe.configure(fg='grey')
+
 
     def quit_program(self) -> bool:
         logger.info("Quit GUI...")
@@ -542,6 +580,7 @@ class ImageHeatGUI:
         return False
 
     def get_gui_params_from_gui_elements(self) -> bool:
+        # image parameters
         self.gui_params.img_height = self.get_spinbox_value(self.height_spinbox)
         self.gui_params.img_width = self.get_spinbox_value(self.width_spinbox)
         self.gui_params.pixel_format = self.pixel_format_combobox.get()
@@ -549,6 +588,10 @@ class ImageHeatGUI:
         self.gui_params.swizzling_type = self.swizzling_combobox.get()
         self.gui_params.img_start_offset = self.get_spinbox_value(self.img_start_offset_spinbox)
         self.gui_params.img_end_offset = self.get_spinbox_value(self.img_end_offset_spinbox)
+
+        # palette parameters
+        self.gui_params.palette_loadfrom_value = self.palette_load_from_variable.get()
+
 
         # post-processing
         self.gui_params.zoom_name = self.postprocessing_zoom_combobox.get()
@@ -570,6 +613,7 @@ class ImageHeatGUI:
         return file_size
 
     def set_gui_elements_at_file_open(self) -> bool:
+        # image parameters
         self.pixel_format_combobox.set(DEFAULT_PIXEL_FORMAT_NAME)
         img_width, img_height = self._calculate_image_dimensions_at_file_open()
         self.current_width.set(img_width)
@@ -577,6 +621,9 @@ class ImageHeatGUI:
         self.current_start_offset.set("0")
         self.current_end_offset.set(str(self._calculate_end_offset_at_file_open(self.gui_params.total_file_size)))
         self.img_end_offset_spinbox.config(to=self.gui_params.total_file_size)  # set max value for end offset
+
+        # palette parameters
+        # TODO
 
         # info labels
         self.file_name_label.set_html(self._get_html_for_infobox_label("File name: ", self.gui_params.img_file_name))
@@ -606,7 +653,7 @@ class ImageHeatGUI:
             logger.info("Image is not opened yet...")
         return True
 
-    def open_file(self) -> bool:
+    def open_image_file(self) -> bool:
         try:
             in_file = filedialog.askopenfile(
                 mode="rb"
@@ -638,6 +685,11 @@ class ImageHeatGUI:
         self.filemenu.entryconfig(self.export_label, state="normal")
 
         logger.info("Image has been opened successfully")
+        return True
+
+    def open_palette_file(self) -> bool:
+        print("BBBB")
+        self.gui_reload_image_on_gui_element_change()
         return True
 
     def export_image_file(self) -> bool:
