@@ -694,7 +694,24 @@ class ImageHeatGUI:
         return True
 
     def open_palette_file(self) -> bool:
-        print("BBBB")
+        try:
+            in_file = filedialog.askopenfile(
+                mode="rb"
+            )
+            if not in_file:
+                return False
+            in_file_path = in_file.name
+        except Exception as error:
+            logger.error("Failed to open file! Error: %s", error)
+            messagebox.showwarning("Warning", "Failed to open file!")
+            return False
+
+        # gui params logic
+        self.gui_params.palette_file_path = in_file_path
+
+        # browse button logic
+        self.palette_palfile_button.configure(text="File OK", fg='blue')
+
         self.gui_reload_image_on_gui_element_change()
         return True
 

@@ -50,10 +50,27 @@ class HeatPalette:
     def _palette_decode(self) -> bool:
         logger.info("Palette decode start...")
 
-        if self.gui_params.palette_ps2_swizzle_flag:
-            self.decoded_palette_data = unswizzle_ps2_palette(self.encoded_palette_data)
+        # calculate end offset
+        if len(self.loaded_palette_data) - self.gui_params.palette_offset > self.MAX_PALETTE_SIZE:
+            palette_end_offset = self.gui_params.palette_offset + self.MAX_PALETTE_SIZE
         else:
-            self.decoded_palette_data = self.encoded_palette_data  # no decoding needed
+            palette_end_offset = len(self.loaded_palette_data)
+
+        # unswizzle palette
+        if self.gui_params.palette_ps2_swizzle_flag:
+            self.decoded_palette_data = unswizzle_ps2_palette(self.encoded_palette_data[self.gui_params.palette_offset:palette_end_offset])
+        else:
+            self.decoded_palette_data = self.encoded_palette_data[self.gui_params.palette_offset:palette_end_offset]  # no decoding needed
+
+        # fill small palette logic
+        if len(self.decoded_palette_data) < self.MAX_PALETTE_SIZE:
+            new_palette: bytearray = bytearray(self.MAX_PALETTE_SIZE)
+            for i in range(self.MAX_PALETTE_SIZE):
+                if i < len(self.decoded_palette_data):
+                    new_palette[i] = self.decoded_palette_data[i]
+                else:
+                    new_palette[i] = 0
+            self.decoded_palette_data = new_palette
 
         return True
 

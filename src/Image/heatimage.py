@@ -22,6 +22,7 @@ from reversebox.image.swizzling.swizzle_x360 import unswizzle_x360
 
 from src.GUI.gui_params import GuiParams
 from src.Image.constants import PIXEL_FORMATS_NAMES, get_endianess_id, get_swizzling_id
+from src.Image.heatpalette import HeatPalette
 
 logger = get_logger(__name__)
 
@@ -36,6 +37,7 @@ class HeatImage:
         self.decoded_image_data: Optional[bytes] = None
         self.is_preview_error: bool = False
         self.is_data_loaded_from_file: bool = False
+        self.heat_palette: Optional[HeatPalette] = None
 
     def _image_read(self) -> bool:
         if not self.is_data_loaded_from_file:
@@ -145,6 +147,50 @@ class HeatImage:
             self.decoded_image_data = image_decoder.decode_image(
                 self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_format, endianess_id
             )
+        elif image_format in (ImageFormats.PAL4_RGBX5551,
+                              ImageFormats.PAL4_BGRX5551,
+                              ImageFormats.PAL4_XRGB1555,
+                              ImageFormats.PAL4_XBGR1555,
+                              ImageFormats.PAL4_RGB888,
+                              ImageFormats.PAL4_BGR888,
+                              ImageFormats.PAL4_RGBA8888,
+                              ImageFormats.PAL4_BGRA8888,
+                              ImageFormats.PAL4_IA8,
+                              ImageFormats.PAL4_RGB565,
+                              ImageFormats.PAL4_RGB5A3,
+
+                              ImageFormats.PAL8_RGBX2222,
+                              ImageFormats.PAL8_RGBX5551,
+                              ImageFormats.PAL8_BGRX5551,
+                              ImageFormats.PAL8_XRGB1555,
+                              ImageFormats.PAL8_XBGR1555,
+                              ImageFormats.PAL8_RGB888,
+                              ImageFormats.PAL8_BGR888,
+                              ImageFormats.PAL8_RGBX6666,
+                              ImageFormats.PAL8_IA8,
+                              ImageFormats.PAL8_RGB565,
+                              ImageFormats.PAL8_RGB5A3,
+                              ImageFormats.PAL8_RGBA8888,
+                              ImageFormats.PAL8_BGRA8888,
+
+                              ImageFormats.PAL16_IA8,
+                              ImageFormats.PAL16_RGB565,
+                              ImageFormats.PAL16_RGB5A3
+                              ):
+
+            if (self.gui_params.palette_loadfrom_value == 1 and self.gui_params.img_file_path is not None) \
+             or (self.gui_params.palette_loadfrom_value == 2 and self.gui_params.palette_file_path is not None):  # noqa: E121
+                palette_endianess_id: str = get_endianess_id(self.gui_params.palette_endianess)
+                self.heat_palette = HeatPalette(self.gui_params)
+                self.heat_palette.palette_reload()
+
+                self.decoded_image_data = image_decoder.decode_indexed_image(
+                    self.encoded_image_data, self.heat_palette.decoded_palette_data, self.gui_params.img_width, self.gui_params.img_height, image_format,
+                    endianess_id, palette_endianess_id
+                )
+            else:
+                logger.info("Palette not loaded...")
+
         elif image_format in (ImageFormats.N64_RGBA32, ImageFormats.N64_CMPR):
             self.decoded_image_data = image_decoder.decode_n64_image(
                 self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_format
