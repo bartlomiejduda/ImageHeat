@@ -11,13 +11,14 @@ from reversebox.image.common import get_bpp_for_image_format
 from reversebox.image.image_decoder import ImageDecoder
 from reversebox.image.image_formats import ImageFormats
 from reversebox.image.swizzling.swizzle_bc import unswizzle_bc
+from reversebox.image.swizzling.swizzle_gamecube import unswizzle_gamecube
 from reversebox.image.swizzling.swizzle_morton import unswizzle_morton
-from reversebox.image.swizzling.swizzle_morton_dreamcast import (
-    unswizzle_morton_dreamcast,
-)
 from reversebox.image.swizzling.swizzle_morton_ps4 import unswizzle_ps4
 from reversebox.image.swizzling.swizzle_ps2 import unswizzle_ps2, unswizzle_ps2_ea_4bit
 from reversebox.image.swizzling.swizzle_psp import unswizzle_psp
+from reversebox.image.swizzling.swizzle_psvita_dreamcast import (
+    unswizzle_psvita_dreamcast,
+)
 from reversebox.image.swizzling.swizzle_x360 import unswizzle_x360
 
 from src.GUI.gui_params import GuiParams
@@ -82,10 +83,12 @@ class HeatImage:
             self.encoded_image_data = unswizzle_psp(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_bpp)
         elif swizzling_id == "morton":
             self.encoded_image_data = unswizzle_morton(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_bpp)
-        elif swizzling_id == "dreamcast":
-            self.encoded_image_data = unswizzle_morton_dreamcast(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_bpp)
+        elif swizzling_id == "dreamcast_psvita":
+            self.encoded_image_data = unswizzle_psvita_dreamcast(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_bpp)
         elif swizzling_id == "ps4":
             self.encoded_image_data = unswizzle_ps4(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_bpp)
+        elif swizzling_id == "gamecube_wii":
+            self.encoded_image_data = unswizzle_gamecube(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_bpp)
         elif swizzling_id == "x360":
             self.encoded_image_data = unswizzle_x360(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_bpp)
         elif swizzling_id == "ps2":
@@ -158,6 +161,7 @@ class HeatImage:
                               ImageFormats.PAL4_IA8,
                               ImageFormats.PAL4_RGB565,
                               ImageFormats.PAL4_RGB5A3,
+                              ImageFormats.PAL4_GRAY8,
 
                               ImageFormats.PAL8_RGBX2222,
                               ImageFormats.PAL8_RGBX5551,
@@ -172,6 +176,7 @@ class HeatImage:
                               ImageFormats.PAL8_RGB5A3,
                               ImageFormats.PAL8_RGBA8888,
                               ImageFormats.PAL8_BGRA8888,
+                              ImageFormats.PAL8_GRAY8,
 
                               ImageFormats.PAL16_IA8,
                               ImageFormats.PAL16_RGB565,

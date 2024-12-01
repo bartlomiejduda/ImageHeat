@@ -45,9 +45,10 @@ SUPPORTED_PIXEL_FORMATS: list[PixelFormat] = [
 SUPPORTED_SWIZZLING_TYPES: list[SwizzlingType] = [
     SwizzlingType(display_name="None", unique_id="none"),
     SwizzlingType(display_name="PSP", unique_id="psp"),
-    SwizzlingType(display_name="XBOX/PS3 (Morton)", unique_id="morton"),
-    SwizzlingType(display_name="Dreamcast (Morton)", unique_id="dreamcast"),
+    SwizzlingType(display_name="XBOX / PS3 (Morton)", unique_id="morton"),
+    SwizzlingType(display_name="Dreamcast / PS Vita", unique_id="dreamcast_psvita"),
     SwizzlingType(display_name="PS4 (Morton)", unique_id="ps4"),
+    SwizzlingType(display_name="GameCube / WII", unique_id="gamecube_wii"),
     SwizzlingType(display_name="XBOX 360", unique_id="x360"),
     SwizzlingType(display_name="PS2", unique_id="ps2"),
     SwizzlingType(display_name="PS2 (EA 4-bit)", unique_id="ps2_ea_4bit"),
