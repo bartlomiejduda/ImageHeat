@@ -200,7 +200,7 @@ class HeatImage:
             self.decoded_image_data = image_decoder.decode_n64_image(
                 self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_format
             )
-        elif image_format in (ImageFormats.DXT1, ImageFormats.DXT3, ImageFormats.DXT5):
+        elif image_format in (ImageFormats.BC1_DXT1, ImageFormats.BC2_DXT3, ImageFormats.BC3_DXT5):
             self.decoded_image_data = image_decoder.decode_compressed_image(
                 self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_format
             )

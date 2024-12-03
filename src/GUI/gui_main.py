@@ -389,7 +389,7 @@ class ImageHeatGUI:
         self.info_labelframe.place(x=-200, y=5, width=195, height=110, relx=1)
 
         self.file_name_label = HTMLLabel(self.info_labelframe, html=self._get_html_for_infobox_label("File name: ", ""), wrap=None)
-        self.file_name_label.place(x=5, y=5, width=175, height=18)
+        self.file_name_label.place(x=5, y=5, width=185, height=18)
 
         self.file_size_label = HTMLLabel(self.info_labelframe, html=self._get_html_for_infobox_label("File size: ", ""), wrap=None)
         self.file_size_label.place(x=5, y=25, width=175, height=18)
