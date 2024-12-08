@@ -4,5 +4,5 @@ Pillow==10.4.0
 pre-commit==4.0.1
 pytest==8.3.3
 rawutil==2.8.1
-ReverseBox>=0.19.5
+ReverseBox==0.19.6
 tkhtmlview==0.3.1

@@ -138,8 +138,8 @@ class HeatImage:
                             ImageFormats.ABGR8888,
                             ImageFormats.XRGB8888,
                             ImageFormats.RGBX8888,
-                            ImageFormats.XBGR8888,
                             ImageFormats.BGRX8888,
+                            ImageFormats.RGBX8888_old,
 
                             ImageFormats.RGB48,
                             ImageFormats.BGR48,
@@ -228,7 +228,8 @@ class HeatImage:
                               ImageFormats.YUV422_UYVY,
                               ImageFormats.YUV422_YUY2,
                               ImageFormats.YUV440P,
-                              ImageFormats.YUV444P):
+                              ImageFormats.YUV444P,
+                              ImageFormats.AYUV):
             self.decoded_image_data = image_decoder.decode_yuv_image(
                 self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_format
             )
