@@ -55,3 +55,11 @@ There is also support for texture unswizzlig for popular platforms like PSP, PS2
    - ```export PYTHONPATH=/home/user/ImageHeat-master```
 7. Run the src\main.py file
    - ```python3.11 src/main.py```
+
+# Badges
+
+![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/bartlomiejduda/ImageHeat/total)
+![GitHub License](https://img.shields.io/github/license/bartlomiejduda/ImageHeat)
+![GitHub commit activity](https://img.shields.io/github/commit-activity/y/bartlomiejduda/ImageHeat)
+![GitHub repo size](https://img.shields.io/github/repo-size/bartlomiejduda/ImageHeat)
+![GitHub Release](https://img.shields.io/github/v/release/bartlomiejduda/ImageHeat)

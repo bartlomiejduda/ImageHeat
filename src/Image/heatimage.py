@@ -10,6 +10,7 @@ from reversebox.common.logger import get_logger
 from reversebox.image.common import get_bpp_for_image_format
 from reversebox.image.image_decoder import ImageDecoder
 from reversebox.image.image_formats import ImageFormats
+from reversebox.image.swizzling.swizzle_3ds import unswizzle_3ds
 from reversebox.image.swizzling.swizzle_bc import unswizzle_bc
 from reversebox.image.swizzling.swizzle_gamecube import unswizzle_gamecube
 from reversebox.image.swizzling.swizzle_morton import unswizzle_morton
@@ -98,6 +99,8 @@ class HeatImage:
                 self.encoded_image_data = unswizzle_ps2_ea_4bit(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_bpp)
         elif swizzling_id == "bc":
             self.encoded_image_data = unswizzle_bc(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, 8, 8, image_bpp)
+        elif swizzling_id == "3ds":
+            self.encoded_image_data = unswizzle_3ds(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_bpp)
         else:
             logger.error(f"Swizzling type not supported! Type: {swizzling_id}")
 
