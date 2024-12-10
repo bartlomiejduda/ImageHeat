@@ -7,13 +7,14 @@ License: GPL-3.0 License
 
 import os
 import tkinter as tk
+from typing import Final
 
 import center_tk_window
 from reversebox.common.logger import get_logger
 
 from src.GUI.gui_main import ImageHeatGUI
 
-VERSION_NUM = "v0.6.9"
+VERSION_NUM: Final[str] = "v0.7.0"
 
 logger = get_logger("main")
 

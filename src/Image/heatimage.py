@@ -78,6 +78,8 @@ class HeatImage:
             logger.warning(f"Couldn't get image bpp! Setting default value! Error: {error}")
             image_bpp = 8
 
+        encoded_data_size: int = len(self.encoded_image_data)
+
         if swizzling_id == "none":
             pass
         elif swizzling_id == "psp":
@@ -103,6 +105,9 @@ class HeatImage:
             self.encoded_image_data = unswizzle_3ds(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_bpp)
         else:
             logger.error(f"Swizzling type not supported! Type: {swizzling_id}")
+
+        if len(self.encoded_image_data) != encoded_data_size:
+            logger.warning(f"Different data size after unswizzling! Swizzling_id: {swizzling_id}")
 
         if image_format in (ImageFormats.RGB121,
 
@@ -204,7 +209,15 @@ class HeatImage:
             self.decoded_image_data = image_decoder.decode_n64_image(
                 self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_format
             )
-        elif image_format in (ImageFormats.BC1_DXT1, ImageFormats.BC2_DXT3, ImageFormats.BC3_DXT5):
+        elif image_format in (ImageFormats.BC1_DXT1,
+                              ImageFormats.BC2_DXT3,
+                              ImageFormats.BC3_DXT5,
+                              ImageFormats.BC4_UNORM,
+                              ImageFormats.BC5_UNORM,
+                              ImageFormats.BC6H_SF16,
+                              ImageFormats.BC6H_UF16,
+                              ImageFormats.BC7_UNORM
+                              ):
             self.decoded_image_data = image_decoder.decode_compressed_image(
                 self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_format
             )
