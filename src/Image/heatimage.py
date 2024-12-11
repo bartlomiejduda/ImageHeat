@@ -109,6 +109,7 @@ class HeatImage:
         if len(self.encoded_image_data) != encoded_data_size:
             logger.warning(f"Different data size after unswizzling! Swizzling_id: {swizzling_id}")
 
+        # decoding logic
         if image_format in (ImageFormats.RGB121,
 
                             ImageFormats.RGBX2222,
