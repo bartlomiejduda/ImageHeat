@@ -11,6 +11,7 @@ There is also support for texture unswizzlig for popular platforms like PSP, PS2
 <img src="src\data\img\usage2.gif">
 <img src="src\data\img\usage3.png">
 <img src="src\data\img\usage4.png">
+<img src="src\data\img\usage5.gif">
 
 
 # Dependencies
