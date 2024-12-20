@@ -21,6 +21,12 @@ class SwizzlingType:
 
 
 @dataclass
+class CompressionType:
+    display_name: str
+    unique_id: str
+
+
+@dataclass
 class EndianessType:
     display_name: str
     unique_id: str
@@ -54,6 +60,11 @@ SUPPORTED_SWIZZLING_TYPES: list[SwizzlingType] = [
     SwizzlingType(display_name="PS2 (EA 4-bit)", unique_id="ps2_ea_4bit"),
     SwizzlingType(display_name="BC", unique_id="bc"),
     SwizzlingType(display_name="3DS", unique_id="3ds"),
+]
+
+SUPPORTED_COMPRESSION_TYPES: list[CompressionType] = [
+    CompressionType(display_name="None", unique_id="none"),
+    CompressionType(display_name="TGA RLE", unique_id="rle_tga"),
 ]
 
 SUPPORTED_ENDIANESS_TYPES: list[EndianessType] = [
@@ -106,6 +117,14 @@ def get_swizzling_id(swizzling_name: str) -> str:
     raise Exception(f"Couldn't find code for swizzling name: {swizzling_name}")
 
 
+def get_compression_id(compression_name: str) -> str:
+    for compression_type in SUPPORTED_COMPRESSION_TYPES:
+        if compression_name == compression_type.display_name:
+            return compression_type.unique_id
+
+    raise Exception(f"Couldn't find code for compression name: {compression_name}")
+
+
 def get_zoom_value(zoom_name: str) -> float:
     for zoom_type in SUPPORTED_ZOOM_TYPES:
         if zoom_name == zoom_type.display_name:
@@ -123,16 +142,21 @@ def get_rotate_id(rotate_name: str) -> str:
 
 
 check_unique_ids(SUPPORTED_SWIZZLING_TYPES)
+check_unique_ids(SUPPORTED_COMPRESSION_TYPES)
 check_unique_ids(SUPPORTED_ENDIANESS_TYPES)
 check_unique_ids(SUPPORTED_ROTATE_TYPES)
 
 PIXEL_FORMATS_NAMES: list = [pixel_format.format_name for pixel_format in SUPPORTED_PIXEL_FORMATS]
 SWIZZLING_TYPES_NAMES: list = [swizzling_type.display_name for swizzling_type in SUPPORTED_SWIZZLING_TYPES]
+COMPRESSION_TYPES_NAMES: list = [compression_type.display_name for compression_type in SUPPORTED_COMPRESSION_TYPES]
 ENDIANESS_TYPES_NAMES: list = [endianess_type.display_name for endianess_type in SUPPORTED_ENDIANESS_TYPES]
 ZOOM_TYPES_NAMES: list = [zoom_type.display_name for zoom_type in SUPPORTED_ZOOM_TYPES]
 ROTATE_TYPES_NAMES: list = [rotate_type.display_name for rotate_type in SUPPORTED_ROTATE_TYPES]
 PALETTE_FORMATS_NAMES: list = ["pal", "gst"]
 
 DEFAULT_PIXEL_FORMAT_NAME: str = "RGB565"
+DEFAULT_ENDIANESS_NAME: str = ENDIANESS_TYPES_NAMES[0]
+DEFAULT_SWIZZLING_NAME: str = SWIZZLING_TYPES_NAMES[0]
+DEFAULT_COMPRESSION_NAME: str = COMPRESSION_TYPES_NAMES[0]
 DEFAULT_ZOOM_NAME: str = "1x"
-DEFAULT_ROTATE_NAME: str = "None"
+DEFAULT_ROTATE_NAME: str = ROTATE_TYPES_NAMES[0]

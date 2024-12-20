@@ -8,6 +8,7 @@ from typing import Optional
 
 from reversebox.common.logger import get_logger
 from reversebox.image.common import get_bpp_for_image_format
+from reversebox.image.compression.compression_rle_tga import decompress_rle_tga
 from reversebox.image.image_decoder import ImageDecoder
 from reversebox.image.image_formats import ImageFormats
 from reversebox.image.swizzling.swizzle_3ds import unswizzle_3ds
@@ -23,7 +24,12 @@ from reversebox.image.swizzling.swizzle_psvita_dreamcast import (
 from reversebox.image.swizzling.swizzle_x360 import unswizzle_x360
 
 from src.GUI.gui_params import GuiParams
-from src.Image.constants import PIXEL_FORMATS_NAMES, get_endianess_id, get_swizzling_id
+from src.Image.constants import (
+    PIXEL_FORMATS_NAMES,
+    get_compression_id,
+    get_endianess_id,
+    get_swizzling_id,
+)
 from src.Image.heatpalette import HeatPalette
 
 logger = get_logger(__name__)
@@ -69,15 +75,24 @@ class HeatImage:
         # endianess logic
         endianess_id: str = get_endianess_id(self.gui_params.endianess_type)
 
-        # unswizzling logic
-        swizzling_id = get_swizzling_id(self.gui_params.swizzling_type)
-
+        # image bpp logic
         try:
             image_bpp: int = get_bpp_for_image_format(image_format)
         except Exception as error:
             logger.warning(f"Couldn't get image bpp! Setting default value! Error: {error}")
             image_bpp = 8
 
+        # decompression logic
+        compression_id = get_compression_id(self.gui_params.compression_type)
+        if compression_id == "none":
+            pass
+        elif compression_id == "rle_tga":
+            self.encoded_image_data = decompress_rle_tga(self.encoded_image_data, image_bpp)
+        else:
+            logger.error(f"Compression type not supported! Type: {compression_id}")
+
+        # unswizzling logic
+        swizzling_id = get_swizzling_id(self.gui_params.swizzling_type)
         encoded_data_size: int = len(self.encoded_image_data)
 
         if swizzling_id == "none":

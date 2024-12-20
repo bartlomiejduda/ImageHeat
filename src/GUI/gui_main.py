@@ -25,8 +25,12 @@ from tkhtmlview import HTMLLabel
 from src.GUI.about_window import AboutWindow
 from src.GUI.gui_params import GuiParams
 from src.Image.constants import (
+    COMPRESSION_TYPES_NAMES,
+    DEFAULT_COMPRESSION_NAME,
+    DEFAULT_ENDIANESS_NAME,
     DEFAULT_PIXEL_FORMAT_NAME,
     DEFAULT_ROTATE_NAME,
+    DEFAULT_SWIZZLING_NAME,
     DEFAULT_ZOOM_NAME,
     ENDIANESS_TYPES_NAMES,
     PALETTE_FORMATS_NAMES,
@@ -90,7 +94,7 @@ class ImageHeatGUI:
         # IMAGE PARAMETERS BOX #
         ########################
         self.parameters_labelframe = tk.LabelFrame(self.main_frame, text="Image Parameters", font=self.gui_font)
-        self.parameters_labelframe.place(x=5, y=5, width=160, height=260)
+        self.parameters_labelframe.place(x=5, y=5, width=160, height=300)
 
         ###################################
         # IMAGE PARAMETERS - IMAGE WIDTH  #
@@ -230,7 +234,7 @@ class ImageHeatGUI:
                                                font=self.gui_font, state='readonly')
         self.endianess_combobox.bind("<<ComboboxSelected>>", self.reload_image_callback)
         self.endianess_combobox.place(x=5, y=160, width=135, height=20)
-        self.endianess_combobox.set(ENDIANESS_TYPES_NAMES[0])
+        self.endianess_combobox.set(DEFAULT_ENDIANESS_NAME)
 
         def _get_previous_endianess_type_by_key(event):
             selection = self.endianess_combobox.current()
@@ -264,7 +268,7 @@ class ImageHeatGUI:
                                                values=SWIZZLING_TYPES_NAMES, textvariable=self.current_swizzling, font=self.gui_font, state='readonly')
         self.swizzling_combobox.bind("<<ComboboxSelected>>", self.reload_image_callback)
         self.swizzling_combobox.place(x=5, y=205, width=135, height=20)
-        self.swizzling_combobox.set(SWIZZLING_TYPES_NAMES[0])
+        self.swizzling_combobox.set(DEFAULT_SWIZZLING_NAME)
 
         def _get_previous_swizzling_type_by_key(event):
             selection = self.swizzling_combobox.current()
@@ -286,13 +290,45 @@ class ImageHeatGUI:
         self.master.bind("<a>", _get_previous_swizzling_type_by_key)
         self.master.bind("<s>", _get_next_swizzling_type_by_key)
 
+        ####################################
+        # IMAGE PARAMETERS - COMPRESSION     #
+        ####################################
+        self.compression_label = tk.Label(self.parameters_labelframe, text="Compression Type", anchor="w", font=self.gui_font)
+        self.compression_label.place(x=5, y=230, width=100, height=20)
+
+        self.current_compression = tk.StringVar(value="none")
+        self.compression_combobox = ttk.Combobox(self.parameters_labelframe, values=COMPRESSION_TYPES_NAMES, textvariable=self.current_compression, font=self.gui_font, state='readonly')
+        self.compression_combobox.bind("<<ComboboxSelected>>", self.reload_image_callback)
+        self.compression_combobox.place(x=5, y=250, width=135, height=20)
+        self.compression_combobox.set(DEFAULT_COMPRESSION_NAME)
+
+        def _get_previous_compression_type_by_key(event):
+            selection = self.compression_combobox.current()
+            last = len(self.compression_combobox['values']) - 1
+            try:
+                self.compression_combobox.current(selection - 1)
+            except tk.TclError:
+                self.compression_combobox.current(last)
+            self.reload_image_callback(event)
+
+        def _get_next_compression_type_by_key(event):
+            selection = self.compression_combobox.current()
+            try:
+                self.compression_combobox.current(selection + 1)
+            except tk.TclError:
+                self.compression_combobox.current(0)
+            self.reload_image_callback(event)
+
+        self.master.bind("<o>", _get_previous_compression_type_by_key)
+        self.master.bind("<p>", _get_next_compression_type_by_key)
+
 
 
         ###########################
         # PALETTE PARAMETERS BOX  #
         ###########################
         self.palette_parameters_labelframe = tk.LabelFrame(self.main_frame, text="Palette Parameters", font=self.gui_font)
-        self.palette_parameters_labelframe.place(x=5, y=265, width=160, height=180)
+        self.palette_parameters_labelframe.place(x=5, y=305, width=160, height=185)
 
 
         ########################################
@@ -351,7 +387,7 @@ class ImageHeatGUI:
                                                        font=self.gui_font, state='readonly')
         self.palette_endianess_combobox.bind("<<ComboboxSelected>>", self.reload_image_callback)
         self.palette_endianess_combobox.place(x=5, y=115, width=135, height=20)
-        self.palette_endianess_combobox.set(ENDIANESS_TYPES_NAMES[0])
+        self.palette_endianess_combobox.set(DEFAULT_ENDIANESS_NAME)
 
         ###########################################
         # PALETTE PARAMETERS BOX  - PS2 SWIZZLE   #
@@ -405,7 +441,7 @@ class ImageHeatGUI:
         ##########################
 
         self.controls_labelframe = tk.LabelFrame(self.main_frame, text="Controls", font=self.gui_font)
-        self.controls_labelframe.place(x=-200, y=115, width=195, height=190, relx=1)
+        self.controls_labelframe.place(x=-200, y=115, width=195, height=205, relx=1)
 
         self.controls_img_width_label = HTMLLabel(self.controls_labelframe, html=self._get_html_for_infobox_label("Img width -  ", "Left/Right"), wrap=None)
         self.controls_img_width_label.place(x=5, y=5, width=175, height=18)
@@ -431,12 +467,15 @@ class ImageHeatGUI:
         self.controls_swizzling_label = HTMLLabel(self.controls_labelframe, html=self._get_html_for_infobox_label("Reload img -  ", "Enter"), wrap=None)
         self.controls_swizzling_label.place(x=5, y=145, width=175, height=18)
 
+        self.controls_compression_label = HTMLLabel(self.controls_labelframe, html=self._get_html_for_infobox_label("Compression -  ", "O/P"), wrap=None)
+        self.controls_compression_label.place(x=5, y=165, width=175, height=18)
+
         ##########################
         # POST-PROCESSING BOX #
         ##########################
 
         self.postprocessing_labelframe = tk.LabelFrame(self.main_frame, text="Post-processing", font=self.gui_font)
-        self.postprocessing_labelframe.place(x=-200, y=305, width=195, height=120, relx=1)
+        self.postprocessing_labelframe.place(x=-200, y=320, width=195, height=120, relx=1)
 
         self.postprocessing_zoom_label = tk.Label(self.postprocessing_labelframe, text="Zoom", anchor="w", font=self.gui_font)
         self.postprocessing_zoom_label.place(x=5, y=5, width=60, height=20)
@@ -584,6 +623,7 @@ class ImageHeatGUI:
         self.gui_params.pixel_format = self.pixel_format_combobox.get()
         self.gui_params.endianess_type = self.endianess_combobox.get()
         self.gui_params.swizzling_type = self.swizzling_combobox.get()
+        self.gui_params.compression_type = self.compression_combobox.get()
         self.gui_params.img_start_offset = self.get_spinbox_value(self.img_start_offset_spinbox)
         self.gui_params.img_end_offset = self.get_spinbox_value(self.img_end_offset_spinbox)
 
@@ -615,6 +655,8 @@ class ImageHeatGUI:
     def set_gui_elements_at_file_open(self) -> bool:
         # image parameters
         self.pixel_format_combobox.set(DEFAULT_PIXEL_FORMAT_NAME)
+        self.swizzling_combobox.set(DEFAULT_SWIZZLING_NAME)
+        self.compression_combobox.set(DEFAULT_COMPRESSION_NAME)
         img_width, img_height = self._calculate_image_dimensions_at_file_open()
         self.current_width.set(img_width)
         self.current_height.set(img_height)
@@ -626,7 +668,7 @@ class ImageHeatGUI:
         self.palette_load_from_variable.set(1)
         self.palette_load_from_same_file_radio_button.select()
         self.palette_current_paloffset.set("0")
-        self.palette_endianess_combobox.set(ENDIANESS_TYPES_NAMES[0])
+        self.palette_endianess_combobox.set(DEFAULT_ENDIANESS_NAME)
         self.palette_ps2swizzle_variable.set("OFF")
         self.palette_ps2swizzle_checkbutton.deselect()
         self.parameters_box_disable_enable_logic()
