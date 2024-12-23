@@ -8,6 +8,7 @@ from typing import Optional
 
 from reversebox.common.logger import get_logger
 from reversebox.image.common import get_bpp_for_image_format
+from reversebox.image.compression.compression_packbits import decompress_packbits
 from reversebox.image.compression.compression_rle_tga import decompress_rle_tga
 from reversebox.image.image_decoder import ImageDecoder
 from reversebox.image.image_formats import ImageFormats
@@ -88,6 +89,8 @@ class HeatImage:
             pass
         elif compression_id == "rle_tga":
             self.encoded_image_data = decompress_rle_tga(self.encoded_image_data, image_bpp)
+        elif compression_id == "packbits":
+            self.encoded_image_data = decompress_packbits(self.encoded_image_data)
         else:
             logger.error(f"Compression type not supported! Type: {compression_id}")
 

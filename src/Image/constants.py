@@ -65,6 +65,7 @@ SUPPORTED_SWIZZLING_TYPES: list[SwizzlingType] = [
 SUPPORTED_COMPRESSION_TYPES: list[CompressionType] = [
     CompressionType(display_name="None", unique_id="none"),
     CompressionType(display_name="TGA RLE", unique_id="rle_tga"),
+    CompressionType(display_name="PackBits", unique_id="packbits"),  # Macintosh RLE
 ]
 
 SUPPORTED_ENDIANESS_TYPES: list[EndianessType] = [
