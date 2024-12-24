@@ -5,7 +5,13 @@ It's free and open source.
 ImageHeat supports all popular image formats like RGBA8888, RGB565, DXT1 etc.
 All formats supported by **[ReverseBox](https://github.com/bartlomiejduda/ReverseBox)** should be supported by ImageHeat as well.
 
-There is also support for texture unswizzlig for popular platforms like PSP, PS2, PS3, PS4, XBOX etc.
+There is also support for:
+* texture unswizzlig for platforms like PSP, PS2, PS3, PS4, XBOX etc.
+* decoding indexed image formats like PAL4 and PAL8
+* decompressing data with using algorithms like RLE, PackBits, ZLIB etc.
+* PS2 palette unswizzling
+* post-processing options like zoom, vertical flip, horizontal flip and rotate
+* saving output image data as DDS, PNG or BMP files
 
 <img src="src\data\img\usage.gif">
 <img src="src\data\img\usage2.gif">
