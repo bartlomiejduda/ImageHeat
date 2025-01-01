@@ -19,6 +19,11 @@ from reversebox.common.common import (
     get_file_extension_uppercase,
 )
 from reversebox.common.logger import get_logger
+from reversebox.image.common import (
+    convert_bpp_to_bytes_per_pixel_float,
+    get_bpp_for_image_format,
+)
+from reversebox.image.image_formats import ImageFormats
 from reversebox.image.pillow_wrapper import PillowWrapper
 from tkhtmlview import HTMLLabel
 
@@ -328,7 +333,7 @@ class ImageHeatGUI:
         # PALETTE PARAMETERS BOX  #
         ###########################
         self.palette_parameters_labelframe = tk.LabelFrame(self.main_frame, text="Palette Parameters", font=self.gui_font)
-        self.palette_parameters_labelframe.place(x=5, y=305, width=160, height=185)
+        self.palette_parameters_labelframe.place(x=5, y=305, width=160, height=190)
 
 
         ########################################
@@ -422,7 +427,7 @@ class ImageHeatGUI:
         ##########################
 
         self.info_labelframe = tk.LabelFrame(self.main_frame, text="Info", font=self.gui_font)
-        self.info_labelframe.place(x=-200, y=5, width=195, height=110, relx=1)
+        self.info_labelframe.place(x=-200, y=5, width=195, height=145, relx=1)
 
         self.file_name_label = HTMLLabel(self.info_labelframe, html=self._get_html_for_infobox_label("File name: ", ""), wrap=None)
         self.file_name_label.place(x=5, y=5, width=185, height=18)
@@ -430,18 +435,24 @@ class ImageHeatGUI:
         self.file_size_label = HTMLLabel(self.info_labelframe, html=self._get_html_for_infobox_label("File size: ", ""), wrap=None)
         self.file_size_label.place(x=5, y=25, width=175, height=18)
 
-        self.mouse_x_label = HTMLLabel(self.info_labelframe, html=self._get_html_for_infobox_label("Mouse X: ", ""), wrap=None)
-        self.mouse_x_label.place(x=5, y=45, width=175, height=18)
+        self.infobox_pixel_x_label = HTMLLabel(self.info_labelframe, html=self._get_html_for_infobox_label("Pixel X: ", ""), wrap=None)
+        self.infobox_pixel_x_label.place(x=5, y=45, width=175, height=18)
 
-        self.mouse_y_label = HTMLLabel(self.info_labelframe, html=self._get_html_for_infobox_label("Mouse Y: ", ""), wrap=None)
-        self.mouse_y_label.place(x=5, y=65, width=175, height=18)
+        self.infobox_pixel_y_label = HTMLLabel(self.info_labelframe, html=self._get_html_for_infobox_label("Pixel Y: ", ""), wrap=None)
+        self.infobox_pixel_y_label.place(x=5, y=65, width=175, height=18)
+
+        self.infobox_pixel_offset_label = HTMLLabel(self.info_labelframe, html=self._get_html_for_infobox_label("Pixel offset: ", ""), wrap=None)
+        self.infobox_pixel_offset_label.place(x=5, y=85, width=175, height=18)
+
+        self.infobox_pixel_value_hex_label = HTMLLabel(self.info_labelframe, html=self._get_html_for_infobox_label("Pixel value (hex): ", ""), wrap=None)
+        self.infobox_pixel_value_hex_label.place(x=5, y=105, width=175, height=18)
 
         ##########################
         # CONTROLS BOX #
         ##########################
 
         self.controls_labelframe = tk.LabelFrame(self.main_frame, text="Controls", font=self.gui_font)
-        self.controls_labelframe.place(x=-200, y=115, width=195, height=205, relx=1)
+        self.controls_labelframe.place(x=-200, y=150, width=195, height=205, relx=1)
 
         self.controls_img_width_label = HTMLLabel(self.controls_labelframe, html=self._get_html_for_infobox_label("Img width -  ", "Left/Right"), wrap=None)
         self.controls_img_width_label.place(x=5, y=5, width=175, height=18)
@@ -475,7 +486,7 @@ class ImageHeatGUI:
         ##########################
 
         self.postprocessing_labelframe = tk.LabelFrame(self.main_frame, text="Post-processing", font=self.gui_font)
-        self.postprocessing_labelframe.place(x=-200, y=320, width=195, height=120, relx=1)
+        self.postprocessing_labelframe.place(x=-200, y=355, width=195, height=120, relx=1)
 
         self.postprocessing_zoom_label = tk.Label(self.postprocessing_labelframe, text="Zoom", anchor="w", font=self.gui_font)
         self.postprocessing_zoom_label.place(x=5, y=5, width=60, height=20)
@@ -516,7 +527,7 @@ class ImageHeatGUI:
         # IMAGE BOX            #
         ########################
         self.image_preview_labelframe = tk.LabelFrame(self.main_frame, text="Image preview", font=self.gui_font)
-        self.image_preview_labelframe.place(x=170, y=5, relwidth=1, relheight=1, height=-15, width=-375)
+        self.image_preview_labelframe.place(x=170, y=5, relwidth=1, relheight=1, height=-10, width=-375)
 
         self.image_preview_canvasframe = tk.Frame(self.image_preview_labelframe)
         self.image_preview_canvasframe.place(x=5, y=5, relwidth=1, relheight=1, height=-10, width=-10)
@@ -676,8 +687,10 @@ class ImageHeatGUI:
         # info labels
         self.file_name_label.set_html(self._get_html_for_infobox_label("File name: ", self.gui_params.img_file_name))
         self.file_size_label.set_html(self._get_html_for_infobox_label("File size: ", str(self.gui_params.total_file_size) + " (" + convert_from_bytes_to_mb_string(self.gui_params.total_file_size) + ")"))
-        self.mouse_x_label.set_html(self._get_html_for_infobox_label("Mouse X: ", str(0)))
-        self.mouse_y_label.set_html(self._get_html_for_infobox_label("Mouse Y: ", str(0)))
+        self.infobox_pixel_x_label.set_html(self._get_html_for_infobox_label("Pixel X: ", ""))
+        self.infobox_pixel_y_label.set_html(self._get_html_for_infobox_label("Pixel Y: ", ""))
+        self.infobox_pixel_offset_label.set_html(self._get_html_for_infobox_label("Pixel offset: ", ""))
+        self.infobox_pixel_value_hex_label.set_html(self._get_html_for_infobox_label("Pixel value (hex): ", ""))
 
         # post-processing
         self.postprocessing_zoom_combobox.set(DEFAULT_ZOOM_NAME)
@@ -864,9 +877,9 @@ class ImageHeatGUI:
 
             # post-processing logic start
             # zoom
-            zoom_value: float = get_zoom_value(self.gui_params.zoom_name)
-            preview_img_width = int(zoom_value * preview_img_width)
-            preview_img_height = int(zoom_value * preview_img_height)
+            self.preview_zoom_value: float = get_zoom_value(self.gui_params.zoom_name)
+            preview_img_width = int(self.preview_zoom_value * preview_img_width)
+            preview_img_height = int(self.preview_zoom_value * preview_img_height)
             pil_img = pil_img.resize((preview_img_width, preview_img_height))
 
             # flipping
@@ -919,15 +932,24 @@ class ImageHeatGUI:
             logger.error(f"Error occurred while generating preview... Error: {error}")
 
         def _mouse_motion(event):
-            x, y = event.x, event.y
-            self.mouse_x_label.set_html(self._get_html_for_infobox_label("Mouse X: ", str(x)))
-            self.mouse_y_label.set_html(self._get_html_for_infobox_label("Mouse Y: ", str(y)))
+            x_orig, y_orig = event.x + 1, event.y + 1
 
-        self.preview_instance.bind('<Motion>', _mouse_motion)
+            x = int(math.ceil(x_orig / self.preview_zoom_value))
+            y = int(math.ceil(y_orig / self.preview_zoom_value))
+
+            image_format: ImageFormats = ImageFormats[self.gui_params.pixel_format]
+            bpp: int = get_bpp_for_image_format(image_format)
+            bytes_per_pixel: float = convert_bpp_to_bytes_per_pixel_float(bpp)
+            pixel_offset: int = int((y - 1) * self.gui_params.img_width * bytes_per_pixel + x * bytes_per_pixel - bytes_per_pixel)
+
+            self.infobox_pixel_x_label.set_html(self._get_html_for_infobox_label("Pixel X: ", str(x)))
+            self.infobox_pixel_y_label.set_html(self._get_html_for_infobox_label("Pixel Y: ", str(y)))
+            self.infobox_pixel_offset_label.set_html(self._get_html_for_infobox_label("Pixel offset: ", str(pixel_offset)))
 
         # assign final preview values
         self.preview_final_pil_image = pil_img
 
+        self.preview_instance.bind('<Motion>', _mouse_motion)
         execution_time = time.time() - start_time
         logger.info(f"Image preview for pixel_format={self.gui_params.pixel_format} finished successfully. Time: {round(execution_time, 2)} seconds.")
         return True
