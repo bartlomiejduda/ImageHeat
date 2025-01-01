@@ -15,6 +15,7 @@ from typing import Optional
 from PIL import Image, ImageTk
 from PIL.Image import Transpose
 from reversebox.common.common import (
+    convert_bytes_to_hex_string,
     convert_from_bytes_to_mb_string,
     get_file_extension_uppercase,
 )
@@ -613,6 +614,21 @@ class ImageHeatGUI:
         '''
         return html
 
+    def _get_html_for_infobox_pixel_value_label(self, text_header: str, pixel_value_str: str, pixel_rgba_value: bytes) -> str:
+        hex_result_str: str = ""
+
+        for i in range(3):
+            hex_byte_str: str = convert_bytes_to_hex_string(pixel_rgba_value[i:i + 1]).strip()
+            hex_result_str += hex_byte_str
+
+        html: str = f'''<div style="font-family: Arial; font-size: 8px;">
+                        <span>{text_header}</span>
+                        <span style="color: blue">{pixel_value_str}</span>
+                        <span style="color:#{hex_result_str};"> ⬛</span>
+                        </div>
+        '''
+        return html
+
     def validate_spinbox(self, new_value):
         return new_value.isdigit() or new_value == ""
 
@@ -932,19 +948,27 @@ class ImageHeatGUI:
             logger.error(f"Error occurred while generating preview... Error: {error}")
 
         def _mouse_motion(event):
-            x_orig, y_orig = event.x + 1, event.y + 1
+            x_orig, y_orig = event.x, event.y
 
-            x = int(math.ceil(x_orig / self.preview_zoom_value))
-            y = int(math.ceil(y_orig / self.preview_zoom_value))
+            x = int(math.ceil((x_orig + 1) / self.preview_zoom_value))
+            y = int(math.ceil((y_orig + 1) / self.preview_zoom_value))
 
             image_format: ImageFormats = ImageFormats[self.gui_params.pixel_format]
             bpp: int = get_bpp_for_image_format(image_format)
             bytes_per_pixel: float = convert_bpp_to_bytes_per_pixel_float(bpp)
             pixel_offset: int = int((y - 1) * self.gui_params.img_width * bytes_per_pixel + x * bytes_per_pixel - bytes_per_pixel)
+            pixel_offset_rgba: int = int((y - 1) * self.gui_params.img_width * 4 + x * 4 - 4)
 
-            self.infobox_pixel_x_label.set_html(self._get_html_for_infobox_label("Pixel X: ", str(x)))
-            self.infobox_pixel_y_label.set_html(self._get_html_for_infobox_label("Pixel Y: ", str(y)))
-            self.infobox_pixel_offset_label.set_html(self._get_html_for_infobox_label("Pixel offset: ", str(pixel_offset)))
+            if pixel_offset + bytes_per_pixel <= self.gui_params.total_file_size:
+
+                pixel_value: bytearray = self.opened_image.encoded_image_data[pixel_offset: pixel_offset + int(bytes_per_pixel)]
+                pixel_value_str: str = convert_bytes_to_hex_string(pixel_value)
+                pixel_value_rgba: bytearray = self.opened_image.decoded_image_data[pixel_offset_rgba: pixel_offset_rgba + 4]
+
+                self.infobox_pixel_x_label.set_html(self._get_html_for_infobox_label("Pixel X: ", str(x)))
+                self.infobox_pixel_y_label.set_html(self._get_html_for_infobox_label("Pixel Y: ", str(y)))
+                self.infobox_pixel_offset_label.set_html(self._get_html_for_infobox_label("Pixel offset: ", str(pixel_offset)))
+                self.infobox_pixel_value_hex_label.set_html(self._get_html_for_infobox_pixel_value_label("Pixel value (hex): ", pixel_value_str, pixel_value_rgba))
 
         # assign final preview values
         self.preview_final_pil_image = pil_img
