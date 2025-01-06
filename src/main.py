@@ -1,5 +1,5 @@
 """
-Copyright © 2024  Bartłomiej Duda
+Copyright © 2024-2025  Bartłomiej Duda
 License: GPL-3.0 License
 """
 
@@ -14,7 +14,7 @@ from reversebox.common.logger import get_logger
 
 from src.GUI.gui_main import ImageHeatGUI
 
-VERSION_NUM: Final[str] = "v0.7.7"
+VERSION_NUM: Final[str] = "v0.7.8"
 
 logger = get_logger("main")
 
