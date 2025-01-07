@@ -295,8 +295,8 @@ class ImageHeatGUI:
                 self.swizzling_combobox.current(0)
             self.reload_image_callback(event)
 
-        self.master.bind("<a>", _get_previous_swizzling_type_by_key)
-        self.master.bind("<s>", _get_next_swizzling_type_by_key)
+        self.master.bind("<k>", _get_previous_swizzling_type_by_key)
+        self.master.bind("<l>", _get_next_swizzling_type_by_key)
 
         ####################################
         # IMAGE PARAMETERS - COMPRESSION     #
@@ -475,7 +475,7 @@ class ImageHeatGUI:
         self.controls_endianess_label = HTMLLabel(self.controls_labelframe, html=self._get_html_for_infobox_label("Endianess -  ", "Q/W"), wrap=None)
         self.controls_endianess_label.place(x=5, y=105, width=175, height=18)
 
-        self.controls_swizzling_label = HTMLLabel(self.controls_labelframe, html=self._get_html_for_infobox_label("Swizzling -  ", "A/S"), wrap=None)
+        self.controls_swizzling_label = HTMLLabel(self.controls_labelframe, html=self._get_html_for_infobox_label("Swizzling -  ", "K/L"), wrap=None)
         self.controls_swizzling_label.place(x=5, y=125, width=175, height=18)
 
         self.controls_swizzling_label = HTMLLabel(self.controls_labelframe, html=self._get_html_for_infobox_label("Reload img -  ", "Enter"), wrap=None)
@@ -555,8 +555,11 @@ class ImageHeatGUI:
 
         self.export_label: str = "Save As..."
         self.filemenu.add_command(
-            label=self.export_label, command=lambda: self.export_image_file()
+            label=self.export_label,
+            command=lambda: self.export_image_file(),
+            accelerator="Ctrl+S",
         )
+        master.bind_all("<Control-s>", lambda x: self.export_image_file())
         self.filemenu.entryconfig(self.export_label, state="disabled")
 
         self.filemenu.add_separator()
