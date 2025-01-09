@@ -67,6 +67,7 @@ SUPPORTED_COMPRESSION_TYPES: list[CompressionType] = [
     CompressionType(display_name="TGA RLE", unique_id="rle_tga"),
     CompressionType(display_name="PackBits", unique_id="packbits"),  # Macintosh RLE
     CompressionType(display_name="ZLIB (Deflate)", unique_id="zlib"),
+    CompressionType(display_name="Executioners RLE", unique_id="rle_executioners"),
 ]
 
 SUPPORTED_ENDIANESS_TYPES: list[EndianessType] = [

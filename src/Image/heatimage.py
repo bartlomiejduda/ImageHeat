@@ -9,6 +9,9 @@ from typing import Optional
 from reversebox.common.logger import get_logger
 from reversebox.image.common import get_bpp_for_image_format
 from reversebox.image.compression.compression_packbits import decompress_packbits
+from reversebox.image.compression.compression_rle_executioners import (
+    decompress_rle_executioners,
+)
 from reversebox.image.compression.compression_rle_tga import decompress_rle_tga
 from reversebox.image.compression.compression_zlib import decompress_zlib
 from reversebox.image.image_decoder import ImageDecoder
@@ -94,6 +97,8 @@ class HeatImage:
             self.encoded_image_data = decompress_packbits(self.encoded_image_data)
         elif compression_id == "zlib":
             self.encoded_image_data = decompress_zlib(self.encoded_image_data)
+        elif compression_id == "rle_executioners":
+            self.encoded_image_data = decompress_rle_executioners(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_bpp)
         else:
             logger.error(f"Compression type not supported! Type: {compression_id}")
 
