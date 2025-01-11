@@ -5,7 +5,11 @@ License: GPL-3.0 License
 
 from typing import Optional
 
-from src.Image.constants import DEFAULT_ROTATE_NAME, DEFAULT_ZOOM_NAME
+from src.Image.constants import (
+    DEFAULT_ROTATE_NAME,
+    DEFAULT_ZOOM_NAME,
+    DEFAULT_ZOOM_RESAMPLING_NAME,
+)
 
 
 class GuiParams:
@@ -32,6 +36,7 @@ class GuiParams:
 
         # post-processing
         self.zoom_name: str = DEFAULT_ZOOM_NAME
+        self.zoom_resampling_name: str = DEFAULT_ZOOM_RESAMPLING_NAME
         self.vertical_flip_flag: bool = False
         self.horizontal_flip_flag: bool = False
         self.rotate_name: str = DEFAULT_ROTATE_NAME

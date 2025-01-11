@@ -1,10 +1,11 @@
 """
-Copyright © 2024  Bartłomiej Duda
+Copyright © 2024-2025  Bartłomiej Duda
 License: GPL-3.0 License
 """
 
 from dataclasses import dataclass
 
+from PIL.Image import Resampling
 from reversebox.image.image_formats import ImageFormats
 
 
@@ -36,6 +37,13 @@ class EndianessType:
 class ZoomType:
     display_name: str
     zoom_value: float
+
+
+@dataclass
+class ZoomResamplingType:
+    display_name: str
+    unique_id: str
+    type: Resampling
 
 
 @dataclass
@@ -84,6 +92,15 @@ SUPPORTED_ZOOM_TYPES: list[ZoomType] = [
     ZoomType(display_name="4x", zoom_value=4.0),
     ZoomType(display_name="8x", zoom_value=8.0),
     ZoomType(display_name="16x", zoom_value=16.0),
+]
+
+SUPPORTED_ZOOM_RESAMPLING_TYPES: list[ZoomResamplingType] = [
+    ZoomResamplingType(display_name="Nearest", unique_id="nearest", type=Resampling.NEAREST),
+    ZoomResamplingType(display_name="Box", unique_id="box", type=Resampling.BOX),
+    ZoomResamplingType(display_name="Bilinear", unique_id="bilinear", type=Resampling.BILINEAR),
+    ZoomResamplingType(display_name="Hamming", unique_id="hamming", type=Resampling.HAMMING),
+    ZoomResamplingType(display_name="Bicubic", unique_id="bicubic", type=Resampling.BICUBIC),
+    ZoomResamplingType(display_name="Lanczos", unique_id="lanczos", type=Resampling.LANCZOS),
 ]
 
 
@@ -136,6 +153,14 @@ def get_zoom_value(zoom_name: str) -> float:
     raise Exception(f"Couldn't find code for zoom name: {zoom_name}")
 
 
+def get_resampling_type(zoom_resampling_name: str) -> Resampling:
+    for zoom_resampling_type in SUPPORTED_ZOOM_RESAMPLING_TYPES:
+        if zoom_resampling_name == zoom_resampling_type.display_name:
+            return zoom_resampling_type.type
+
+    raise Exception(f"Couldn't find code for zoom resampling name: {zoom_resampling_name}")
+
+
 def get_rotate_id(rotate_name: str) -> str:
     for rotate_type in SUPPORTED_ROTATE_TYPES:
         if rotate_name == rotate_type.display_name:
@@ -148,12 +173,16 @@ check_unique_ids(SUPPORTED_SWIZZLING_TYPES)
 check_unique_ids(SUPPORTED_COMPRESSION_TYPES)
 check_unique_ids(SUPPORTED_ENDIANESS_TYPES)
 check_unique_ids(SUPPORTED_ROTATE_TYPES)
+check_unique_ids(SUPPORTED_ZOOM_RESAMPLING_TYPES)
 
 PIXEL_FORMATS_NAMES: list = [pixel_format.format_name for pixel_format in SUPPORTED_PIXEL_FORMATS]
 SWIZZLING_TYPES_NAMES: list = [swizzling_type.display_name for swizzling_type in SUPPORTED_SWIZZLING_TYPES]
 COMPRESSION_TYPES_NAMES: list = [compression_type.display_name for compression_type in SUPPORTED_COMPRESSION_TYPES]
 ENDIANESS_TYPES_NAMES: list = [endianess_type.display_name for endianess_type in SUPPORTED_ENDIANESS_TYPES]
 ZOOM_TYPES_NAMES: list = [zoom_type.display_name for zoom_type in SUPPORTED_ZOOM_TYPES]
+ZOOM_RESAMPLING_TYPES_NAMES: list = [
+    zoom_resampling_type.display_name for zoom_resampling_type in SUPPORTED_ZOOM_RESAMPLING_TYPES
+]
 ROTATE_TYPES_NAMES: list = [rotate_type.display_name for rotate_type in SUPPORTED_ROTATE_TYPES]
 PALETTE_FORMATS_NAMES: list = ["pal", "gst"]
 
@@ -162,4 +191,5 @@ DEFAULT_ENDIANESS_NAME: str = ENDIANESS_TYPES_NAMES[0]
 DEFAULT_SWIZZLING_NAME: str = SWIZZLING_TYPES_NAMES[0]
 DEFAULT_COMPRESSION_NAME: str = COMPRESSION_TYPES_NAMES[0]
 DEFAULT_ZOOM_NAME: str = "1x"
+DEFAULT_ZOOM_RESAMPLING_NAME: str = ZOOM_RESAMPLING_TYPES_NAMES[0]
 DEFAULT_ROTATE_NAME: str = ROTATE_TYPES_NAMES[0]

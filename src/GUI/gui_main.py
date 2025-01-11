@@ -39,20 +39,23 @@ from src.Image.constants import (
     DEFAULT_ROTATE_NAME,
     DEFAULT_SWIZZLING_NAME,
     DEFAULT_ZOOM_NAME,
+    DEFAULT_ZOOM_RESAMPLING_NAME,
     ENDIANESS_TYPES_NAMES,
     PALETTE_FORMATS_NAMES,
     PIXEL_FORMATS_NAMES,
     ROTATE_TYPES_NAMES,
     SWIZZLING_TYPES_NAMES,
+    ZOOM_RESAMPLING_TYPES_NAMES,
     ZOOM_TYPES_NAMES,
     get_compression_id,
+    get_resampling_type,
     get_rotate_id,
     get_zoom_value,
 )
 from src.Image.heatimage import HeatImage
 
 # default app settings
-WINDOW_HEIGHT = 500
+WINDOW_HEIGHT = 510
 WINDOW_WIDTH = 1000
 
 logger = get_logger(__name__)
@@ -489,15 +492,25 @@ class ImageHeatGUI:
         ##########################
 
         self.postprocessing_labelframe = tk.LabelFrame(self.main_frame, text="Post-processing", font=self.gui_font)
-        self.postprocessing_labelframe.place(x=-200, y=355, width=195, height=120, relx=1)
+        self.postprocessing_labelframe.place(x=-200, y=355, width=195, height=150, relx=1)
 
+        # zoom
         self.postprocessing_zoom_label = tk.Label(self.postprocessing_labelframe, text="Zoom", anchor="w", font=self.gui_font)
         self.postprocessing_zoom_label.place(x=5, y=5, width=60, height=20)
-        self.postprocessing_zoom_combobox = ttk.Combobox(self.postprocessing_labelframe,
-                                                         values=ZOOM_TYPES_NAMES, font=self.gui_font, state='readonly')
+
+        self.postprocessing_zoom_combobox = ttk.Combobox(self.postprocessing_labelframe, values=ZOOM_TYPES_NAMES, font=self.gui_font, state='readonly')
         self.postprocessing_zoom_combobox.bind("<<ComboboxSelected>>", self.reload_image_callback)
         self.postprocessing_zoom_combobox.place(x=45, y=5, width=70, height=20)
         self.postprocessing_zoom_combobox.set(DEFAULT_ZOOM_NAME)
+
+        # zoom resampling
+        self.postprocessing_zoom_label = tk.Label(self.postprocessing_labelframe, text="Resampling", anchor="w", font=self.gui_font)
+        self.postprocessing_zoom_label.place(x=5, y=30, width=60, height=20)
+
+        self.postprocessing_zoom_resampling_combobox = ttk.Combobox(self.postprocessing_labelframe, values=ZOOM_RESAMPLING_TYPES_NAMES, font=self.gui_font, state='readonly')
+        self.postprocessing_zoom_resampling_combobox.bind("<<ComboboxSelected>>", self.reload_image_callback)
+        self.postprocessing_zoom_resampling_combobox.place(x=70, y=30, width=90, height=20)
+        self.postprocessing_zoom_resampling_combobox.set(DEFAULT_ZOOM_RESAMPLING_NAME)
 
         # vertical flip
         self.postprocessing_vertical_flip_variable = tk.StringVar(value="OFF")
@@ -505,7 +518,7 @@ class ImageHeatGUI:
                                                                        variable=self.postprocessing_vertical_flip_variable, anchor="w",
                                                                        onvalue="ON", offvalue="OFF", font=self.gui_font,
                                                                        command=self.gui_reload_image_on_gui_element_change)
-        self.postprocessing_vertical_flip_checkbutton.place(x=5, y=30, width=150, height=20)
+        self.postprocessing_vertical_flip_checkbutton.place(x=5, y=55, width=150, height=20)
 
         # horizontal flip
         self.postprocessing_horizontal_flip_variable = tk.StringVar(value="OFF")
@@ -514,16 +527,16 @@ class ImageHeatGUI:
                                                                          variable=self.postprocessing_horizontal_flip_variable, anchor="w",
                                                                          onvalue="ON", offvalue="OFF", font=self.gui_font,
                                                                          command=self.gui_reload_image_on_gui_element_change)
-        self.postprocessing_horizontal_flip_checkbutton.place(x=5, y=50, width=170, height=20)
+        self.postprocessing_horizontal_flip_checkbutton.place(x=5, y=75, width=170, height=20)
 
         # rotate
         self.postprocessing_rotate_label = tk.Label(self.postprocessing_labelframe, text="Rotate", anchor="w",
                                                     font=self.gui_font)
-        self.postprocessing_rotate_label.place(x=5, y=75, width=60, height=20)
+        self.postprocessing_rotate_label.place(x=5, y=100, width=60, height=20)
         self.postprocessing_rotate_combobox = ttk.Combobox(self.postprocessing_labelframe,
                                                            values=ROTATE_TYPES_NAMES, font=self.gui_font, state='readonly')
         self.postprocessing_rotate_combobox.bind("<<ComboboxSelected>>", self.reload_image_callback)
-        self.postprocessing_rotate_combobox.place(x=50, y=75, width=110, height=20)
+        self.postprocessing_rotate_combobox.place(x=50, y=100, width=110, height=20)
         self.postprocessing_rotate_combobox.set(DEFAULT_ROTATE_NAME)
 
         ########################
@@ -667,6 +680,7 @@ class ImageHeatGUI:
 
         # post-processing
         self.gui_params.zoom_name = self.postprocessing_zoom_combobox.get()
+        self.gui_params.zoom_resampling_name = self.postprocessing_zoom_resampling_combobox.get()
         self.gui_params.vertical_flip_flag = self.checkbox_value_to_bool(self.postprocessing_vertical_flip_variable.get())
         self.gui_params.horizontal_flip_flag = self.checkbox_value_to_bool(self.postprocessing_horizontal_flip_variable.get())
         self.gui_params.rotate_name = self.postprocessing_rotate_combobox.get()
@@ -715,6 +729,7 @@ class ImageHeatGUI:
 
         # post-processing
         self.postprocessing_zoom_combobox.set(DEFAULT_ZOOM_NAME)
+        self.postprocessing_zoom_resampling_combobox.set(DEFAULT_ZOOM_RESAMPLING_NAME)
         self.postprocessing_vertical_flip_variable.set("OFF")
         self.postprocessing_vertical_flip_checkbutton.deselect()
         self.postprocessing_horizontal_flip_variable.set("OFF")
@@ -901,7 +916,7 @@ class ImageHeatGUI:
             self.preview_zoom_value: float = get_zoom_value(self.gui_params.zoom_name)
             preview_img_width = int(self.preview_zoom_value * preview_img_width)
             preview_img_height = int(self.preview_zoom_value * preview_img_height)
-            pil_img = pil_img.resize((preview_img_width, preview_img_height))
+            pil_img = pil_img.resize((preview_img_width, preview_img_height), get_resampling_type(self.gui_params.zoom_resampling_name))
 
             # flipping
             if self.gui_params.vertical_flip_flag:
