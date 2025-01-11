@@ -504,8 +504,8 @@ class ImageHeatGUI:
         self.postprocessing_zoom_combobox.set(DEFAULT_ZOOM_NAME)
 
         # zoom resampling
-        self.postprocessing_zoom_label = tk.Label(self.postprocessing_labelframe, text="Resampling", anchor="w", font=self.gui_font)
-        self.postprocessing_zoom_label.place(x=5, y=30, width=60, height=20)
+        self.postprocessing_zoom_resampling_label = tk.Label(self.postprocessing_labelframe, text="Resampling", anchor="w", font=self.gui_font)
+        self.postprocessing_zoom_resampling_label.place(x=5, y=30, width=60, height=20)
 
         self.postprocessing_zoom_resampling_combobox = ttk.Combobox(self.postprocessing_labelframe, values=ZOOM_RESAMPLING_TYPES_NAMES, font=self.gui_font, state='readonly')
         self.postprocessing_zoom_resampling_combobox.bind("<<ComboboxSelected>>", self.reload_image_callback)
