@@ -127,8 +127,22 @@ class ImageHeatGUI:
             self.width_spinbox.invoke("buttonup")
             self.master.focus()
 
+        def _halve_width_by_shortcut(event):
+            if int(self.current_width.get()) > 1:
+                self.current_width.set(str(int(self.current_width.get()) // 2))
+                self.reload_image_callback(event)
+                self.master.focus()
+
+        def _double_width_by_shortcut(event):
+            self.current_width.set(str(int(self.current_width.get()) * 2))
+            self.reload_image_callback(event)
+            self.master.focus()
+
         self.master.bind("<Left>", _decrease_width_by_arrow_key)
         self.master.bind("<Right>", _increase_width_by_arrow_key)
+
+        self.master.bind("<q>", _halve_width_by_shortcut)
+        self.master.bind("<w>", _double_width_by_shortcut)
 
         ######################################
         # IMAGE PARAMETERS - IMAGE HEIGHT    #
@@ -247,15 +261,6 @@ class ImageHeatGUI:
         self.endianess_combobox.place(x=5, y=160, width=135, height=20)
         self.endianess_combobox.set(DEFAULT_ENDIANESS_NAME)
 
-        def _get_previous_endianess_type_by_key(event):
-            selection = self.endianess_combobox.current()
-            last = len(self.endianess_combobox['values']) - 1
-            try:
-                self.endianess_combobox.current(selection - 1)
-            except tk.TclError:
-                self.endianess_combobox.current(last)
-            self.reload_image_callback(event)
-
         def _get_next_endianess_type_by_key(event):
             selection = self.endianess_combobox.current()
             try:
@@ -264,8 +269,7 @@ class ImageHeatGUI:
                 self.endianess_combobox.current(0)
             self.reload_image_callback(event)
 
-        self.master.bind("<q>", _get_previous_endianess_type_by_key)
-        self.master.bind("<w>", _get_next_endianess_type_by_key)
+        self.master.bind("<e>", _get_next_endianess_type_by_key)
 
 
         ####################################
@@ -458,41 +462,17 @@ class ImageHeatGUI:
         ##########################
 
         self.controls_labelframe = tk.LabelFrame(self.main_frame, text="Controls", font=self.gui_font)
-        self.controls_labelframe.place(x=-200, y=150, width=195, height=205, relx=1)
+        self.controls_labelframe.place(x=-200, y=150, width=195, height=170, relx=1)
 
-        self.controls_img_width_label = HTMLLabel(self.controls_labelframe, html=self._get_html_for_infobox_label("Img width -  ", "Left/Right"), wrap=None)
-        self.controls_img_width_label.place(x=5, y=5, width=175, height=18)
-
-        self.controls_img_height_label = HTMLLabel(self.controls_labelframe, html=self._get_html_for_infobox_label("Img height -  ", "Up/Down"), wrap=None)
-        self.controls_img_height_label.place(x=5, y=25, width=175, height=18)
-
-        self.controls_start_offset_label = HTMLLabel(self.controls_labelframe, html=self._get_html_for_infobox_label("Start offset -  ", "CTRL+Up/CTRL+Down"), wrap=None)
-        self.controls_start_offset_label.place(x=5, y=45, width=185, height=18)
-
-        self.controls_end_offset_label = HTMLLabel(self.controls_labelframe, html=self._get_html_for_infobox_label("End offset -  ", "SHIFT+Up/SHIFT+Down"), wrap=None)
-        self.controls_end_offset_label.place(x=5, y=65, width=185, height=18)
-
-        self.controls_pixel_format_label = HTMLLabel(self.controls_labelframe, html=self._get_html_for_infobox_label("Pixel Format -  ", "Z/X"), wrap=None)
-        self.controls_pixel_format_label.place(x=5, y=85, width=175, height=18)
-
-        self.controls_endianess_label = HTMLLabel(self.controls_labelframe, html=self._get_html_for_infobox_label("Endianess -  ", "Q/W"), wrap=None)
-        self.controls_endianess_label.place(x=5, y=105, width=175, height=18)
-
-        self.controls_swizzling_label = HTMLLabel(self.controls_labelframe, html=self._get_html_for_infobox_label("Swizzling -  ", "K/L"), wrap=None)
-        self.controls_swizzling_label.place(x=5, y=125, width=175, height=18)
-
-        self.controls_swizzling_label = HTMLLabel(self.controls_labelframe, html=self._get_html_for_infobox_label("Reload img -  ", "Enter"), wrap=None)
-        self.controls_swizzling_label.place(x=5, y=145, width=175, height=18)
-
-        self.controls_compression_label = HTMLLabel(self.controls_labelframe, html=self._get_html_for_infobox_label("Compression -  ", "O/P"), wrap=None)
-        self.controls_compression_label.place(x=5, y=165, width=175, height=18)
+        self.controls_all_info_label = HTMLLabel(self.controls_labelframe, html=self._get_html_for_controls_label(), wrap=None)
+        self.controls_all_info_label.place(x=5, y=5, width=185, height=145)
 
         ##########################
         # POST-PROCESSING BOX #
         ##########################
 
         self.postprocessing_labelframe = tk.LabelFrame(self.main_frame, text="Post-processing", font=self.gui_font)
-        self.postprocessing_labelframe.place(x=-200, y=355, width=195, height=150, relx=1)
+        self.postprocessing_labelframe.place(x=-200, y=320, width=195, height=150, relx=1)
 
         # zoom
         self.postprocessing_zoom_label = tk.Label(self.postprocessing_labelframe, text="Zoom", anchor="w", font=self.gui_font)
@@ -575,6 +555,15 @@ class ImageHeatGUI:
         master.bind_all("<Control-s>", lambda x: self.export_image_file())
         self.filemenu.entryconfig(self.export_label, state="disabled")
 
+        self.export_raw_label: str = "Save Raw Data"
+        self.filemenu.add_command(
+            label=self.export_raw_label,
+            command=lambda: self.export_raw_file(),
+            accelerator="Ctrl+D",
+        )
+        master.bind_all("<Control-d>", lambda x: self.export_raw_file())
+        self.filemenu.entryconfig(self.export_raw_label, state="disabled")
+
         self.filemenu.add_separator()
         self.filemenu.add_command(
             label="Quit", command=lambda: self.quit_program(), accelerator="Ctrl+Q"
@@ -628,6 +617,22 @@ class ImageHeatGUI:
         html: str = f'''<div style="font-family: Arial; font-size: 8px;">
                         <span>{text_header}</span>
                         <span style="color: blue">{text_value}</span>
+                        </div>
+        '''
+        return html
+
+    def _get_html_for_controls_label(self) -> str:
+        html: str = '''<div style="font-family: Arial; font-size: 8px; row-gap:24px;">
+                        <span>Img width - </span> <span style="color: blue">Left/Right</span><br>
+                        <span>Img height - </span> <span style="color: blue">Up/Down</span><br>
+                        <span>Double/halve width - </span> <span style="color: blue">Q/W</span><br>
+                        <span>Start offset - </span> <span style="color: blue">CTRL+Up/CTRL+Down</span><br>
+                        <span>End offset - </span> <span style="color: blue">SHIFT+Up/SHIFT+Down</span><br>
+                        <span>Pixel format - </span> <span style="color: blue">Z/X</span><br>
+                        <span>Endianess - </span> <span style="color: blue">E</span><br>
+                        <span>Swizzling - </span> <span style="color: blue">K/L</span><br>
+                        <span>Compression - </span> <span style="color: blue">O/P</span><br>
+                        <span>Reload img - </span> <span style="color: blue">Enter</span><br>
                         </div>
         '''
         return html
@@ -700,12 +705,14 @@ class ImageHeatGUI:
 
     def set_gui_elements_at_file_open(self) -> bool:
         # image parameters
-        self.pixel_format_combobox.set(DEFAULT_PIXEL_FORMAT_NAME)
+        if not self.opened_image:
+            self.pixel_format_combobox.set(DEFAULT_PIXEL_FORMAT_NAME)
+            img_width, img_height = self._calculate_image_dimensions_at_file_open()
+            self.current_width.set(img_width)
+            self.current_height.set(img_height)
+
         self.swizzling_combobox.set(DEFAULT_SWIZZLING_NAME)
         self.compression_combobox.set(DEFAULT_COMPRESSION_NAME)
-        img_width, img_height = self._calculate_image_dimensions_at_file_open()
-        self.current_width.set(img_width)
-        self.current_height.set(img_height)
         self.current_start_offset.set("0")
         self.current_end_offset.set(str(self._calculate_end_offset_at_file_open(self.gui_params.total_file_size)))
         self.img_end_offset_spinbox.config(to=self.gui_params.total_file_size)  # set max value for end offset
@@ -780,6 +787,7 @@ class ImageHeatGUI:
 
         # menu bar logic
         self.filemenu.entryconfig(self.export_label, state="normal")
+        self.filemenu.entryconfig(self.export_raw_label, state="normal")
 
         logger.info("Image has been opened successfully")
         return True
@@ -837,6 +845,33 @@ class ImageHeatGUI:
             out_file.close()
             messagebox.showinfo("Info", "File saved successfully!")
             logger.info(f"Image has been exported successfully to {out_file.name}")
+        else:
+            logger.info("Image is not opened yet...")
+
+        return True
+
+    def export_raw_file(self) -> bool:
+        if self.opened_image:
+            out_file = None
+            try:
+                out_file = filedialog.asksaveasfile(
+                    mode="wb",
+                    defaultextension=".bin",
+                    initialfile="exported_raw_data",
+                    filetypes=(("Binary files", "*.bin"), ),
+                )
+            except Exception as error:
+                logger.error(f"Error: {error}")
+                messagebox.showwarning("Warning", "Failed to save file!")
+            if out_file is None:
+                return False  # user closed file dialog on purpose
+
+            out_data: bytes = self.opened_image.encoded_image_data
+
+            out_file.write(out_data)
+            out_file.close()
+            messagebox.showinfo("Info", "Raw data saved successfully!")
+            logger.info(f"Raw data has been exported successfully to {out_file.name}")
         else:
             logger.info("Image is not opened yet...")
 
