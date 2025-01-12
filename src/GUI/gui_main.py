@@ -462,17 +462,17 @@ class ImageHeatGUI:
         ##########################
 
         self.controls_labelframe = tk.LabelFrame(self.main_frame, text="Controls", font=self.gui_font)
-        self.controls_labelframe.place(x=-200, y=150, width=195, height=170, relx=1)
+        self.controls_labelframe.place(x=-200, y=150, width=195, height=185, relx=1)
 
         self.controls_all_info_label = HTMLLabel(self.controls_labelframe, html=self._get_html_for_controls_label(), wrap=None)
-        self.controls_all_info_label.place(x=5, y=5, width=185, height=145)
+        self.controls_all_info_label.place(x=5, y=5, width=185, height=160)
 
         ##########################
         # POST-PROCESSING BOX #
         ##########################
 
         self.postprocessing_labelframe = tk.LabelFrame(self.main_frame, text="Post-processing", font=self.gui_font)
-        self.postprocessing_labelframe.place(x=-200, y=320, width=195, height=150, relx=1)
+        self.postprocessing_labelframe.place(x=-200, y=335, width=195, height=150, relx=1)
 
         # zoom
         self.postprocessing_zoom_label = tk.Label(self.postprocessing_labelframe, text="Zoom", anchor="w", font=self.gui_font)
@@ -482,6 +482,22 @@ class ImageHeatGUI:
         self.postprocessing_zoom_combobox.bind("<<ComboboxSelected>>", self.reload_image_callback)
         self.postprocessing_zoom_combobox.place(x=45, y=5, width=70, height=20)
         self.postprocessing_zoom_combobox.set(DEFAULT_ZOOM_NAME)
+
+        def _zoom_by_shortcut(event):
+            selection = self.postprocessing_zoom_combobox.current()
+            if event.delta > 0:  # zoom in
+                try:
+                    self.postprocessing_zoom_combobox.current(selection + 1)
+                except tk.TclError:
+                    pass
+            else:  # zoom out
+                try:
+                    self.postprocessing_zoom_combobox.current(selection - 1)
+                except tk.TclError:
+                    pass
+            self.reload_image_callback(event)
+
+        self.master.bind("<MouseWheel>", _zoom_by_shortcut)
 
         # zoom resampling
         self.postprocessing_zoom_resampling_label = tk.Label(self.postprocessing_labelframe, text="Resampling", anchor="w", font=self.gui_font)
@@ -633,6 +649,7 @@ class ImageHeatGUI:
                         <span>Swizzling - </span> <span style="color: blue">K/L</span><br>
                         <span>Compression - </span> <span style="color: blue">O/P</span><br>
                         <span>Reload img - </span> <span style="color: blue">Enter</span><br>
+                        <span>Zoom - </span> <span style="color: blue">Mouse Wheel</span><br>
                         </div>
         '''
         return html
