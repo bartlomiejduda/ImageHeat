@@ -1027,7 +1027,7 @@ class ImageHeatGUI:
 
             image_format: ImageFormats = ImageFormats[self.gui_params.pixel_format]
             compression_id: str = get_compression_id(self.gui_params.compression_type)
-            rotate_id = get_rotate_id(self.gui_params.rotate_name)
+            m_rotate_id = get_rotate_id(self.gui_params.rotate_name)
             bpp: int = get_bpp_for_image_format(image_format)
             bytes_per_pixel: float = convert_bpp_to_bytes_per_pixel_float(bpp)
 
@@ -1037,21 +1037,21 @@ class ImageHeatGUI:
             if self.gui_params.horizontal_flip_flag:
                 x = self.gui_params.img_width - x + 1
 
-            if rotate_id == "none":
+            if m_rotate_id == "none":
                 pass
-            elif rotate_id == "rotate_90_left":
+            elif m_rotate_id == "rotate_90_left":
                 temp_x = x
                 x = self.gui_params.img_width - y + 1
                 y = temp_x
-            elif rotate_id == "rotate_90_right":
+            elif m_rotate_id == "rotate_90_right":
                 temp_x = x
                 x = y
                 y = self.gui_params.img_height - temp_x + 1
-            elif rotate_id == "rotate_180":
+            elif m_rotate_id == "rotate_180":
                 x = self.gui_params.img_width - x + 1
                 y = self.gui_params.img_height - y + 1
             else:
-                logger.warning(f"Not supported rotate type selected! Rotate_id: {rotate_id}")
+                logger.warning(f"Not supported rotate type selected! Rotate_id: {m_rotate_id}")
 
             pixel_offset: int = int((y - 1) * self.gui_params.img_width * bytes_per_pixel + x * bytes_per_pixel - bytes_per_pixel)
             pixel_offset_rgba: int = int((y - 1) * self.gui_params.img_width * 4 + x * 4 - 4)
