@@ -1033,23 +1033,23 @@ class ImageHeatGUI:
 
             # post-processing logic
             if self.gui_params.vertical_flip_flag:
-                y = self.gui_params.img_height - y
+                y = self.gui_params.img_height - y + 1
             if self.gui_params.horizontal_flip_flag:
-                x = self.gui_params.img_width - x
+                x = self.gui_params.img_width - x + 1
 
             if rotate_id == "none":
                 pass
             elif rotate_id == "rotate_90_left":
                 temp_x = x
-                x = self.gui_params.img_width - y
+                x = self.gui_params.img_width - y + 1
                 y = temp_x
             elif rotate_id == "rotate_90_right":
                 temp_x = x
                 x = y
-                y = self.gui_params.img_height - temp_x
+                y = self.gui_params.img_height - temp_x + 1
             elif rotate_id == "rotate_180":
-                x = self.gui_params.img_width - x
-                y = self.gui_params.img_height - y
+                x = self.gui_params.img_width - x + 1
+                y = self.gui_params.img_height - y + 1
             else:
                 logger.warning(f"Not supported rotate type selected! Rotate_id: {rotate_id}")
 
