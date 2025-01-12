@@ -1020,11 +1020,8 @@ class ImageHeatGUI:
             logger.error(f"Error occurred while generating preview... Error: {error}")
 
         def _mouse_motion(event):
-            x_orig, y_orig = event.x, event.y
 
-            x = int(math.ceil((x_orig + 1) / self.preview_zoom_value))
-            y = int(math.ceil((y_orig + 1) / self.preview_zoom_value))
-
+            # getting params
             image_format: ImageFormats = ImageFormats[self.gui_params.pixel_format]
             compression_id: str = get_compression_id(self.gui_params.compression_type)
             m_rotate_id = get_rotate_id(self.gui_params.rotate_name)
@@ -1032,6 +1029,9 @@ class ImageHeatGUI:
             bytes_per_pixel: float = convert_bpp_to_bytes_per_pixel_float(bpp)
 
             # post-processing logic
+            x = int(math.ceil((event.x + 1) / self.preview_zoom_value))
+            y = int(math.ceil((event.y + 1) / self.preview_zoom_value))
+
             if self.gui_params.vertical_flip_flag:
                 y = self.gui_params.img_height - y + 1
             if self.gui_params.horizontal_flip_flag:
@@ -1053,6 +1053,7 @@ class ImageHeatGUI:
             else:
                 logger.warning(f"Not supported rotate type selected! Rotate_id: {m_rotate_id}")
 
+            # pixel offset logic
             pixel_offset: int = int((y - 1) * self.gui_params.img_width * bytes_per_pixel + x * bytes_per_pixel - bytes_per_pixel)
             pixel_offset_rgba: int = int((y - 1) * self.gui_params.img_width * 4 + x * 4 - 4)
 
