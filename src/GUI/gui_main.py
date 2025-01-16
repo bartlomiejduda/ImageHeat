@@ -21,6 +21,7 @@ from reversebox.common.common import (
 )
 from reversebox.common.logger import get_logger
 from reversebox.image.common import (
+    convert_bpp_to_bytes_per_pixel,
     convert_bpp_to_bytes_per_pixel_float,
     get_bpp_for_image_format,
     is_compressed_image_format,
@@ -202,12 +203,51 @@ class ImageHeatGUI:
             self.img_start_offset_spinbox.invoke("buttonup")
             self.master.focus()
 
+        def _step_down_by_row_by_shortcut(event):  # increase offset by row
+            curr_start_offset: int = 0
+            curr_end_offset: int = 0
+            curr_width: int = 1
+            current_pixel_format: str = self.pixel_format_combobox.get()
+            image_format: ImageFormats = ImageFormats[current_pixel_format]
+            bpp: int = get_bpp_for_image_format(image_format)
+            bytes_per_pixel: int = convert_bpp_to_bytes_per_pixel(bpp)
+            try:
+                curr_start_offset = int(self.current_start_offset.get())
+                curr_end_offset = int(self.current_end_offset.get())
+                curr_width = int(self.current_width.get())
+            except Exception:
+                pass
+            row_size: int = curr_width * bytes_per_pixel
+            new_start_offset: int = curr_start_offset + row_size
+            if new_start_offset < curr_end_offset:
+                self.current_start_offset.set(str(new_start_offset))
+                self.reload_image_callback(event)
+                self.master.focus()
+
+        def _step_up_by_row_by_shortcut(event):  # decrease offset by row
+            curr_start_offset: int = 0
+            curr_width: int = 1
+            current_pixel_format: str = self.pixel_format_combobox.get()
+            image_format: ImageFormats = ImageFormats[current_pixel_format]
+            bpp: int = get_bpp_for_image_format(image_format)
+            bytes_per_pixel: int = convert_bpp_to_bytes_per_pixel(bpp)
+            try:
+                curr_start_offset = int(self.current_start_offset.get())
+                curr_width = int(self.current_width.get())
+            except Exception:
+                pass
+            row_size: int = curr_width * bytes_per_pixel
+            new_start_offset: int = curr_start_offset - row_size
+            if new_start_offset >= 0:
+                self.current_start_offset.set(str(new_start_offset))
+                self.reload_image_callback(event)
+                self.master.focus()
+
         self.master.bind("<Control-Up>", _decrease_start_offset_by_shortcut)
         self.master.bind("<Control-Down>", _increase_start_offset_by_shortcut)
 
-        # TODO - step by row
-        # self.master.bind("<Shift-Down>", _decrease_end_offset_by_shortcut)
-        # self.master.bind("<Shift-Up>", _increase_end_offset_by_shortcut)
+        self.master.bind("<Shift-Up>", _step_up_by_row_by_shortcut)
+        self.master.bind("<Shift-Down>", _step_down_by_row_by_shortcut)
 
         ##########################################
         # IMAGE PARAMETERS - IMAGE END OFFSET    #
