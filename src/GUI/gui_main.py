@@ -119,11 +119,11 @@ class ImageHeatGUI:
         self.width_spinbox.place(x=5, y=25, width=60, height=20)
         self.width_spinbox.configure(validate="key", validatecommand=self.validate_spinbox_command)
 
-        def _decrease_width_by_arrow_key(event):
+        def _decrease_image_width_by_shortcut(event):
             self.width_spinbox.invoke("buttondown")
             self.master.focus()
 
-        def _increase_width_by_arrow_key(event):
+        def _increase_image_width_by_shortcut(event):
             self.width_spinbox.invoke("buttonup")
             self.master.focus()
 
@@ -152,8 +152,8 @@ class ImageHeatGUI:
             self.reload_image_callback(event)
             self.master.focus()
 
-        self.master.bind("<Left>", _decrease_width_by_arrow_key)
-        self.master.bind("<Right>", _increase_width_by_arrow_key)
+        self.master.bind("<Left>", _decrease_image_width_by_shortcut)
+        self.master.bind("<Right>", _increase_image_width_by_shortcut)
 
         self.master.bind("<q>", _halve_width_by_shortcut)
         self.master.bind("<w>", _double_width_by_shortcut)
@@ -170,16 +170,16 @@ class ImageHeatGUI:
         self.height_spinbox.place(x=80, y=25, width=60, height=20)
         self.height_spinbox.configure(validate="key", validatecommand=self.validate_spinbox_command)
 
-        def _decrease_height_by_arrow_key(event):
+        def _decrease_image_height_by_shortcut(event):
             self.height_spinbox.invoke("buttondown")
             self.master.focus()
 
-        def _increase_height_by_arrow_key(event):
+        def _increase_image_height_by_shortcut(event):
             self.height_spinbox.invoke("buttonup")
             self.master.focus()
 
-        self.master.bind("<Up>", _decrease_height_by_arrow_key)
-        self.master.bind("<Down>", _increase_height_by_arrow_key)
+        self.master.bind("<Up>", _decrease_image_height_by_shortcut)
+        self.master.bind("<Down>", _increase_image_height_by_shortcut)
 
 
         ###########################################
@@ -194,16 +194,20 @@ class ImageHeatGUI:
         self.img_start_offset_spinbox.place(x=5, y=70, width=60, height=20)
         self.img_start_offset_spinbox.configure(validate="key", validatecommand=self.validate_spinbox_command)
 
-        def _decrease_start_offset_by_arrow_key(event):
+        def _decrease_start_offset_by_shortcut(event):
             self.img_start_offset_spinbox.invoke("buttondown")
             self.master.focus()
 
-        def _increase_start_offset_by_arrow_key(event):
+        def _increase_start_offset_by_shortcut(event):
             self.img_start_offset_spinbox.invoke("buttonup")
             self.master.focus()
 
-        self.master.bind("<Control-Up>", _decrease_start_offset_by_arrow_key)
-        self.master.bind("<Control-Down>", _increase_start_offset_by_arrow_key)
+        self.master.bind("<Control-Up>", _decrease_start_offset_by_shortcut)
+        self.master.bind("<Control-Down>", _increase_start_offset_by_shortcut)
+
+        # TODO - step by row
+        # self.master.bind("<Shift-Down>", _decrease_end_offset_by_shortcut)
+        # self.master.bind("<Shift-Up>", _increase_end_offset_by_shortcut)
 
         ##########################################
         # IMAGE PARAMETERS - IMAGE END OFFSET    #
@@ -217,17 +221,17 @@ class ImageHeatGUI:
         self.img_end_offset_spinbox.place(x=80, y=70, width=60, height=20)
         self.img_end_offset_spinbox.configure(validate="key", validatecommand=self.validate_spinbox_command)
 
-        def _decrease_end_offset_by_arrow_key(event):
+        def _decrease_end_offset_by_shortcut(event):
             self.img_end_offset_spinbox.invoke("buttondown")
             self.master.focus()
 
-        def _increase_end_offset_by_arrow_key(event):
+        def _increase_end_offset_by_shortcut(event):
             self.img_end_offset_spinbox.invoke("buttonup")
             self.master.focus()
 
         # TODO - find better bindings?
-        # self.master.bind("<Shift-Down>", _decrease_end_offset_by_arrow_key)
-        # self.master.bind("<Shift-Up>", _increase_end_offset_by_arrow_key)
+        # self.master.bind("<Shift-Down>", _decrease_end_offset_by_shortcut)
+        # self.master.bind("<Shift-Up>", _increase_end_offset_by_shortcut)
 
         ####################################
         # IMAGE PARAMETERS - PIXEL FORMAT  #
