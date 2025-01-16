@@ -128,13 +128,27 @@ class ImageHeatGUI:
             self.master.focus()
 
         def _halve_width_by_shortcut(event):
-            if int(self.current_width.get()) > 1:
-                self.current_width.set(str(int(self.current_width.get()) // 2))
-                self.reload_image_callback(event)
-                self.master.focus()
+            curr_width: int = 1
+            try:
+                curr_width = int(self.current_width.get())
+                if curr_width == 0:
+                    curr_width += 1
+            except Exception:
+                pass
+
+            self.current_width.set(str(curr_width // 2))
+            self.reload_image_callback(event)
+            self.master.focus()
 
         def _double_width_by_shortcut(event):
-            self.current_width.set(str(int(self.current_width.get()) * 2))
+            curr_width: int = 1
+            try:
+                curr_width = int(self.current_width.get())
+                if curr_width == 0:
+                    curr_width += 1
+            except Exception:
+                pass
+            self.current_width.set(str(curr_width * 2))
             self.reload_image_callback(event)
             self.master.focus()
 
@@ -188,8 +202,8 @@ class ImageHeatGUI:
             self.img_start_offset_spinbox.invoke("buttonup")
             self.master.focus()
 
-        self.master.bind("<Control-Down>", _decrease_start_offset_by_arrow_key)
-        self.master.bind("<Control-Up>", _increase_start_offset_by_arrow_key)
+        self.master.bind("<Control-Up>", _decrease_start_offset_by_arrow_key)
+        self.master.bind("<Control-Down>", _increase_start_offset_by_arrow_key)
 
         ##########################################
         # IMAGE PARAMETERS - IMAGE END OFFSET    #
@@ -211,8 +225,9 @@ class ImageHeatGUI:
             self.img_end_offset_spinbox.invoke("buttonup")
             self.master.focus()
 
-        self.master.bind("<Shift-Down>", _decrease_end_offset_by_arrow_key)
-        self.master.bind("<Shift-Up>", _increase_end_offset_by_arrow_key)
+        # TODO - find better bindings?
+        # self.master.bind("<Shift-Down>", _decrease_end_offset_by_arrow_key)
+        # self.master.bind("<Shift-Up>", _increase_end_offset_by_arrow_key)
 
         ####################################
         # IMAGE PARAMETERS - PIXEL FORMAT  #
@@ -642,8 +657,8 @@ class ImageHeatGUI:
                         <span>Img width - </span> <span style="color: blue">Left/Right</span><br>
                         <span>Img height - </span> <span style="color: blue">Up/Down</span><br>
                         <span>Double/halve width - </span> <span style="color: blue">Q/W</span><br>
-                        <span>Start offset - </span> <span style="color: blue">CTRL+Up/CTRL+Down</span><br>
-                        <span>End offset - </span> <span style="color: blue">SHIFT+Up/SHIFT+Down</span><br>
+                        <span>Step-by-byte - </span> <span style="color: blue">CTRL+Up/Down</span><br>
+                        <span>Step-by-row - </span> <span style="color: blue">SHIFT+Up/Down</span><br>
                         <span>Pixel format - </span> <span style="color: blue">Z/X</span><br>
                         <span>Endianess - </span> <span style="color: blue">E</span><br>
                         <span>Swizzling - </span> <span style="color: blue">K/L</span><br>
