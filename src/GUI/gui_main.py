@@ -195,15 +195,36 @@ class ImageHeatGUI:
         self.img_start_offset_spinbox.place(x=5, y=70, width=60, height=20)
         self.img_start_offset_spinbox.configure(validate="key", validatecommand=self.validate_spinbox_command)
 
-        def _decrease_start_offset_by_shortcut(event):
-            self.img_start_offset_spinbox.invoke("buttondown")
-            self.master.focus()
+        def _step_up_by_byte_by_shortcut(event):  # decrease offsets by byte
+            curr_start_offset: int = 0
+            curr_end_offset: int = 0
+            try:
+                curr_start_offset = int(self.current_start_offset.get())
+                curr_end_offset = int(self.current_end_offset.get())
+            except Exception:
+                pass
+            if curr_start_offset <= curr_end_offset:
+                self.img_start_offset_spinbox.invoke("buttondown")
+                if curr_end_offset <= self.gui_params.total_file_size:
+                    self.img_end_offset_spinbox.invoke("buttondown")
+                self.master.focus()
 
-        def _increase_start_offset_by_shortcut(event):
-            self.img_start_offset_spinbox.invoke("buttonup")
-            self.master.focus()
+        def _step_down_by_byte_by_shortcut(event):  # increase offsets by byte
+            curr_start_offset: int = 0
+            curr_end_offset: int = 0
+            try:
+                curr_start_offset = int(self.current_start_offset.get())
+                curr_end_offset = int(self.current_end_offset.get())
+            except Exception:
+                pass
 
-        def _step_down_by_row_by_shortcut(event):  # increase offset by row
+            if curr_start_offset <= curr_end_offset:
+                self.img_start_offset_spinbox.invoke("buttonup")
+                if curr_end_offset <= self.gui_params.total_file_size:
+                    self.img_end_offset_spinbox.invoke("buttonup")
+                self.master.focus()
+
+        def _step_down_by_row_by_shortcut(event):  # increase offsets by row
             curr_start_offset: int = 0
             curr_end_offset: int = 0
             curr_width: int = 1
@@ -219,13 +240,17 @@ class ImageHeatGUI:
                 pass
             row_size: int = curr_width * bytes_per_pixel
             new_start_offset: int = curr_start_offset + row_size
-            if new_start_offset < curr_end_offset:
+            new_end_offset: int = curr_end_offset + row_size
+            if new_start_offset <= self.gui_params.total_file_size:
                 self.current_start_offset.set(str(new_start_offset))
+                if new_end_offset <= self.gui_params.total_file_size:
+                    self.current_end_offset.set(str(new_end_offset))
                 self.reload_image_callback(event)
                 self.master.focus()
 
-        def _step_up_by_row_by_shortcut(event):  # decrease offset by row
+        def _step_up_by_row_by_shortcut(event):  # decrease offsets by row
             curr_start_offset: int = 0
+            curr_end_offset: int = 0
             curr_width: int = 1
             current_pixel_format: str = self.pixel_format_combobox.get()
             image_format: ImageFormats = ImageFormats[current_pixel_format]
@@ -233,18 +258,22 @@ class ImageHeatGUI:
             bytes_per_pixel: int = convert_bpp_to_bytes_per_pixel(bpp)
             try:
                 curr_start_offset = int(self.current_start_offset.get())
+                curr_end_offset = int(self.current_end_offset.get())
                 curr_width = int(self.current_width.get())
             except Exception:
                 pass
             row_size: int = curr_width * bytes_per_pixel
             new_start_offset: int = curr_start_offset - row_size
+            new_end_offset: int = curr_end_offset - row_size
             if new_start_offset >= 0:
                 self.current_start_offset.set(str(new_start_offset))
+                if new_end_offset >= 0:
+                    self.current_end_offset.set(str(new_end_offset))
                 self.reload_image_callback(event)
                 self.master.focus()
 
-        self.master.bind("<Control-Up>", _decrease_start_offset_by_shortcut)
-        self.master.bind("<Control-Down>", _increase_start_offset_by_shortcut)
+        self.master.bind("<Control-Up>", _step_up_by_byte_by_shortcut)
+        self.master.bind("<Control-Down>", _step_down_by_byte_by_shortcut)
 
         self.master.bind("<Shift-Up>", _step_up_by_row_by_shortcut)
         self.master.bind("<Shift-Down>", _step_down_by_row_by_shortcut)
@@ -260,18 +289,6 @@ class ImageHeatGUI:
                                                  command=self.gui_reload_image_on_gui_element_change)
         self.img_end_offset_spinbox.place(x=80, y=70, width=60, height=20)
         self.img_end_offset_spinbox.configure(validate="key", validatecommand=self.validate_spinbox_command)
-
-        def _decrease_end_offset_by_shortcut(event):
-            self.img_end_offset_spinbox.invoke("buttondown")
-            self.master.focus()
-
-        def _increase_end_offset_by_shortcut(event):
-            self.img_end_offset_spinbox.invoke("buttonup")
-            self.master.focus()
-
-        # TODO - find better bindings?
-        # self.master.bind("<Shift-Down>", _decrease_end_offset_by_shortcut)
-        # self.master.bind("<Shift-Up>", _increase_end_offset_by_shortcut)
 
         ####################################
         # IMAGE PARAMETERS - PIXEL FORMAT  #
