@@ -56,7 +56,7 @@ from src.Image.constants import (
 from src.Image.heatimage import HeatImage
 
 # default app settings
-WINDOW_HEIGHT = 510
+WINDOW_HEIGHT = 540
 WINDOW_WIDTH = 1000
 
 logger = get_logger(__name__)
@@ -106,18 +106,18 @@ class ImageHeatGUI:
         # IMAGE PARAMETERS BOX #
         ########################
         self.parameters_labelframe = tk.LabelFrame(self.main_frame, text="Image Parameters", font=self.gui_font)
-        self.parameters_labelframe.place(x=5, y=5, width=160, height=300)
+        self.parameters_labelframe.place(x=5, y=5, width=160, height=340)
 
         ###################################
         # IMAGE PARAMETERS - IMAGE WIDTH  #
         ###################################
         self.width_label = tk.Label(self.parameters_labelframe, text="Img Width", anchor="w", font=self.gui_font)
-        self.width_label.place(x=5, y=5, width=60, height=20)
+        self.width_label.place(x=5, y=5, width=70, height=20)
 
         self.current_width = tk.StringVar(value="0")
         self.width_spinbox = tk.Spinbox(self.parameters_labelframe, textvariable=self.current_width, from_=0, to=sys.maxsize,
                                         command=self.gui_reload_image_on_gui_element_change)
-        self.width_spinbox.place(x=5, y=25, width=60, height=20)
+        self.width_spinbox.place(x=5, y=25, width=70, height=20)
         self.width_spinbox.configure(validate="key", validatecommand=self.validate_spinbox_command)
 
         def _decrease_image_width_by_shortcut(event):
@@ -163,12 +163,12 @@ class ImageHeatGUI:
         # IMAGE PARAMETERS - IMAGE HEIGHT    #
         ######################################
         self.height_label = tk.Label(self.parameters_labelframe, text="Img Height", anchor="w", font=self.gui_font)
-        self.height_label.place(x=80, y=5, width=60, height=20)
+        self.height_label.place(x=85, y=5, width=65, height=20)
 
         self.current_height = tk.StringVar(value="0")
         self.height_spinbox = tk.Spinbox(self.parameters_labelframe, textvariable=self.current_height, from_=0, to=sys.maxsize,
                                          command=self.gui_reload_image_on_gui_element_change)
-        self.height_spinbox.place(x=80, y=25, width=60, height=20)
+        self.height_spinbox.place(x=85, y=25, width=65, height=20)
         self.height_spinbox.configure(validate="key", validatecommand=self.validate_spinbox_command)
 
         def _decrease_image_height_by_shortcut(event):
@@ -186,13 +186,13 @@ class ImageHeatGUI:
         ###########################################
         # IMAGE PARAMETERS - IMAGE START OFFSET   #
         ###########################################
-        self.img_start_offset_label = tk.Label(self.parameters_labelframe, text="Start Offset", anchor="w", font=self.gui_font)
-        self.img_start_offset_label.place(x=5, y=50, width=60, height=20)
+        self.img_start_offset_label = tk.Label(self.parameters_labelframe, text="Start Offset (Decimal)", anchor="w", font=self.gui_font)
+        self.img_start_offset_label.place(x=5, y=50, width=145, height=20)
 
         self.current_start_offset = tk.StringVar(value="0")
         self.img_start_offset_spinbox = tk.Spinbox(self.parameters_labelframe, textvariable=self.current_start_offset, from_=0, to=sys.maxsize,
                                                    command=self.gui_reload_image_on_gui_element_change)
-        self.img_start_offset_spinbox.place(x=5, y=70, width=60, height=20)
+        self.img_start_offset_spinbox.place(x=5, y=70, width=145, height=20)
         self.img_start_offset_spinbox.configure(validate="key", validatecommand=self.validate_spinbox_command)
 
         def _step_up_by_byte_by_shortcut(event):  # decrease offsets by byte
@@ -205,7 +205,7 @@ class ImageHeatGUI:
                 pass
             if curr_start_offset <= curr_end_offset:
                 self.img_start_offset_spinbox.invoke("buttondown")
-                if curr_end_offset <= self.gui_params.total_file_size:
+                if curr_end_offset <= self.gui_params.total_file_size and curr_start_offset > 0:
                     self.img_end_offset_spinbox.invoke("buttondown")
                 self.master.focus()
 
@@ -281,13 +281,13 @@ class ImageHeatGUI:
         ##########################################
         # IMAGE PARAMETERS - IMAGE END OFFSET    #
         ##########################################
-        self.img_end_offset_label = tk.Label(self.parameters_labelframe, text="End Offset", anchor="w", font=self.gui_font)
-        self.img_end_offset_label.place(x=80, y=50, width=60, height=20)
+        self.img_end_offset_label = tk.Label(self.parameters_labelframe, text="End Offset (Decimal)", anchor="w", font=self.gui_font)
+        self.img_end_offset_label.place(x=5, y=90, width=145, height=20)
 
         self.current_end_offset = tk.StringVar(value="0")
         self.img_end_offset_spinbox = tk.Spinbox(self.parameters_labelframe, textvariable=self.current_end_offset, from_=0, to=sys.maxsize,
                                                  command=self.gui_reload_image_on_gui_element_change)
-        self.img_end_offset_spinbox.place(x=80, y=70, width=60, height=20)
+        self.img_end_offset_spinbox.place(x=5, y=110, width=145, height=20)
         self.img_end_offset_spinbox.configure(validate="key", validatecommand=self.validate_spinbox_command)
 
         ####################################
@@ -295,12 +295,12 @@ class ImageHeatGUI:
         ####################################
 
         self.pixel_format_label = tk.Label(self.parameters_labelframe, text="Pixel Format", anchor="w", font=self.gui_font)
-        self.pixel_format_label.place(x=5, y=95, width=60, height=20)
+        self.pixel_format_label.place(x=5, y=135, width=145, height=20)
 
         self.pixel_format_combobox = ttk.Combobox(self.parameters_labelframe,
                                                   values=PIXEL_FORMATS_NAMES, font=self.gui_font, state='readonly')
         self.pixel_format_combobox.bind("<<ComboboxSelected>>", self.reload_image_callback)
-        self.pixel_format_combobox.place(x=5, y=115, width=135, height=20)
+        self.pixel_format_combobox.place(x=5, y=155, width=145, height=20)
         self.pixel_format_combobox.set(DEFAULT_PIXEL_FORMAT_NAME)
 
         def _get_previous_pixel_format_by_key(event):
@@ -328,13 +328,13 @@ class ImageHeatGUI:
         ####################################
 
         self.endianess_label = tk.Label(self.parameters_labelframe, text="Endianess Type", anchor="w", font=self.gui_font)
-        self.endianess_label.place(x=5, y=140, width=100, height=20)
+        self.endianess_label.place(x=5, y=180, width=145, height=20)
 
         self.current_endianess = tk.StringVar(value="none")
         self.endianess_combobox = ttk.Combobox(self.parameters_labelframe, values=ENDIANESS_TYPES_NAMES, textvariable=self.current_endianess,
                                                font=self.gui_font, state='readonly')
         self.endianess_combobox.bind("<<ComboboxSelected>>", self.reload_image_callback)
-        self.endianess_combobox.place(x=5, y=160, width=135, height=20)
+        self.endianess_combobox.place(x=5, y=200, width=145, height=20)
         self.endianess_combobox.set(DEFAULT_ENDIANESS_NAME)
 
         def _get_next_endianess_type_by_key(event):
@@ -352,13 +352,13 @@ class ImageHeatGUI:
         # IMAGE PARAMETERS - SWIZZLING     #
         ####################################
         self.swizzling_label = tk.Label(self.parameters_labelframe, text="Swizzling Type", anchor="w", font=self.gui_font)
-        self.swizzling_label.place(x=5, y=185, width=100, height=20)
+        self.swizzling_label.place(x=5, y=225, width=145, height=20)
 
         self.current_swizzling = tk.StringVar(value="none")
         self.swizzling_combobox = ttk.Combobox(self.parameters_labelframe,
                                                values=SWIZZLING_TYPES_NAMES, textvariable=self.current_swizzling, font=self.gui_font, state='readonly')
         self.swizzling_combobox.bind("<<ComboboxSelected>>", self.reload_image_callback)
-        self.swizzling_combobox.place(x=5, y=205, width=135, height=20)
+        self.swizzling_combobox.place(x=5, y=245, width=145, height=20)
         self.swizzling_combobox.set(DEFAULT_SWIZZLING_NAME)
 
         def _get_previous_swizzling_type_by_key(event):
@@ -385,12 +385,12 @@ class ImageHeatGUI:
         # IMAGE PARAMETERS - COMPRESSION     #
         ####################################
         self.compression_label = tk.Label(self.parameters_labelframe, text="Compression Type", anchor="w", font=self.gui_font)
-        self.compression_label.place(x=5, y=230, width=100, height=20)
+        self.compression_label.place(x=5, y=270, width=145, height=20)
 
         self.current_compression = tk.StringVar(value="none")
         self.compression_combobox = ttk.Combobox(self.parameters_labelframe, values=COMPRESSION_TYPES_NAMES, textvariable=self.current_compression, font=self.gui_font, state='readonly')
         self.compression_combobox.bind("<<ComboboxSelected>>", self.reload_image_callback)
-        self.compression_combobox.place(x=5, y=250, width=135, height=20)
+        self.compression_combobox.place(x=5, y=290, width=145, height=20)
         self.compression_combobox.set(DEFAULT_COMPRESSION_NAME)
 
         def _get_previous_compression_type_by_key(event):
@@ -419,7 +419,7 @@ class ImageHeatGUI:
         # PALETTE PARAMETERS BOX  #
         ###########################
         self.palette_parameters_labelframe = tk.LabelFrame(self.main_frame, text="Palette Parameters", font=self.gui_font)
-        self.palette_parameters_labelframe.place(x=5, y=305, width=160, height=190)
+        self.palette_parameters_labelframe.place(x=5, y=345, width=160, height=190)
 
 
         ########################################
@@ -463,7 +463,7 @@ class ImageHeatGUI:
         self.palette_current_paloffset = tk.StringVar(value="0")
         self.palette_paloffset_spinbox = tk.Spinbox(self.palette_parameters_labelframe, textvariable=self.palette_current_paloffset, from_=0, to=sys.maxsize,
                                                     command=self.gui_reload_image_on_gui_element_change)
-        self.palette_paloffset_spinbox.place(x=75, y=70, width=70, height=20)
+        self.palette_paloffset_spinbox.place(x=75, y=70, width=75, height=20)
         self.palette_paloffset_spinbox.configure(validate="key", validatecommand=self.validate_spinbox_command)
 
         #################################################
@@ -477,7 +477,7 @@ class ImageHeatGUI:
         self.palette_endianess_combobox = ttk.Combobox(self.palette_parameters_labelframe, values=ENDIANESS_TYPES_NAMES, textvariable=self.palette_current_endianess,
                                                        font=self.gui_font, state='readonly')
         self.palette_endianess_combobox.bind("<<ComboboxSelected>>", self.reload_image_callback)
-        self.palette_endianess_combobox.place(x=5, y=115, width=135, height=20)
+        self.palette_endianess_combobox.place(x=5, y=115, width=145, height=20)
         self.palette_endianess_combobox.set(DEFAULT_ENDIANESS_NAME)
 
         ###########################################
@@ -614,7 +614,7 @@ class ImageHeatGUI:
         ########################
         # IMAGE BOX            #
         ########################
-        self.image_preview_labelframe = tk.LabelFrame(self.main_frame, text="Image preview", font=self.gui_font)
+        self.image_preview_labelframe = tk.LabelFrame(self.main_frame, text="Image Preview", font=self.gui_font)
         self.image_preview_labelframe.place(x=170, y=5, relwidth=1, relheight=1, height=-10, width=-375)
 
         self.image_preview_canvasframe = tk.Frame(self.image_preview_labelframe)
