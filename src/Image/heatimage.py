@@ -159,6 +159,8 @@ class HeatImage:
                             ImageFormats.RGBA4444,
                             ImageFormats.ARGB4444,
                             ImageFormats.XRGB4444,
+                            ImageFormats.ABGR4444,
+                            ImageFormats.XBGR4444,
                             ImageFormats.RGBX4444,
                             ImageFormats.BGRA4444,
                             ImageFormats.BGRX4444,
@@ -180,7 +182,6 @@ class HeatImage:
                             ImageFormats.XRGB8888,
                             ImageFormats.RGBX8888,
                             ImageFormats.BGRX8888,
-                            ImageFormats.RGBX8888_old,
                             ImageFormats.RGBM8888,
                             ImageFormats.R32,
                             ImageFormats.G32,
@@ -228,7 +229,8 @@ class HeatImage:
 
                               ImageFormats.PAL16_IA8,
                               ImageFormats.PAL16_RGB565,
-                              ImageFormats.PAL16_RGB5A3
+                              ImageFormats.PAL16_RGB5A3,
+                              ImageFormats.PAL16_RGBA8888
                               ):
 
             if (self.gui_params.palette_loadfrom_value == 1 and self.gui_params.img_file_path is not None) \
