@@ -230,7 +230,8 @@ class HeatImage:
                               ImageFormats.PAL16_IA8,
                               ImageFormats.PAL16_RGB565,
                               ImageFormats.PAL16_RGB5A3,
-                              ImageFormats.PAL16_RGBA8888
+                              ImageFormats.PAL16_RGBA8888,
+                              ImageFormats.PAL_I8A8_BGRA8888
                               ):
 
             if (self.gui_params.palette_loadfrom_value == 1 and self.gui_params.img_file_path is not None) \
