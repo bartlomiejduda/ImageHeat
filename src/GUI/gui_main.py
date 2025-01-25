@@ -9,6 +9,7 @@ import platform
 import sys
 import time
 import tkinter as tk
+from idlelib.tooltip import Hovertip
 from tkinter import filedialog, messagebox, ttk
 from typing import Optional
 
@@ -509,6 +510,7 @@ class ImageHeatGUI:
         self.info_labelframe.place(x=-200, y=5, width=195, height=145, relx=1)
 
         self.file_name_label = HTMLLabel(self.info_labelframe, html=self._get_html_for_infobox_label("File name: ", ""), wrap=None)
+        self.file_name_tooltip = Hovertip(self.file_name_label, 'File name')
         self.file_name_label.place(x=5, y=5, width=185, height=18)
 
         self.file_size_label = HTMLLabel(self.info_labelframe, html=self._get_html_for_infobox_label("File size: ", ""), wrap=None)
@@ -814,6 +816,7 @@ class ImageHeatGUI:
 
         # info labels
         self.file_name_label.set_html(self._get_html_for_infobox_label("File name: ", self.gui_params.img_file_name))
+        self.file_name_tooltip.text = self.gui_params.img_file_name
         self.file_size_label.set_html(self._get_html_for_infobox_label("File size: ", str(self.gui_params.total_file_size) + " (" + convert_from_bytes_to_mb_string(self.gui_params.total_file_size) + ")"))
         self.infobox_pixel_x_label.set_html(self._get_html_for_infobox_label("Pixel X: ", ""))
         self.infobox_pixel_y_label.set_html(self._get_html_for_infobox_label("Pixel Y: ", ""))
