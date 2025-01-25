@@ -509,11 +509,11 @@ class ImageHeatGUI:
         self.info_labelframe = tk.LabelFrame(self.main_frame, text="Info", font=self.gui_font)
         self.info_labelframe.place(x=-200, y=5, width=195, height=145, relx=1)
 
-        self.file_name_label = HTMLLabel(self.info_labelframe, html=self._get_html_for_infobox_label("File name: ", ""), wrap=None)
-        self.file_name_tooltip = Hovertip(self.file_name_label, 'File name')
+        self.file_name_label = HTMLLabel(self.info_labelframe, html=self._get_html_for_infobox_label("File Name: ", ""), wrap=None)
+        self.file_name_tooltip = Hovertip(self.file_name_label, 'File Name')
         self.file_name_label.place(x=5, y=5, width=185, height=18)
 
-        self.file_size_label = HTMLLabel(self.info_labelframe, html=self._get_html_for_infobox_label("File size: ", ""), wrap=None)
+        self.file_size_label = HTMLLabel(self.info_labelframe, html=self._get_html_for_infobox_label("File Size: ", ""), wrap=None)
         self.file_size_label.place(x=5, y=25, width=175, height=18)
 
         self.infobox_pixel_x_label = HTMLLabel(self.info_labelframe, html=self._get_html_for_infobox_label("Pixel X: ", ""), wrap=None)
@@ -522,10 +522,10 @@ class ImageHeatGUI:
         self.infobox_pixel_y_label = HTMLLabel(self.info_labelframe, html=self._get_html_for_infobox_label("Pixel Y: ", ""), wrap=None)
         self.infobox_pixel_y_label.place(x=5, y=65, width=175, height=18)
 
-        self.infobox_pixel_offset_label = HTMLLabel(self.info_labelframe, html=self._get_html_for_infobox_label("Pixel offset: ", ""), wrap=None)
+        self.infobox_pixel_offset_label = HTMLLabel(self.info_labelframe, html=self._get_html_for_infobox_label("Pixel Offset: ", ""), wrap=None)
         self.infobox_pixel_offset_label.place(x=5, y=85, width=175, height=18)
 
-        self.infobox_pixel_value_hex_label = HTMLLabel(self.info_labelframe, html=self._get_html_for_infobox_label("Pixel value (hex): ", ""), wrap=None)
+        self.infobox_pixel_value_hex_label = HTMLLabel(self.info_labelframe, html=self._get_html_for_infobox_label("Pixel Value (hex): ", ""), wrap=None)
         self.infobox_pixel_value_hex_label.place(x=5, y=105, width=175, height=18)
 
         ##########################
@@ -542,7 +542,7 @@ class ImageHeatGUI:
         # POST-PROCESSING BOX #
         ##########################
 
-        self.postprocessing_labelframe = tk.LabelFrame(self.main_frame, text="Post-processing", font=self.gui_font)
+        self.postprocessing_labelframe = tk.LabelFrame(self.main_frame, text="Post-Processing", font=self.gui_font)
         self.postprocessing_labelframe.place(x=-200, y=335, width=195, height=150, relx=1)
 
         # zoom
@@ -710,16 +710,16 @@ class ImageHeatGUI:
 
     def _get_html_for_controls_label(self) -> str:
         html: str = '''<div style="font-family: Arial; font-size: 8px; row-gap:24px;">
-                        <span>Img width - </span> <span style="color: blue">Left/Right</span><br>
-                        <span>Img height - </span> <span style="color: blue">Up/Down</span><br>
-                        <span>Double/halve width - </span> <span style="color: blue">Q/W</span><br>
-                        <span>Step-by-byte - </span> <span style="color: blue">CTRL+Up/Down</span><br>
-                        <span>Step-by-row - </span> <span style="color: blue">SHIFT+Up/Down</span><br>
-                        <span>Pixel format - </span> <span style="color: blue">Z/X</span><br>
+                        <span>Img Width - </span> <span style="color: blue">Left/Right</span><br>
+                        <span>Img Height - </span> <span style="color: blue">Up/Down</span><br>
+                        <span>Double/Halve Width - </span> <span style="color: blue">Q/W</span><br>
+                        <span>Step-By-Byte - </span> <span style="color: blue">CTRL+Up/Down</span><br>
+                        <span>Step-By-Row - </span> <span style="color: blue">SHIFT+Up/Down</span><br>
+                        <span>Pixel Format - </span> <span style="color: blue">Z/X</span><br>
                         <span>Endianess - </span> <span style="color: blue">E</span><br>
                         <span>Swizzling - </span> <span style="color: blue">K/L</span><br>
                         <span>Compression - </span> <span style="color: blue">O/P</span><br>
-                        <span>Reload img - </span> <span style="color: blue">Enter</span><br>
+                        <span>Reload Img - </span> <span style="color: blue">Enter</span><br>
                         <span>Zoom - </span> <span style="color: blue">Mouse Wheel</span><br>
                         </div>
         '''
@@ -815,13 +815,13 @@ class ImageHeatGUI:
         self.parameters_box_disable_enable_logic()
 
         # info labels
-        self.file_name_label.set_html(self._get_html_for_infobox_label("File name: ", self.gui_params.img_file_name))
+        self.file_name_label.set_html(self._get_html_for_infobox_label("File Name: ", self.gui_params.img_file_name))
         self.file_name_tooltip.text = self.gui_params.img_file_name
-        self.file_size_label.set_html(self._get_html_for_infobox_label("File size: ", str(self.gui_params.total_file_size) + " (" + convert_from_bytes_to_mb_string(self.gui_params.total_file_size) + ")"))
+        self.file_size_label.set_html(self._get_html_for_infobox_label("File Size: ", str(self.gui_params.total_file_size) + " (" + convert_from_bytes_to_mb_string(self.gui_params.total_file_size) + ")"))
         self.infobox_pixel_x_label.set_html(self._get_html_for_infobox_label("Pixel X: ", ""))
         self.infobox_pixel_y_label.set_html(self._get_html_for_infobox_label("Pixel Y: ", ""))
-        self.infobox_pixel_offset_label.set_html(self._get_html_for_infobox_label("Pixel offset: ", ""))
-        self.infobox_pixel_value_hex_label.set_html(self._get_html_for_infobox_label("Pixel value (hex): ", ""))
+        self.infobox_pixel_offset_label.set_html(self._get_html_for_infobox_label("Pixel Offset: ", ""))
+        self.infobox_pixel_value_hex_label.set_html(self._get_html_for_infobox_label("Pixel Value (hex): ", ""))
 
         # post-processing
         self.postprocessing_zoom_combobox.set(DEFAULT_ZOOM_NAME)
@@ -1138,11 +1138,11 @@ class ImageHeatGUI:
                     pixel_value: bytearray = self.opened_image.encoded_image_data[pixel_offset: pixel_offset + int(bytes_per_pixel)]
                     pixel_value_str: str = convert_bytes_to_hex_string(pixel_value)
                     pixel_value_rgba: bytearray = self.opened_image.decoded_image_data[pixel_offset_rgba: pixel_offset_rgba + 4]
-                    self.infobox_pixel_offset_label.set_html(self._get_html_for_infobox_label("Pixel offset: ", str(pixel_offset)))
-                    self.infobox_pixel_value_hex_label.set_html(self._get_html_for_infobox_pixel_value_label("Pixel value (hex): ", pixel_value_str, pixel_value_rgba))
+                    self.infobox_pixel_offset_label.set_html(self._get_html_for_infobox_label("Pixel Offset: ", str(pixel_offset)))
+                    self.infobox_pixel_value_hex_label.set_html(self._get_html_for_infobox_pixel_value_label("Pixel Value (hex): ", pixel_value_str, pixel_value_rgba))
                 else:
-                    self.infobox_pixel_offset_label.set_html(self._get_html_for_infobox_label("Pixel offset: ", "n/a"))
-                    self.infobox_pixel_value_hex_label.set_html(self._get_html_for_infobox_label("Pixel value (hex): ", "n/a"))
+                    self.infobox_pixel_offset_label.set_html(self._get_html_for_infobox_label("Pixel Offset: ", "n/a"))
+                    self.infobox_pixel_value_hex_label.set_html(self._get_html_for_infobox_label("Pixel Value (hex): ", "n/a"))
 
         # assign final preview values
         self.preview_final_pil_image = pil_img
