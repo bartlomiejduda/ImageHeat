@@ -122,14 +122,23 @@ class ImageHeatGUI:
         self.width_spinbox.configure(validate="key", validatecommand=self.validate_spinbox_command)
 
         def _decrease_image_width_by_shortcut(event):
+            if event.state & 4:
+                return  # skip CTRL
+
             self.width_spinbox.invoke("buttondown")
             self.master.focus()
 
         def _increase_image_width_by_shortcut(event):
+            if event.state & 4:
+                return  # skip CTRL
+
             self.width_spinbox.invoke("buttonup")
             self.master.focus()
 
         def _halve_width_by_shortcut(event):
+            if event.state & 4:
+                return  # skip CTRL
+
             curr_width: int = 1
             try:
                 curr_width = int(self.current_width.get())
@@ -143,6 +152,9 @@ class ImageHeatGUI:
             self.master.focus()
 
         def _double_width_by_shortcut(event):
+            if event.state & 4:
+                return  # skip CTRL
+
             curr_width: int = 1
             try:
                 curr_width = int(self.current_width.get())
@@ -173,10 +185,16 @@ class ImageHeatGUI:
         self.height_spinbox.configure(validate="key", validatecommand=self.validate_spinbox_command)
 
         def _decrease_image_height_by_shortcut(event):
+            if event.state & 4:
+                return  # skip CTRL
+
             self.height_spinbox.invoke("buttondown")
             self.master.focus()
 
         def _increase_image_height_by_shortcut(event):
+            if event.state & 4:
+                return  # skip CTRL
+
             self.height_spinbox.invoke("buttonup")
             self.master.focus()
 
@@ -224,6 +242,9 @@ class ImageHeatGUI:
                 self.master.focus()
 
         def _step_down_by_row_by_shortcut(event):  # increase offsets by row
+            if event.state & 4:
+                return  # skip CTRL
+
             curr_start_offset: int = 0
             curr_end_offset: int = 0
             curr_width: int = 1
@@ -248,6 +269,9 @@ class ImageHeatGUI:
                 self.master.focus()
 
         def _step_up_by_row_by_shortcut(event):  # decrease offsets by row
+            if event.state & 4:
+                return  # skip CTRL
+
             curr_start_offset: int = 0
             curr_width: int = 1
             current_pixel_format: str = self.pixel_format_combobox.get()
@@ -298,6 +322,9 @@ class ImageHeatGUI:
         self.pixel_format_combobox.set(DEFAULT_PIXEL_FORMAT_NAME)
 
         def _get_previous_pixel_format_by_key(event):
+            if event.state & 4:
+                return  # skip CTRL
+
             selection = self.pixel_format_combobox.current()
             last = len(self.pixel_format_combobox['values']) - 1
             try:
@@ -307,6 +334,9 @@ class ImageHeatGUI:
             self.reload_image_callback(event)
 
         def _get_next_pixel_format_by_key(event):
+            if event.state & 4:
+                return  # skip CTRL
+
             selection = self.pixel_format_combobox.current()
             try:
                 self.pixel_format_combobox.current(selection + 1)
@@ -332,6 +362,9 @@ class ImageHeatGUI:
         self.endianess_combobox.set(DEFAULT_ENDIANESS_NAME)
 
         def _get_next_endianess_type_by_key(event):
+            if event.state & 4:
+                return  # skip CTRL
+
             selection = self.endianess_combobox.current()
             try:
                 self.endianess_combobox.current(selection + 1)
@@ -356,6 +389,9 @@ class ImageHeatGUI:
         self.swizzling_combobox.set(DEFAULT_SWIZZLING_NAME)
 
         def _get_previous_swizzling_type_by_key(event):
+            if event.state & 4:
+                return  # skip CTRL
+
             selection = self.swizzling_combobox.current()
             last = len(self.swizzling_combobox['values']) - 1
             try:
@@ -365,6 +401,9 @@ class ImageHeatGUI:
             self.reload_image_callback(event)
 
         def _get_next_swizzling_type_by_key(event):
+            if event.state & 4:
+                return  # skip CTRL
+
             selection = self.swizzling_combobox.current()
             try:
                 self.swizzling_combobox.current(selection + 1)
@@ -388,6 +427,9 @@ class ImageHeatGUI:
         self.compression_combobox.set(DEFAULT_COMPRESSION_NAME)
 
         def _get_previous_compression_type_by_key(event):
+            if event.state & 4:
+                return  # skip CTRL
+
             selection = self.compression_combobox.current()
             last = len(self.compression_combobox['values']) - 1
             try:
@@ -397,6 +439,9 @@ class ImageHeatGUI:
             self.reload_image_callback(event)
 
         def _get_next_compression_type_by_key(event):
+            if event.state & 4:
+                return  # skip CTRL
+
             selection = self.compression_combobox.current()
             try:
                 self.compression_combobox.current(selection + 1)
@@ -498,6 +543,9 @@ class ImageHeatGUI:
         ##########################
 
         def _force_reload_image_by_pressing_enter(event):
+            if event.state & 4:
+                return  # skip CTRL
+
             self.reload_image_callback(event)
 
         self.master.bind("<Return>", _force_reload_image_by_pressing_enter)
@@ -555,6 +603,9 @@ class ImageHeatGUI:
         self.postprocessing_zoom_combobox.set(DEFAULT_ZOOM_NAME)
 
         def _zoom_by_shortcut(event):
+            if event.state & 4:
+                return  # skip CTRL
+
             selection = self.postprocessing_zoom_combobox.current()
             if event.delta > 0:  # zoom in
                 try:
