@@ -49,6 +49,7 @@ from src.Image.constants import (
     SWIZZLING_TYPES_NAMES,
     ZOOM_RESAMPLING_TYPES_NAMES,
     ZOOM_TYPES_NAMES,
+    TranslationEntries,
     get_compression_id,
     get_resampling_type,
     get_rotate_id,
@@ -88,6 +89,7 @@ class ImageHeatGUI:
         self.ph_img = None
         self.preview_final_pil_image = None
         self.validate_spinbox_command = (master.register(self.validate_spinbox), '%P')
+        self.current_program_language = tk.StringVar(value="EN")
 
         try:
             if platform.uname().system == "Linux":
@@ -106,7 +108,7 @@ class ImageHeatGUI:
         ########################
         # IMAGE PARAMETERS BOX #
         ########################
-        self.parameters_labelframe = tk.LabelFrame(self.main_frame, text="Image Parameters", font=self.gui_font)
+        self.parameters_labelframe = tk.LabelFrame(self.main_frame, text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_IMAGE_PARAMETERS), font=self.gui_font)
         self.parameters_labelframe.place(x=5, y=5, width=160, height=340)
 
         ###################################
@@ -676,6 +678,7 @@ class ImageHeatGUI:
         ###############################################################################################################
         self.menubar = tk.Menu(master)
 
+        # file submenu
         self.filemenu = tk.Menu(self.menubar, tearoff=0)
         self.filemenu.add_command(
             label="Open File",
@@ -703,16 +706,24 @@ class ImageHeatGUI:
         self.filemenu.entryconfig(self.export_raw_label, state="disabled")
 
         self.filemenu.add_separator()
-        self.filemenu.add_command(
-            label="Quit", command=lambda: self.quit_program(), accelerator="Ctrl+Q"
-        )
+        self.filemenu.add_command(label="Quit", command=lambda: self.quit_program(), accelerator="Ctrl+Q")
         master.bind_all("<Control-q>", lambda x: self.quit_program())
         self.menubar.add_cascade(label="File", menu=self.filemenu)
 
+        # options submenu
+        self.optionsmenu = tk.Menu(self.menubar, tearoff=0)
+
+        self.languagemenu = tk.Menu(self.optionsmenu, tearoff=0)
+        self.optionsmenu.add_cascade(label='Language', menu=self.languagemenu)
+
+        self.languagemenu.add_radiobutton(label="English (Default)", variable=self.current_program_language, value="EN", command=lambda: self.change_program_language())
+        self.languagemenu.add_radiobutton(label="Polish", variable=self.current_program_language, value="PL", command=lambda: self.change_program_language())
+        self.menubar.add_cascade(label="Options", menu=self.optionsmenu)
+
+        # help submenu
         self.helpmenu = tk.Menu(self.menubar, tearoff=0)
-        self.helpmenu.add_command(
-            label="About...", command=lambda: self.show_about_window()
-        )
+        self.helpmenu.add_command(label="About...", command=lambda: self.show_about_window(), accelerator="Ctrl+H")
+        master.bind_all("<Control-h>", lambda x: self.show_about_window())
         self.menubar.add_cascade(label="Help", menu=self.helpmenu)
 
         master.config(menu=self.menubar)
@@ -720,6 +731,18 @@ class ImageHeatGUI:
     ######################################################################################################
     #                                             methods                                                #
     ######################################################################################################
+
+    def get_translation_text(self, translation_str_id: str = "") -> str:  # TODO - logic for PO files
+        if self.current_program_language.get() == "PL":
+            return "Parametry Obrazu"
+        else:
+            return "Image Parameters"  # TODO
+
+
+    def change_program_language(self):
+        logger.info("Changing program's language to: " + self.current_program_language.get())
+        self.parameters_labelframe.config(text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_IMAGE_PARAMETERS))
+        # TODO - add other texts
 
     def reload_image_callback(self, event):
         self.gui_reload_image_on_gui_element_change()
@@ -1125,7 +1148,7 @@ class ImageHeatGUI:
 
             self.preview_instance = tk.Canvas(
                 self.image_preview_canvasframe,
-                bg="#595959",
+                bg="#595959",  # TODO - add option to change background color
                 width=preview_img_width,
                 height=preview_img_height,
                 highlightthickness=0

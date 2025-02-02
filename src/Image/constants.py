@@ -4,6 +4,7 @@ License: GPL-3.0 License
 """
 
 from dataclasses import dataclass
+from enum import Enum
 
 from PIL.Image import Resampling
 from reversebox.image.image_formats import ImageFormats
@@ -193,3 +194,8 @@ DEFAULT_COMPRESSION_NAME: str = COMPRESSION_TYPES_NAMES[0]
 DEFAULT_ZOOM_NAME: str = "1x"
 DEFAULT_ZOOM_RESAMPLING_NAME: str = ZOOM_RESAMPLING_TYPES_NAMES[0]
 DEFAULT_ROTATE_NAME: str = ROTATE_TYPES_NAMES[0]
+
+
+# translation IDs
+class TranslationEntries(str, Enum):
+    TRANSLATION_TEXT_IMAGE_PARAMETERS = "TRANSLATION_TEXT_IMAGE_PARAMETERS"
