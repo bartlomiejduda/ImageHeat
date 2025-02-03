@@ -3,6 +3,7 @@ Copyright © 2024-2025  Bartłomiej Duda
 License: GPL-3.0 License
 """
 
+import json
 import math
 import os
 import platform
@@ -47,6 +48,7 @@ from src.Image.constants import (
     PIXEL_FORMATS_NAMES,
     ROTATE_TYPES_NAMES,
     SWIZZLING_TYPES_NAMES,
+    TRANSLATION_MEMORY,
     ZOOM_RESAMPLING_TYPES_NAMES,
     ZOOM_TYPES_NAMES,
     TranslationEntries,
@@ -72,6 +74,7 @@ class ImageHeatGUI:
         self.master = master
         self.VERSION_NUM = in_version_num
         self.MAIN_DIRECTORY = in_main_directory
+        self.TRANSLATION_MEMORY = TRANSLATION_MEMORY
         master.title(f"ImageHeat {in_version_num}")
         master.minsize(WINDOW_WIDTH, WINDOW_HEIGHT)
         master.geometry(f"{WINDOW_WIDTH}x{WINDOW_HEIGHT}")
@@ -732,15 +735,31 @@ class ImageHeatGUI:
     #                                             methods                                                #
     ######################################################################################################
 
-    def get_translation_text(self, translation_str_id: str = "") -> str:  # TODO - logic for PO files
-        if self.current_program_language.get() == "PL":
-            return "Parametry Obrazu"
-        else:
-            return "Image Parameters"  # TODO
+    def get_translation_text(self, translation_str_id: str = "") -> str:
+        for translation_entry in self.TRANSLATION_MEMORY:
+            if translation_entry.id == translation_str_id:
+                if translation_entry.text is not None:
+                    return translation_entry.text
+                else:
+                    return translation_entry.default
+        return "<missing_text>"
 
-
-    def change_program_language(self):
+    def change_program_language(self) -> None:
         logger.info("Changing program's language to: " + self.current_program_language.get())
+
+        json_path = os.path.join(self.MAIN_DIRECTORY, "data", "lang",
+                                                      self.current_program_language.get() + ".json")
+        try:
+            translation_json_file = open(json_path, "rt", encoding="utf8")
+            json_string: str = translation_json_file.read()
+            # translation_dict: dict =
+            json.loads(json_string)
+        except Exception:
+            logger.error(f"Couldn't load json file from path: {json_path}")
+            return
+
+        # TODO - add json logic
+
         self.parameters_labelframe.config(text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_IMAGE_PARAMETERS))
         # TODO - add other texts
 
