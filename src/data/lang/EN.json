@@ -1,6 +1,6 @@
 {
-  "translation_strings": [
-    {"TRANSLATION_TEXT_IMAGE_PARAMETERS": "Image Parameters"},
-    {"bbb": "bbb"}
-  ]
+  "translation_strings": {
+    "TRANSLATION_TEXT_IMAGE_PARAMETERS": "Image Parameters",
+    "TRANSLATION_TEXT_IMAGE_WIDTH": "Img Width"
+  }
 }

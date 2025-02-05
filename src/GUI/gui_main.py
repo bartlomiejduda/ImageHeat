@@ -12,7 +12,7 @@ import time
 import tkinter as tk
 from idlelib.tooltip import Hovertip
 from tkinter import filedialog, messagebox, ttk
-from typing import Optional
+from typing import List, Optional
 
 from PIL import Image, ImageTk
 from PIL.Image import Transpose
@@ -52,6 +52,7 @@ from src.Image.constants import (
     ZOOM_RESAMPLING_TYPES_NAMES,
     ZOOM_TYPES_NAMES,
     TranslationEntries,
+    TranslationEntry,
     get_compression_id,
     get_resampling_type,
     get_rotate_id,
@@ -117,7 +118,7 @@ class ImageHeatGUI:
         ###################################
         # IMAGE PARAMETERS - IMAGE WIDTH  #
         ###################################
-        self.width_label = tk.Label(self.parameters_labelframe, text="Img Width", anchor="w", font=self.gui_font)
+        self.width_label = tk.Label(self.parameters_labelframe, text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_IMAGE_WIDTH), anchor="w", font=self.gui_font)
         self.width_label.place(x=5, y=5, width=70, height=20)
 
         self.current_width = tk.StringVar(value="0")
@@ -719,8 +720,8 @@ class ImageHeatGUI:
         self.languagemenu = tk.Menu(self.optionsmenu, tearoff=0)
         self.optionsmenu.add_cascade(label='Language', menu=self.languagemenu)
 
-        self.languagemenu.add_radiobutton(label="English (Default)", variable=self.current_program_language, value="EN", command=lambda: self.change_program_language())
-        self.languagemenu.add_radiobutton(label="Polish", variable=self.current_program_language, value="PL", command=lambda: self.change_program_language())
+        self.languagemenu.add_radiobutton(label="English (Default)", variable=self.current_program_language, value="EN", command=lambda: self.set_program_language())
+        self.languagemenu.add_radiobutton(label="Polish", variable=self.current_program_language, value="PL", command=lambda: self.set_program_language())
         self.menubar.add_cascade(label="Options", menu=self.optionsmenu)
 
         # help submenu
@@ -744,23 +745,31 @@ class ImageHeatGUI:
                     return translation_entry.default
         return "<missing_text>"
 
-    def change_program_language(self) -> None:
-        logger.info("Changing program's language to: " + self.current_program_language.get())
+    def set_program_language(self) -> None:
+        logger.info("Setting program's language to: " + self.current_program_language.get())
 
         json_path = os.path.join(self.MAIN_DIRECTORY, "data", "lang",
                                                       self.current_program_language.get() + ".json")
         try:
+            new_translation_memory: List[TranslationEntry] = []
             translation_json_file = open(json_path, "rt", encoding="utf8")
-            json_string: str = translation_json_file.read()
-            # translation_dict: dict =
-            json.loads(json_string)
-        except Exception:
-            logger.error(f"Couldn't load json file from path: {json_path}")
+            translations_dict: dict = json.loads(translation_json_file.read())['translation_strings']
+            for translation_entry in self.TRANSLATION_MEMORY:
+                json_translated_text: str = translations_dict[translation_entry.id]
+                new_translation_memory.append(
+                    TranslationEntry(id=translation_entry.id,
+                                     default=translation_entry.default,
+                                     text=json_translated_text
+                                     )
+                )
+            self.TRANSLATION_MEMORY = new_translation_memory
+
+        except Exception as error:
+            logger.error(f"Couldn't load language strings from path: {json_path}. Error: {error}")
             return
 
-        # TODO - add json logic
-
         self.parameters_labelframe.config(text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_IMAGE_PARAMETERS))
+        self.width_label.config(text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_IMAGE_WIDTH))
         # TODO - add other texts
 
     def reload_image_callback(self, event):

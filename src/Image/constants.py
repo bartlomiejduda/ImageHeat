@@ -199,6 +199,7 @@ DEFAULT_ROTATE_NAME: str = ROTATE_TYPES_NAMES[0]
 
 class TranslationEntries(str, Enum):
     TRANSLATION_TEXT_IMAGE_PARAMETERS = "TRANSLATION_TEXT_IMAGE_PARAMETERS"
+    TRANSLATION_TEXT_IMAGE_WIDTH = "TRANSLATION_TEXT_IMAGE_WIDTH"
 
 
 @dataclass
@@ -209,5 +210,6 @@ class TranslationEntry:
 
 
 TRANSLATION_MEMORY: List[TranslationEntry] = [
-    TranslationEntry(id=TranslationEntries.TRANSLATION_TEXT_IMAGE_PARAMETERS, default="Image Parameters")
+    TranslationEntry(id=TranslationEntries.TRANSLATION_TEXT_IMAGE_PARAMETERS, default="Image Parameters"),
+    TranslationEntry(id=TranslationEntries.TRANSLATION_TEXT_IMAGE_WIDTH, default="Img Width"),
 ]
