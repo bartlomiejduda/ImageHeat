@@ -203,6 +203,22 @@ class TranslationEntries(str, Enum):
     TRANSLATION_TEXT_IMAGE_HEIGHT = "TRANSLATION_TEXT_IMAGE_HEIGHT"
     TRANSLATION_TEXT_START_OFFSET = "TRANSLATION_TEXT_START_OFFSET"
     TRANSLATION_TEXT_END_OFFSET = "TRANSLATION_TEXT_END_OFFSET"
+    TRANSLATION_TEXT_PIXEL_FORMAT = "TRANSLATION_TEXT_PIXEL_FORMAT"
+    TRANSLATION_TEXT_ENDIANESS_TYPE = "TRANSLATION_TEXT_ENDIANESS_TYPE"
+    TRANSLATION_TEXT_SWIZZLING_TYPE = "TRANSLATION_TEXT_SWIZZLING_TYPE"
+    TRANSLATION_TEXT_COMPRESSION_TYPE = "TRANSLATION_TEXT_COMPRESSION_TYPE"
+
+    TRANSLATION_TEXT_PALETTE_PARAMETERS = "TRANSLATION_TEXT_PALETTE_PARAMETERS"
+    TRANSLATION_TEXT_LOAD_FROM = "TRANSLATION_TEXT_LOAD_FROM"
+    TRANSLATION_TEXT_SAME_FILE = "TRANSLATION_TEXT_SAME_FILE"
+    TRANSLATION_TEXT_ANOTHER_FILE = "TRANSLATION_TEXT_ANOTHER_FILE"
+    TRANSLATION_TEXT_PALETTE_FILE = "TRANSLATION_TEXT_PALETTE_FILE"
+    TRANSLATION_TEXT_BROWSE = "TRANSLATION_TEXT_BROWSE"
+    TRANSLATION_TEXT_PAL_OFFSET = "TRANSLATION_TEXT_PAL_OFFSET"
+    TRANSLATION_TEXT_PALETTE_ENDIANESS = "TRANSLATION_TEXT_PALETTE_ENDIANESS"
+    TRANSLATION_TEXT_PS2_PALETTE_SWIZZLE = "TRANSLATION_TEXT_PS2_PALETTE_SWIZZLE"
+
+    TRANSLATION_TEXT_IMAGE_PREVIEW = "TRANSLATION_TEXT_IMAGE_PREVIEW"
 
 
 @dataclass
@@ -218,4 +234,18 @@ TRANSLATION_MEMORY: List[TranslationEntry] = [
     TranslationEntry(id=TranslationEntries.TRANSLATION_TEXT_IMAGE_HEIGHT, default="Img Height"),
     TranslationEntry(id=TranslationEntries.TRANSLATION_TEXT_START_OFFSET, default="Start Offset (Decimal)"),
     TranslationEntry(id=TranslationEntries.TRANSLATION_TEXT_END_OFFSET, default="End Offset (Decimal)"),
+    TranslationEntry(id=TranslationEntries.TRANSLATION_TEXT_PIXEL_FORMAT, default="Pixel Format"),
+    TranslationEntry(id=TranslationEntries.TRANSLATION_TEXT_ENDIANESS_TYPE, default="Endianess Type"),
+    TranslationEntry(id=TranslationEntries.TRANSLATION_TEXT_SWIZZLING_TYPE, default="Swizzling Type"),
+    TranslationEntry(id=TranslationEntries.TRANSLATION_TEXT_COMPRESSION_TYPE, default="Compression Type"),
+    TranslationEntry(id=TranslationEntries.TRANSLATION_TEXT_PALETTE_PARAMETERS, default="Palette Parameters"),
+    TranslationEntry(id=TranslationEntries.TRANSLATION_TEXT_LOAD_FROM, default="Load From"),
+    TranslationEntry(id=TranslationEntries.TRANSLATION_TEXT_SAME_FILE, default="Same File"),
+    TranslationEntry(id=TranslationEntries.TRANSLATION_TEXT_ANOTHER_FILE, default="Another File"),
+    TranslationEntry(id=TranslationEntries.TRANSLATION_TEXT_PALETTE_FILE, default="Palette File"),
+    TranslationEntry(id=TranslationEntries.TRANSLATION_TEXT_BROWSE, default="Browse..."),
+    TranslationEntry(id=TranslationEntries.TRANSLATION_TEXT_PAL_OFFSET, default="Pal. Offset"),
+    TranslationEntry(id=TranslationEntries.TRANSLATION_TEXT_PALETTE_ENDIANESS, default="Palette Endianess"),
+    TranslationEntry(id=TranslationEntries.TRANSLATION_TEXT_PS2_PALETTE_SWIZZLE, default="PS2 Palette Swizzle"),
+    TranslationEntry(id=TranslationEntries.TRANSLATION_TEXT_IMAGE_PREVIEW, default="Image Preview"),
 ]

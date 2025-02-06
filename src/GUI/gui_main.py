@@ -318,7 +318,7 @@ class ImageHeatGUI:
         # IMAGE PARAMETERS - PIXEL FORMAT  #
         ####################################
 
-        self.pixel_format_label = tk.Label(self.parameters_labelframe, text="Pixel Format", anchor="w", font=self.gui_font)
+        self.pixel_format_label = tk.Label(self.parameters_labelframe, text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_PIXEL_FORMAT), anchor="w", font=self.gui_font)
         self.pixel_format_label.place(x=5, y=135, width=145, height=20)
 
         self.pixel_format_combobox = ttk.Combobox(self.parameters_labelframe,
@@ -357,7 +357,7 @@ class ImageHeatGUI:
         # IMAGE PARAMETERS - ENDIANESS     #
         ####################################
 
-        self.endianess_label = tk.Label(self.parameters_labelframe, text="Endianess Type", anchor="w", font=self.gui_font)
+        self.endianess_label = tk.Label(self.parameters_labelframe, text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_ENDIANESS_TYPE), anchor="w", font=self.gui_font)
         self.endianess_label.place(x=5, y=180, width=145, height=20)
 
         self.current_endianess = tk.StringVar(value="none")
@@ -384,7 +384,7 @@ class ImageHeatGUI:
         ####################################
         # IMAGE PARAMETERS - SWIZZLING     #
         ####################################
-        self.swizzling_label = tk.Label(self.parameters_labelframe, text="Swizzling Type", anchor="w", font=self.gui_font)
+        self.swizzling_label = tk.Label(self.parameters_labelframe, text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_SWIZZLING_TYPE), anchor="w", font=self.gui_font)
         self.swizzling_label.place(x=5, y=225, width=145, height=20)
 
         self.current_swizzling = tk.StringVar(value="none")
@@ -423,7 +423,7 @@ class ImageHeatGUI:
         ####################################
         # IMAGE PARAMETERS - COMPRESSION     #
         ####################################
-        self.compression_label = tk.Label(self.parameters_labelframe, text="Compression Type", anchor="w", font=self.gui_font)
+        self.compression_label = tk.Label(self.parameters_labelframe, text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_COMPRESSION_TYPE), anchor="w", font=self.gui_font)
         self.compression_label.place(x=5, y=270, width=145, height=20)
 
         self.current_compression = tk.StringVar(value="none")
@@ -463,37 +463,37 @@ class ImageHeatGUI:
         ###########################
         # PALETTE PARAMETERS BOX  #
         ###########################
-        self.palette_parameters_labelframe = tk.LabelFrame(self.main_frame, text="Palette Parameters", font=self.gui_font)
+        self.palette_parameters_labelframe = tk.LabelFrame(self.main_frame, text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_PALETTE_PARAMETERS), font=self.gui_font)
         self.palette_parameters_labelframe.place(x=5, y=345, width=160, height=190)
 
 
         ########################################
         # PALETTE PARAMETERS BOX  - LOAD FROM  #
         ########################################
-        self.palette_load_from_label = tk.Label(self.palette_parameters_labelframe, text="Load From", anchor="w", font=self.gui_font)
+        self.palette_load_from_label = tk.Label(self.palette_parameters_labelframe, text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_LOAD_FROM), anchor="w", font=self.gui_font)
         self.palette_load_from_label.place(x=5, y=0, width=60, height=20)
 
         self.palette_load_from_variable = tk.IntVar(value=1)
 
         self.palette_load_from_same_file_radio_button = tk.Radiobutton(self.palette_parameters_labelframe,
-                                                                       text="Same File", variable=self.palette_load_from_variable,
+                                                                       text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_SAME_FILE), variable=self.palette_load_from_variable,
                                                                        value=1, command=self.gui_reload_image_on_gui_element_change,
                                                                        anchor="w", font=self.gui_font)
         self.palette_load_from_same_file_radio_button.place(x=65, y=0, width=90, height=20)
         self.palette_load_from_same_file_radio_button.select()
 
         self.palette_load_from_another_file_radio_button = tk.Radiobutton(self.palette_parameters_labelframe,
-                                                                          text="Another File",
+                                                                          text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_ANOTHER_FILE),
                                                                           variable=self.palette_load_from_variable,
                                                                           value=2, command=self.gui_reload_image_on_gui_element_change,
                                                                           anchor="w", font=self.gui_font)
         self.palette_load_from_another_file_radio_button.place(x=65, y=15, width=90, height=20)
 
-        self.palette_palfile_label = tk.Label(self.palette_parameters_labelframe, text="Palette File", anchor="w",
+        self.palette_palfile_label = tk.Label(self.palette_parameters_labelframe, text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_PALETTE_FILE), anchor="w",
                                               font=self.gui_font)
         self.palette_palfile_label.place(x=5, y=40, width=60, height=20)
 
-        self.palette_palfile_button = tk.Button(self.palette_parameters_labelframe, text="Browse...",
+        self.palette_palfile_button = tk.Button(self.palette_parameters_labelframe, text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_BROWSE),
                                                 command=self.open_palette_file, font=self.gui_font)
         self.palette_palfile_button.place(x=70, y=40, width=80, height=20)
 
@@ -501,7 +501,7 @@ class ImageHeatGUI:
         # PALETTE PARAMETERS BOX  - PAL OFFSET  #
         ###########################################
 
-        self.palette_paloffset_label = tk.Label(self.palette_parameters_labelframe, text="Pal. Offset", anchor="w",
+        self.palette_paloffset_label = tk.Label(self.palette_parameters_labelframe, text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_PAL_OFFSET), anchor="w",
                                                 font=self.gui_font)
         self.palette_paloffset_label.place(x=5, y=70, width=60, height=20)
 
@@ -515,7 +515,7 @@ class ImageHeatGUI:
         # PALETTE PARAMETERS BOX  - PALETTE ENDIANESS   #
         #################################################
 
-        self.palette_endianess_label = tk.Label(self.palette_parameters_labelframe, text="Palette Endianess", anchor="w", font=self.gui_font)
+        self.palette_endianess_label = tk.Label(self.palette_parameters_labelframe, text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_PALETTE_ENDIANESS), anchor="w", font=self.gui_font)
         self.palette_endianess_label.place(x=5, y=95, width=100, height=20)
 
         self.palette_current_endianess = tk.StringVar(value="none")
@@ -531,7 +531,7 @@ class ImageHeatGUI:
 
         self.palette_ps2swizzle_variable = tk.StringVar(value="OFF")
         self.palette_ps2swizzle_checkbutton = tk.Checkbutton(self.palette_parameters_labelframe,
-                                                             text="PS2 Palette Swizzle",
+                                                             text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_PS2_PALETTE_SWIZZLE),
                                                              variable=self.palette_ps2swizzle_variable,
                                                              anchor="w", onvalue="ON", offvalue="OFF",
                                                              font=self.gui_font, command=self.gui_reload_image_on_gui_element_change)
@@ -666,7 +666,7 @@ class ImageHeatGUI:
         ########################
         # IMAGE BOX            #
         ########################
-        self.image_preview_labelframe = tk.LabelFrame(self.main_frame, text="Image Preview", font=self.gui_font)
+        self.image_preview_labelframe = tk.LabelFrame(self.main_frame, text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_IMAGE_PREVIEW), font=self.gui_font)
         self.image_preview_labelframe.place(x=170, y=5, relwidth=1, relheight=1, height=-10, width=-375)
 
         self.image_preview_canvasframe = tk.Frame(self.image_preview_labelframe)
@@ -755,7 +755,7 @@ class ImageHeatGUI:
             translation_json_file = open(json_path, "rt", encoding="utf8")
             translations_dict: dict = json.loads(translation_json_file.read())['translation_strings']
             for translation_entry in self.TRANSLATION_MEMORY:
-                json_translated_text: str = translations_dict[translation_entry.id]
+                json_translated_text: str = translations_dict.get(translation_entry.id)
                 new_translation_memory.append(
                     TranslationEntry(id=translation_entry.id,
                                      default=translation_entry.default,
@@ -773,6 +773,21 @@ class ImageHeatGUI:
         self.height_label.config(text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_IMAGE_HEIGHT))
         self.img_start_offset_label.config(text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_START_OFFSET))
         self.img_end_offset_label.config(text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_END_OFFSET))
+        self.pixel_format_label.config(text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_PIXEL_FORMAT))
+        self.endianess_label.config(text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_ENDIANESS_TYPE))
+        self.swizzling_label.config(text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_SWIZZLING_TYPE))
+        self.compression_label.config(text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_COMPRESSION_TYPE))
+
+        self.palette_parameters_labelframe.config(text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_PALETTE_PARAMETERS))
+        self.palette_load_from_label.config(text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_LOAD_FROM))
+        self.palette_load_from_same_file_radio_button.config(text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_SAME_FILE))
+        self.palette_load_from_another_file_radio_button.config(text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_ANOTHER_FILE))
+        self.palette_palfile_label.config(text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_PALETTE_FILE))
+        self.palette_palfile_button.config(text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_BROWSE))
+        self.palette_paloffset_label.config(text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_PAL_OFFSET))
+        self.palette_endianess_label.config(text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_PALETTE_ENDIANESS))
+        self.palette_ps2swizzle_checkbutton.config(text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_PS2_PALETTE_SWIZZLE))
+        self.image_preview_labelframe.config(text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_IMAGE_PREVIEW))
         # TODO - add other texts
 
     def reload_image_callback(self, event):
