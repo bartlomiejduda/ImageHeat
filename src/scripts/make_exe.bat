@@ -26,6 +26,7 @@ copy .\LICENSE %BUILD_PATH%\LICENSE
 mkdir %BUILD_PATH%\data\img
 copy .\src\data\img\heat_icon.ico %BUILD_PATH%\data\img\heat_icon.ico
 copy .\src\data\img\preview_not_supported.png %BUILD_PATH%\data\img\preview_not_supported.png
+xcopy /s .\src\data\lang %BUILD_PATH%\data\lang\
 if exist %TARGET_SRC_PATH%\log.txt (del %TARGET_SRC_PATH%\log.txt)
 if exist %TARGET_SRC_PATH%\config.ini (del %TARGET_SRC_PATH%\config.ini)
 

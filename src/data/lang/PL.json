@@ -1,6 +1,9 @@
 {
   "translation_strings": {
     "TRANSLATION_TEXT_IMAGE_PARAMETERS": "Parametry Obrazu",
-    "TRANSLATION_TEXT_IMAGE_WIDTH": "Szerokość"
+    "TRANSLATION_TEXT_IMAGE_WIDTH": "Szerokość",
+    "TRANSLATION_TEXT_IMAGE_HEIGHT": "Wysokość",
+    "TRANSLATION_TEXT_START_OFFSET": "Początkowy Offset",
+    "TRANSLATION_TEXT_END_OFFSET": "Końcowy Offset"
   }
 }

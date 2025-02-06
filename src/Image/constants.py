@@ -200,6 +200,9 @@ DEFAULT_ROTATE_NAME: str = ROTATE_TYPES_NAMES[0]
 class TranslationEntries(str, Enum):
     TRANSLATION_TEXT_IMAGE_PARAMETERS = "TRANSLATION_TEXT_IMAGE_PARAMETERS"
     TRANSLATION_TEXT_IMAGE_WIDTH = "TRANSLATION_TEXT_IMAGE_WIDTH"
+    TRANSLATION_TEXT_IMAGE_HEIGHT = "TRANSLATION_TEXT_IMAGE_HEIGHT"
+    TRANSLATION_TEXT_START_OFFSET = "TRANSLATION_TEXT_START_OFFSET"
+    TRANSLATION_TEXT_END_OFFSET = "TRANSLATION_TEXT_END_OFFSET"
 
 
 @dataclass
@@ -212,4 +215,7 @@ class TranslationEntry:
 TRANSLATION_MEMORY: List[TranslationEntry] = [
     TranslationEntry(id=TranslationEntries.TRANSLATION_TEXT_IMAGE_PARAMETERS, default="Image Parameters"),
     TranslationEntry(id=TranslationEntries.TRANSLATION_TEXT_IMAGE_WIDTH, default="Img Width"),
+    TranslationEntry(id=TranslationEntries.TRANSLATION_TEXT_IMAGE_HEIGHT, default="Img Height"),
+    TranslationEntry(id=TranslationEntries.TRANSLATION_TEXT_START_OFFSET, default="Start Offset (Decimal)"),
+    TranslationEntry(id=TranslationEntries.TRANSLATION_TEXT_END_OFFSET, default="End Offset (Decimal)"),
 ]

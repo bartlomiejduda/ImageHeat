@@ -1,6 +1,9 @@
 {
   "translation_strings": {
     "TRANSLATION_TEXT_IMAGE_PARAMETERS": "Image Parameters",
-    "TRANSLATION_TEXT_IMAGE_WIDTH": "Img Width"
+    "TRANSLATION_TEXT_IMAGE_WIDTH": "Img Width",
+    "TRANSLATION_TEXT_IMAGE_HEIGHT": "Img Height",
+    "TRANSLATION_TEXT_START_OFFSET": "Start Offset (Decimal)",
+    "TRANSLATION_TEXT_END_OFFSET": "End Offset (Decimal)"
   }
 }

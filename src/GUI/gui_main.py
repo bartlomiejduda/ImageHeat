@@ -181,7 +181,7 @@ class ImageHeatGUI:
         ######################################
         # IMAGE PARAMETERS - IMAGE HEIGHT    #
         ######################################
-        self.height_label = tk.Label(self.parameters_labelframe, text="Img Height", anchor="w", font=self.gui_font)
+        self.height_label = tk.Label(self.parameters_labelframe, text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_IMAGE_HEIGHT), anchor="w", font=self.gui_font)
         self.height_label.place(x=85, y=5, width=65, height=20)
 
         self.current_height = tk.StringVar(value="0")
@@ -211,7 +211,7 @@ class ImageHeatGUI:
         ###########################################
         # IMAGE PARAMETERS - IMAGE START OFFSET   #
         ###########################################
-        self.img_start_offset_label = tk.Label(self.parameters_labelframe, text="Start Offset (Decimal)", anchor="w", font=self.gui_font)
+        self.img_start_offset_label = tk.Label(self.parameters_labelframe, text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_START_OFFSET), anchor="w", font=self.gui_font)
         self.img_start_offset_label.place(x=5, y=50, width=145, height=20)
 
         self.current_start_offset = tk.StringVar(value="0")
@@ -305,7 +305,7 @@ class ImageHeatGUI:
         ##########################################
         # IMAGE PARAMETERS - IMAGE END OFFSET    #
         ##########################################
-        self.img_end_offset_label = tk.Label(self.parameters_labelframe, text="End Offset (Decimal)", anchor="w", font=self.gui_font)
+        self.img_end_offset_label = tk.Label(self.parameters_labelframe, text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_END_OFFSET), anchor="w", font=self.gui_font)
         self.img_end_offset_label.place(x=5, y=90, width=145, height=20)
 
         self.current_end_offset = tk.StringVar(value="0")
@@ -770,6 +770,9 @@ class ImageHeatGUI:
 
         self.parameters_labelframe.config(text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_IMAGE_PARAMETERS))
         self.width_label.config(text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_IMAGE_WIDTH))
+        self.height_label.config(text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_IMAGE_HEIGHT))
+        self.img_start_offset_label.config(text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_START_OFFSET))
+        self.img_end_offset_label.config(text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_END_OFFSET))
         # TODO - add other texts
 
     def reload_image_callback(self, event):
