@@ -51,8 +51,8 @@ from src.Image.constants import (
     TRANSLATION_MEMORY,
     ZOOM_RESAMPLING_TYPES_NAMES,
     ZOOM_TYPES_NAMES,
-    TranslationEntries,
     TranslationEntry,
+    TranslationKeys,
     get_compression_id,
     get_resampling_type,
     get_rotate_id,
@@ -116,13 +116,13 @@ class ImageHeatGUI:
         ########################
         # IMAGE PARAMETERS BOX #
         ########################
-        self.parameters_labelframe = tk.LabelFrame(self.main_frame, text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_IMAGE_PARAMETERS), font=self.gui_font)
+        self.parameters_labelframe = tk.LabelFrame(self.main_frame, text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_IMAGE_PARAMETERS), font=self.gui_font)
         self.parameters_labelframe.place(x=5, y=5, width=160, height=340)
 
         ###################################
         # IMAGE PARAMETERS - IMAGE WIDTH  #
         ###################################
-        self.width_label = tk.Label(self.parameters_labelframe, text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_IMAGE_WIDTH), anchor="w", font=self.gui_font)
+        self.width_label = tk.Label(self.parameters_labelframe, text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_IMAGE_WIDTH), anchor="w", font=self.gui_font)
         self.width_label.place(x=5, y=5, width=70, height=20)
 
         self.current_width = tk.StringVar(value="0")
@@ -185,7 +185,7 @@ class ImageHeatGUI:
         ######################################
         # IMAGE PARAMETERS - IMAGE HEIGHT    #
         ######################################
-        self.height_label = tk.Label(self.parameters_labelframe, text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_IMAGE_HEIGHT), anchor="w", font=self.gui_font)
+        self.height_label = tk.Label(self.parameters_labelframe, text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_IMAGE_HEIGHT), anchor="w", font=self.gui_font)
         self.height_label.place(x=85, y=5, width=65, height=20)
 
         self.current_height = tk.StringVar(value="0")
@@ -215,7 +215,7 @@ class ImageHeatGUI:
         ###########################################
         # IMAGE PARAMETERS - IMAGE START OFFSET   #
         ###########################################
-        self.img_start_offset_label = tk.Label(self.parameters_labelframe, text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_START_OFFSET), anchor="w", font=self.gui_font)
+        self.img_start_offset_label = tk.Label(self.parameters_labelframe, text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_START_OFFSET), anchor="w", font=self.gui_font)
         self.img_start_offset_label.place(x=5, y=50, width=145, height=20)
 
         self.current_start_offset = tk.StringVar(value="0")
@@ -309,7 +309,7 @@ class ImageHeatGUI:
         ##########################################
         # IMAGE PARAMETERS - IMAGE END OFFSET    #
         ##########################################
-        self.img_end_offset_label = tk.Label(self.parameters_labelframe, text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_END_OFFSET), anchor="w", font=self.gui_font)
+        self.img_end_offset_label = tk.Label(self.parameters_labelframe, text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_END_OFFSET), anchor="w", font=self.gui_font)
         self.img_end_offset_label.place(x=5, y=90, width=145, height=20)
 
         self.current_end_offset = tk.StringVar(value="0")
@@ -322,7 +322,7 @@ class ImageHeatGUI:
         # IMAGE PARAMETERS - PIXEL FORMAT  #
         ####################################
 
-        self.pixel_format_label = tk.Label(self.parameters_labelframe, text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_PIXEL_FORMAT), anchor="w", font=self.gui_font)
+        self.pixel_format_label = tk.Label(self.parameters_labelframe, text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_PIXEL_FORMAT), anchor="w", font=self.gui_font)
         self.pixel_format_label.place(x=5, y=135, width=145, height=20)
 
         self.pixel_format_combobox = ttk.Combobox(self.parameters_labelframe,
@@ -361,7 +361,7 @@ class ImageHeatGUI:
         # IMAGE PARAMETERS - ENDIANESS     #
         ####################################
 
-        self.endianess_label = tk.Label(self.parameters_labelframe, text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_ENDIANESS_TYPE), anchor="w", font=self.gui_font)
+        self.endianess_label = tk.Label(self.parameters_labelframe, text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_ENDIANESS_TYPE), anchor="w", font=self.gui_font)
         self.endianess_label.place(x=5, y=180, width=145, height=20)
 
         self.current_endianess = tk.StringVar(value="none")
@@ -388,7 +388,7 @@ class ImageHeatGUI:
         ####################################
         # IMAGE PARAMETERS - SWIZZLING     #
         ####################################
-        self.swizzling_label = tk.Label(self.parameters_labelframe, text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_SWIZZLING_TYPE), anchor="w", font=self.gui_font)
+        self.swizzling_label = tk.Label(self.parameters_labelframe, text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_SWIZZLING_TYPE), anchor="w", font=self.gui_font)
         self.swizzling_label.place(x=5, y=225, width=145, height=20)
 
         self.current_swizzling = tk.StringVar(value="none")
@@ -427,7 +427,7 @@ class ImageHeatGUI:
         ####################################
         # IMAGE PARAMETERS - COMPRESSION     #
         ####################################
-        self.compression_label = tk.Label(self.parameters_labelframe, text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_COMPRESSION_TYPE), anchor="w", font=self.gui_font)
+        self.compression_label = tk.Label(self.parameters_labelframe, text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_COMPRESSION_TYPE), anchor="w", font=self.gui_font)
         self.compression_label.place(x=5, y=270, width=145, height=20)
 
         self.current_compression = tk.StringVar(value="none")
@@ -467,37 +467,37 @@ class ImageHeatGUI:
         ###########################
         # PALETTE PARAMETERS BOX  #
         ###########################
-        self.palette_parameters_labelframe = tk.LabelFrame(self.main_frame, text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_PALETTE_PARAMETERS), font=self.gui_font)
+        self.palette_parameters_labelframe = tk.LabelFrame(self.main_frame, text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_PALETTE_PARAMETERS), font=self.gui_font)
         self.palette_parameters_labelframe.place(x=5, y=345, width=160, height=190)
 
 
         ########################################
         # PALETTE PARAMETERS BOX  - LOAD FROM  #
         ########################################
-        self.palette_load_from_label = tk.Label(self.palette_parameters_labelframe, text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_LOAD_FROM), anchor="w", font=self.gui_font)
+        self.palette_load_from_label = tk.Label(self.palette_parameters_labelframe, text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_LOAD_FROM), anchor="w", font=self.gui_font)
         self.palette_load_from_label.place(x=5, y=0, width=60, height=20)
 
         self.palette_load_from_variable = tk.IntVar(value=1)
 
         self.palette_load_from_same_file_radio_button = tk.Radiobutton(self.palette_parameters_labelframe,
-                                                                       text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_SAME_FILE), variable=self.palette_load_from_variable,
+                                                                       text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_SAME_FILE), variable=self.palette_load_from_variable,
                                                                        value=1, command=self.gui_reload_image_on_gui_element_change,
                                                                        anchor="w", font=self.gui_font)
         self.palette_load_from_same_file_radio_button.place(x=65, y=0, width=90, height=20)
         self.palette_load_from_same_file_radio_button.select()
 
         self.palette_load_from_another_file_radio_button = tk.Radiobutton(self.palette_parameters_labelframe,
-                                                                          text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_ANOTHER_FILE),
+                                                                          text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_ANOTHER_FILE),
                                                                           variable=self.palette_load_from_variable,
                                                                           value=2, command=self.gui_reload_image_on_gui_element_change,
                                                                           anchor="w", font=self.gui_font)
         self.palette_load_from_another_file_radio_button.place(x=65, y=15, width=90, height=20)
 
-        self.palette_palfile_label = tk.Label(self.palette_parameters_labelframe, text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_PALETTE_FILE), anchor="w",
+        self.palette_palfile_label = tk.Label(self.palette_parameters_labelframe, text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_PALETTE_FILE), anchor="w",
                                               font=self.gui_font)
         self.palette_palfile_label.place(x=5, y=40, width=60, height=20)
 
-        self.palette_palfile_button = tk.Button(self.palette_parameters_labelframe, text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_BROWSE),
+        self.palette_palfile_button = tk.Button(self.palette_parameters_labelframe, text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_BROWSE),
                                                 command=self.open_palette_file, font=self.gui_font)
         self.palette_palfile_button.place(x=70, y=40, width=80, height=20)
 
@@ -505,7 +505,7 @@ class ImageHeatGUI:
         # PALETTE PARAMETERS BOX  - PAL OFFSET  #
         ###########################################
 
-        self.palette_paloffset_label = tk.Label(self.palette_parameters_labelframe, text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_PAL_OFFSET), anchor="w",
+        self.palette_paloffset_label = tk.Label(self.palette_parameters_labelframe, text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_PAL_OFFSET), anchor="w",
                                                 font=self.gui_font)
         self.palette_paloffset_label.place(x=5, y=70, width=60, height=20)
 
@@ -519,7 +519,7 @@ class ImageHeatGUI:
         # PALETTE PARAMETERS BOX  - PALETTE ENDIANESS   #
         #################################################
 
-        self.palette_endianess_label = tk.Label(self.palette_parameters_labelframe, text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_PALETTE_ENDIANESS), anchor="w", font=self.gui_font)
+        self.palette_endianess_label = tk.Label(self.palette_parameters_labelframe, text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_PALETTE_ENDIANESS), anchor="w", font=self.gui_font)
         self.palette_endianess_label.place(x=5, y=95, width=100, height=20)
 
         self.palette_current_endianess = tk.StringVar(value="none")
@@ -535,7 +535,7 @@ class ImageHeatGUI:
 
         self.palette_ps2swizzle_variable = tk.StringVar(value="OFF")
         self.palette_ps2swizzle_checkbutton = tk.Checkbutton(self.palette_parameters_labelframe,
-                                                             text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_PS2_PALETTE_SWIZZLE),
+                                                             text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_PS2_PALETTE_SWIZZLE),
                                                              variable=self.palette_ps2swizzle_variable,
                                                              anchor="w", onvalue="ON", offvalue="OFF",
                                                              font=self.gui_font, command=self.gui_reload_image_on_gui_element_change)
@@ -564,33 +564,33 @@ class ImageHeatGUI:
         # INFO BOX #
         ##########################
 
-        self.info_labelframe = tk.LabelFrame(self.main_frame, text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_INFO_LABELFRAME), font=self.gui_font)
+        self.info_labelframe = tk.LabelFrame(self.main_frame, text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_LABELFRAME), font=self.gui_font)
         self.info_labelframe.place(x=-200, y=5, width=195, height=145, relx=1)
 
-        self.file_name_label = HTMLLabel(self.info_labelframe, html=self._get_html_for_infobox_label(self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_INFO_FILENAME_LABEL), ""), wrap=None)
-        self.file_name_tooltip = Hovertip(self.file_name_label, self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_INFO_FILENAME_LABEL))
+        self.file_name_label = HTMLLabel(self.info_labelframe, html=self._get_html_for_infobox_label(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_FILENAME_LABEL), ""), wrap=None)
+        self.file_name_tooltip = Hovertip(self.file_name_label, self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_FILENAME_LABEL))
         self.file_name_label.place(x=5, y=5, width=185, height=18)
 
-        self.file_size_label = HTMLLabel(self.info_labelframe, html=self._get_html_for_infobox_label(self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_INFO_FILE_SIZE), ""), wrap=None)
+        self.file_size_label = HTMLLabel(self.info_labelframe, html=self._get_html_for_infobox_label(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_FILE_SIZE), ""), wrap=None)
         self.file_size_label.place(x=5, y=25, width=175, height=18)
 
-        self.infobox_pixel_x_label = HTMLLabel(self.info_labelframe, html=self._get_html_for_infobox_label(self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_INFO_PIXEL_X), ""), wrap=None)
+        self.infobox_pixel_x_label = HTMLLabel(self.info_labelframe, html=self._get_html_for_infobox_label(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_PIXEL_X), ""), wrap=None)
         self.infobox_pixel_x_label.place(x=5, y=45, width=175, height=18)
 
-        self.infobox_pixel_y_label = HTMLLabel(self.info_labelframe, html=self._get_html_for_infobox_label(self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_INFO_PIXEL_Y), ""), wrap=None)
+        self.infobox_pixel_y_label = HTMLLabel(self.info_labelframe, html=self._get_html_for_infobox_label(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_PIXEL_Y), ""), wrap=None)
         self.infobox_pixel_y_label.place(x=5, y=65, width=175, height=18)
 
-        self.infobox_pixel_offset_label = HTMLLabel(self.info_labelframe, html=self._get_html_for_infobox_label(self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_INFO_PIXEL_OFFSET), ""), wrap=None)
+        self.infobox_pixel_offset_label = HTMLLabel(self.info_labelframe, html=self._get_html_for_infobox_label(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_PIXEL_OFFSET), ""), wrap=None)
         self.infobox_pixel_offset_label.place(x=5, y=85, width=175, height=18)
 
-        self.infobox_pixel_value_hex_label = HTMLLabel(self.info_labelframe, html=self._get_html_for_infobox_label(self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_INFO_PIXEL_VALUE), ""), wrap=None)
+        self.infobox_pixel_value_hex_label = HTMLLabel(self.info_labelframe, html=self._get_html_for_infobox_label(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_PIXEL_VALUE), ""), wrap=None)
         self.infobox_pixel_value_hex_label.place(x=5, y=105, width=175, height=18)
 
         ##########################
         # CONTROLS BOX #
         ##########################
 
-        self.controls_labelframe = tk.LabelFrame(self.main_frame, text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_CONTROLS_LABELFRAME), font=self.gui_font)
+        self.controls_labelframe = tk.LabelFrame(self.main_frame, text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_CONTROLS_LABELFRAME), font=self.gui_font)
         self.controls_labelframe.place(x=-200, y=150, width=195, height=185, relx=1)
 
         self.controls_all_info_label = HTMLLabel(self.controls_labelframe, html=self._get_html_for_controls_label(), wrap=None)
@@ -670,7 +670,7 @@ class ImageHeatGUI:
         ########################
         # IMAGE BOX            #
         ########################
-        self.image_preview_labelframe = tk.LabelFrame(self.main_frame, text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_IMAGE_PREVIEW), font=self.gui_font)
+        self.image_preview_labelframe = tk.LabelFrame(self.main_frame, text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_IMAGE_PREVIEW), font=self.gui_font)
         self.image_preview_labelframe.place(x=170, y=5, relwidth=1, relheight=1, height=-10, width=-375)
 
         self.image_preview_canvasframe = tk.Frame(self.image_preview_labelframe)
@@ -772,34 +772,34 @@ class ImageHeatGUI:
             logger.error(f"Couldn't load language strings from path: {json_path}. Error: {error}")
             return
 
-        self.parameters_labelframe.config(text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_IMAGE_PARAMETERS))
-        self.width_label.config(text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_IMAGE_WIDTH))
-        self.height_label.config(text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_IMAGE_HEIGHT))
-        self.img_start_offset_label.config(text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_START_OFFSET))
-        self.img_end_offset_label.config(text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_END_OFFSET))
-        self.pixel_format_label.config(text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_PIXEL_FORMAT))
-        self.endianess_label.config(text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_ENDIANESS_TYPE))
-        self.swizzling_label.config(text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_SWIZZLING_TYPE))
-        self.compression_label.config(text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_COMPRESSION_TYPE))
+        self.parameters_labelframe.config(text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_IMAGE_PARAMETERS))
+        self.width_label.config(text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_IMAGE_WIDTH))
+        self.height_label.config(text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_IMAGE_HEIGHT))
+        self.img_start_offset_label.config(text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_START_OFFSET))
+        self.img_end_offset_label.config(text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_END_OFFSET))
+        self.pixel_format_label.config(text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_PIXEL_FORMAT))
+        self.endianess_label.config(text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_ENDIANESS_TYPE))
+        self.swizzling_label.config(text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_SWIZZLING_TYPE))
+        self.compression_label.config(text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_COMPRESSION_TYPE))
 
-        self.palette_parameters_labelframe.config(text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_PALETTE_PARAMETERS))
-        self.palette_load_from_label.config(text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_LOAD_FROM))
-        self.palette_load_from_same_file_radio_button.config(text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_SAME_FILE))
-        self.palette_load_from_another_file_radio_button.config(text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_ANOTHER_FILE))
-        self.palette_palfile_label.config(text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_PALETTE_FILE))
-        self.palette_palfile_button.config(text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_BROWSE))
-        self.palette_paloffset_label.config(text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_PAL_OFFSET))
-        self.palette_endianess_label.config(text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_PALETTE_ENDIANESS))
-        self.palette_ps2swizzle_checkbutton.config(text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_PS2_PALETTE_SWIZZLE))
-        self.image_preview_labelframe.config(text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_IMAGE_PREVIEW))
-        self.info_labelframe.config(text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_INFO_LABELFRAME))
-        self.file_name_label.set_html(self._get_html_for_infobox_label(self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_INFO_FILENAME_LABEL), self.gui_params.img_file_name if self.opened_image else ""))
-        self.file_size_label.set_html(self._get_html_for_infobox_label(self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_INFO_FILE_SIZE), self.get_info_file_size_str() if self.opened_image else ""))
-        self.infobox_pixel_x_label.set_html(self._get_html_for_infobox_label(self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_INFO_PIXEL_X), str(self.pixel_x) if self.opened_image else ""))
-        self.infobox_pixel_y_label.set_html(self._get_html_for_infobox_label(self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_INFO_PIXEL_Y), str(self.pixel_y) if self.opened_image else ""))
-        self.infobox_pixel_offset_label.set_html(self._get_html_for_infobox_label(self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_INFO_PIXEL_OFFSET), str(self.pixel_offset) if self.opened_image else ""))
-        self.infobox_pixel_value_hex_label.set_html(self._get_html_for_infobox_pixel_value_label(self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_INFO_PIXEL_VALUE), self.pixel_value_str, self.pixel_value_rgba) if self.opened_image else self._get_html_for_infobox_label(self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_INFO_PIXEL_VALUE), ""))
-        self.controls_labelframe.config(text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_CONTROLS_LABELFRAME))
+        self.palette_parameters_labelframe.config(text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_PALETTE_PARAMETERS))
+        self.palette_load_from_label.config(text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_LOAD_FROM))
+        self.palette_load_from_same_file_radio_button.config(text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_SAME_FILE))
+        self.palette_load_from_another_file_radio_button.config(text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_ANOTHER_FILE))
+        self.palette_palfile_label.config(text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_PALETTE_FILE))
+        self.palette_palfile_button.config(text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_BROWSE))
+        self.palette_paloffset_label.config(text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_PAL_OFFSET))
+        self.palette_endianess_label.config(text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_PALETTE_ENDIANESS))
+        self.palette_ps2swizzle_checkbutton.config(text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_PS2_PALETTE_SWIZZLE))
+        self.image_preview_labelframe.config(text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_IMAGE_PREVIEW))
+        self.info_labelframe.config(text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_LABELFRAME))
+        self.file_name_label.set_html(self._get_html_for_infobox_label(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_FILENAME_LABEL), self.gui_params.img_file_name if self.opened_image else ""))
+        self.file_size_label.set_html(self._get_html_for_infobox_label(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_FILE_SIZE), self.get_info_file_size_str() if self.opened_image else ""))
+        self.infobox_pixel_x_label.set_html(self._get_html_for_infobox_label(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_PIXEL_X), str(self.pixel_x) if self.opened_image else ""))
+        self.infobox_pixel_y_label.set_html(self._get_html_for_infobox_label(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_PIXEL_Y), str(self.pixel_y) if self.opened_image else ""))
+        self.infobox_pixel_offset_label.set_html(self._get_html_for_infobox_label(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_PIXEL_OFFSET), str(self.pixel_offset) if self.opened_image else ""))
+        self.infobox_pixel_value_hex_label.set_html(self._get_html_for_infobox_pixel_value_label(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_PIXEL_VALUE), self.pixel_value_str, self.pixel_value_rgba) if self.opened_image else self._get_html_for_infobox_label(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_PIXEL_VALUE), ""))
+        self.controls_labelframe.config(text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_CONTROLS_LABELFRAME))
         self.controls_all_info_label.set_html(self._get_html_for_controls_label())
         # TODO - add other texts
 
@@ -846,17 +846,17 @@ class ImageHeatGUI:
 
     def _get_html_for_controls_label(self) -> str:
         html: str = f'''<div style="font-family: Arial; font-size: 8px; row-gap:24px;">
-                        {self._get_line_for_controls_html_str(self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_CONTROLS_ACTION_IMG_WIDTH), self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_CONTROLS_SHORTCUT_IMG_WIDTH))}
-                        {self._get_line_for_controls_html_str(self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_CONTROLS_ACTION_IMG_HEIGHT), self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_CONTROLS_SHORTCUT_IMG_HEIGHT))}
-                        {self._get_line_for_controls_html_str(self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_CONTROLS_ACTION_DOUBLE_HALVE_WIDTH), self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_CONTROLS_SHORTCUT_DOUBLE_HALVE_WIDTH))}
-                        {self._get_line_for_controls_html_str(self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_CONTROLS_ACTION_STEP_BY_BYTE), self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_CONTROLS_SHORTCUT_STEP_BY_BYTE))}
-                        {self._get_line_for_controls_html_str(self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_CONTROLS_ACTION_STEP_BY_ROW), self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_CONTROLS_SHORTCUT_STEP_BY_ROW))}
-                        {self._get_line_for_controls_html_str(self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_CONTROLS_ACTION_PIXEL_FORMAT), self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_CONTROLS_SHORTCUT_PIXEL_FORMAT))}
-                        {self._get_line_for_controls_html_str(self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_CONTROLS_ACTION_ENDIANESS), self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_CONTROLS_SHORTCUT_ENDIANESS))}
-                        {self._get_line_for_controls_html_str(self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_CONTROLS_ACTION_SWIZZLING), self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_CONTROLS_SHORTCUT_SWIZZLING))}
-                        {self._get_line_for_controls_html_str(self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_CONTROLS_ACTION_COMPRESSION), self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_CONTROLS_SHORTCUT_COMPRESSION))}
-                        {self._get_line_for_controls_html_str(self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_CONTROLS_ACTION_RELOAD_IMG), self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_CONTROLS_SHORTCUT_RELOAD_IMG))}
-                        {self._get_line_for_controls_html_str(self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_CONTROLS_ACTION_ZOOM), self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_CONTROLS_SHORTCUT_ZOOM))}
+                        {self._get_line_for_controls_html_str(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_CONTROLS_ACTION_IMG_WIDTH), self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_CONTROLS_SHORTCUT_IMG_WIDTH))}
+                        {self._get_line_for_controls_html_str(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_CONTROLS_ACTION_IMG_HEIGHT), self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_CONTROLS_SHORTCUT_IMG_HEIGHT))}
+                        {self._get_line_for_controls_html_str(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_CONTROLS_ACTION_DOUBLE_HALVE_WIDTH), self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_CONTROLS_SHORTCUT_DOUBLE_HALVE_WIDTH))}
+                        {self._get_line_for_controls_html_str(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_CONTROLS_ACTION_STEP_BY_BYTE), self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_CONTROLS_SHORTCUT_STEP_BY_BYTE))}
+                        {self._get_line_for_controls_html_str(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_CONTROLS_ACTION_STEP_BY_ROW), self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_CONTROLS_SHORTCUT_STEP_BY_ROW))}
+                        {self._get_line_for_controls_html_str(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_CONTROLS_ACTION_PIXEL_FORMAT), self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_CONTROLS_SHORTCUT_PIXEL_FORMAT))}
+                        {self._get_line_for_controls_html_str(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_CONTROLS_ACTION_ENDIANESS), self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_CONTROLS_SHORTCUT_ENDIANESS))}
+                        {self._get_line_for_controls_html_str(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_CONTROLS_ACTION_SWIZZLING), self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_CONTROLS_SHORTCUT_SWIZZLING))}
+                        {self._get_line_for_controls_html_str(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_CONTROLS_ACTION_COMPRESSION), self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_CONTROLS_SHORTCUT_COMPRESSION))}
+                        {self._get_line_for_controls_html_str(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_CONTROLS_ACTION_RELOAD_IMG), self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_CONTROLS_SHORTCUT_RELOAD_IMG))}
+                        {self._get_line_for_controls_html_str(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_CONTROLS_ACTION_ZOOM), self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_CONTROLS_SHORTCUT_ZOOM))}
                         </div>
         '''
         return html
@@ -954,13 +954,13 @@ class ImageHeatGUI:
         self.parameters_box_disable_enable_logic()
 
         # info labels
-        self.file_name_label.set_html(self._get_html_for_infobox_label(self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_INFO_FILENAME_LABEL), self.gui_params.img_file_name))
+        self.file_name_label.set_html(self._get_html_for_infobox_label(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_FILENAME_LABEL), self.gui_params.img_file_name))
         self.file_name_tooltip.text = self.gui_params.img_file_name
-        self.file_size_label.set_html(self._get_html_for_infobox_label(self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_INFO_FILE_SIZE), self.get_info_file_size_str()))
-        self.infobox_pixel_x_label.set_html(self._get_html_for_infobox_label(self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_INFO_PIXEL_X), ""))
-        self.infobox_pixel_y_label.set_html(self._get_html_for_infobox_label(self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_INFO_PIXEL_Y), ""))
-        self.infobox_pixel_offset_label.set_html(self._get_html_for_infobox_label(self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_INFO_PIXEL_OFFSET), ""))
-        self.infobox_pixel_value_hex_label.set_html(self._get_html_for_infobox_label(self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_INFO_PIXEL_VALUE), ""))
+        self.file_size_label.set_html(self._get_html_for_infobox_label(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_FILE_SIZE), self.get_info_file_size_str()))
+        self.infobox_pixel_x_label.set_html(self._get_html_for_infobox_label(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_PIXEL_X), ""))
+        self.infobox_pixel_y_label.set_html(self._get_html_for_infobox_label(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_PIXEL_Y), ""))
+        self.infobox_pixel_offset_label.set_html(self._get_html_for_infobox_label(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_PIXEL_OFFSET), ""))
+        self.infobox_pixel_value_hex_label.set_html(self._get_html_for_infobox_label(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_PIXEL_VALUE), ""))
 
         # post-processing
         self.postprocessing_zoom_combobox.set(DEFAULT_ZOOM_NAME)
@@ -1273,18 +1273,18 @@ class ImageHeatGUI:
 
             if self.pixel_offset + bytes_per_pixel <= (self.gui_params.img_end_offset - self.gui_params.img_start_offset):
 
-                self.infobox_pixel_x_label.set_html(self._get_html_for_infobox_label(self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_INFO_PIXEL_X), str(self.pixel_x)))
-                self.infobox_pixel_y_label.set_html(self._get_html_for_infobox_label(self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_INFO_PIXEL_Y), str(self.pixel_y)))
+                self.infobox_pixel_x_label.set_html(self._get_html_for_infobox_label(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_PIXEL_X), str(self.pixel_x)))
+                self.infobox_pixel_y_label.set_html(self._get_html_for_infobox_label(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_PIXEL_Y), str(self.pixel_y)))
 
                 if not is_compressed_image_format(image_format) and compression_id == "none":
                     pixel_value: bytearray = self.opened_image.encoded_image_data[self.pixel_offset: self.pixel_offset + int(bytes_per_pixel)]
                     self.pixel_value_str = convert_bytes_to_hex_string(pixel_value)
                     self.pixel_value_rgba = self.opened_image.decoded_image_data[pixel_offset_rgba: pixel_offset_rgba + 4]
-                    self.infobox_pixel_offset_label.set_html(self._get_html_for_infobox_label(self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_INFO_PIXEL_OFFSET), str(self.pixel_offset)))
-                    self.infobox_pixel_value_hex_label.set_html(self._get_html_for_infobox_pixel_value_label(self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_INFO_PIXEL_VALUE), self.pixel_value_str, self.pixel_value_rgba))
+                    self.infobox_pixel_offset_label.set_html(self._get_html_for_infobox_label(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_PIXEL_OFFSET), str(self.pixel_offset)))
+                    self.infobox_pixel_value_hex_label.set_html(self._get_html_for_infobox_pixel_value_label(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_PIXEL_VALUE), self.pixel_value_str, self.pixel_value_rgba))
                 else:
-                    self.infobox_pixel_offset_label.set_html(self._get_html_for_infobox_label(self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_INFO_PIXEL_OFFSET), "n/a"))
-                    self.infobox_pixel_value_hex_label.set_html(self._get_html_for_infobox_label(self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_INFO_PIXEL_VALUE), "n/a"))
+                    self.infobox_pixel_offset_label.set_html(self._get_html_for_infobox_label(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_PIXEL_OFFSET), "n/a"))
+                    self.infobox_pixel_value_hex_label.set_html(self._get_html_for_infobox_label(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_PIXEL_VALUE), "n/a"))
 
         # assign final preview values
         self.preview_final_pil_image = pil_img
