@@ -800,7 +800,7 @@ class ImageHeatGUI:
         self.infobox_pixel_offset_label.set_html(self._get_html_for_infobox_label(self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_INFO_PIXEL_OFFSET), str(self.pixel_offset) if self.opened_image else ""))
         self.infobox_pixel_value_hex_label.set_html(self._get_html_for_infobox_pixel_value_label(self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_INFO_PIXEL_VALUE), self.pixel_value_str, self.pixel_value_rgba) if self.opened_image else self._get_html_for_infobox_label(self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_INFO_PIXEL_VALUE), ""))
         self.controls_labelframe.config(text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_CONTROLS_LABELFRAME))
-
+        self.controls_all_info_label.set_html(self._get_html_for_controls_label())
         # TODO - add other texts
 
     def reload_image_callback(self, event):
@@ -846,17 +846,17 @@ class ImageHeatGUI:
 
     def _get_html_for_controls_label(self) -> str:
         html: str = f'''<div style="font-family: Arial; font-size: 8px; row-gap:24px;">
-                        {self._get_line_for_controls_html_str("Img Width", "Left/Right")}
-                        {self._get_line_for_controls_html_str("Img Height", "Up/Down")}
-                        {self._get_line_for_controls_html_str("Double/Halve Width", "Q/W")}
-                        {self._get_line_for_controls_html_str("Step-By-Byte", "CTRL+Up/Down")}
-                        {self._get_line_for_controls_html_str("Step-By-Row", "SHIFT+Up/Down")}
-                        {self._get_line_for_controls_html_str("Pixel Format", "Z/X")}
-                        {self._get_line_for_controls_html_str("Endianess", "E")}
-                        {self._get_line_for_controls_html_str("Swizzling", "K/L")}
-                        {self._get_line_for_controls_html_str("Compression", "O/P")}
-                        {self._get_line_for_controls_html_str("Reload Img", "Enter")}
-                        {self._get_line_for_controls_html_str("Zoom", "Mouse Wheel")}
+                        {self._get_line_for_controls_html_str(self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_CONTROLS_ACTION_IMG_WIDTH), self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_CONTROLS_SHORTCUT_IMG_WIDTH))}
+                        {self._get_line_for_controls_html_str(self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_CONTROLS_ACTION_IMG_HEIGHT), self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_CONTROLS_SHORTCUT_IMG_HEIGHT))}
+                        {self._get_line_for_controls_html_str(self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_CONTROLS_ACTION_DOUBLE_HALVE_WIDTH), self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_CONTROLS_SHORTCUT_DOUBLE_HALVE_WIDTH))}
+                        {self._get_line_for_controls_html_str(self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_CONTROLS_ACTION_STEP_BY_BYTE), self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_CONTROLS_SHORTCUT_STEP_BY_BYTE))}
+                        {self._get_line_for_controls_html_str(self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_CONTROLS_ACTION_STEP_BY_ROW), self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_CONTROLS_SHORTCUT_STEP_BY_ROW))}
+                        {self._get_line_for_controls_html_str(self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_CONTROLS_ACTION_PIXEL_FORMAT), self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_CONTROLS_SHORTCUT_PIXEL_FORMAT))}
+                        {self._get_line_for_controls_html_str(self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_CONTROLS_ACTION_ENDIANESS), self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_CONTROLS_SHORTCUT_ENDIANESS))}
+                        {self._get_line_for_controls_html_str(self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_CONTROLS_ACTION_SWIZZLING), self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_CONTROLS_SHORTCUT_SWIZZLING))}
+                        {self._get_line_for_controls_html_str(self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_CONTROLS_ACTION_COMPRESSION), self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_CONTROLS_SHORTCUT_COMPRESSION))}
+                        {self._get_line_for_controls_html_str(self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_CONTROLS_ACTION_RELOAD_IMG), self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_CONTROLS_SHORTCUT_RELOAD_IMG))}
+                        {self._get_line_for_controls_html_str(self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_CONTROLS_ACTION_ZOOM), self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_CONTROLS_SHORTCUT_ZOOM))}
                         </div>
         '''
         return html
