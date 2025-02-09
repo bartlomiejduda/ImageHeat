@@ -220,6 +220,14 @@ class TranslationEntries(str, Enum):
 
     TRANSLATION_TEXT_IMAGE_PREVIEW = "TRANSLATION_TEXT_IMAGE_PREVIEW"
 
+    TRANSLATION_TEXT_INFO_LABELFRAME = "TRANSLATION_TEXT_INFO_LABELFRAME"
+    TRANSLATION_TEXT_INFO_FILENAME_LABEL = "TRANSLATION_TEXT_INFO_FILENAME_LABEL"
+    TRANSLATION_TEXT_INFO_FILE_SIZE = "TRANSLATION_TEXT_INFO_FILE_SIZE"
+    TRANSLATION_TEXT_INFO_PIXEL_X = "TRANSLATION_TEXT_INFO_PIXEL_X"
+    TRANSLATION_TEXT_INFO_PIXEL_Y = "TRANSLATION_TEXT_INFO_PIXEL_Y"
+    TRANSLATION_TEXT_INFO_PIXEL_OFFSET = "TRANSLATION_TEXT_INFO_PIXEL_OFFSET"
+    TRANSLATION_TEXT_INFO_PIXEL_VALUE = "TRANSLATION_TEXT_INFO_PIXEL_VALUE"
+
 
 @dataclass
 class TranslationEntry:
@@ -248,4 +256,11 @@ TRANSLATION_MEMORY: List[TranslationEntry] = [
     TranslationEntry(id=TranslationEntries.TRANSLATION_TEXT_PALETTE_ENDIANESS, default="Palette Endianess"),
     TranslationEntry(id=TranslationEntries.TRANSLATION_TEXT_PS2_PALETTE_SWIZZLE, default="PS2 Palette Swizzle"),
     TranslationEntry(id=TranslationEntries.TRANSLATION_TEXT_IMAGE_PREVIEW, default="Image Preview"),
+    TranslationEntry(id=TranslationEntries.TRANSLATION_TEXT_INFO_LABELFRAME, default="Info"),
+    TranslationEntry(id=TranslationEntries.TRANSLATION_TEXT_INFO_FILENAME_LABEL, default="File Name: "),
+    TranslationEntry(id=TranslationEntries.TRANSLATION_TEXT_INFO_FILE_SIZE, default="File Size: "),
+    TranslationEntry(id=TranslationEntries.TRANSLATION_TEXT_INFO_PIXEL_X, default="Pixel X: "),
+    TranslationEntry(id=TranslationEntries.TRANSLATION_TEXT_INFO_PIXEL_Y, default="Pixel Y: "),
+    TranslationEntry(id=TranslationEntries.TRANSLATION_TEXT_INFO_PIXEL_OFFSET, default="Pixel Offset: "),
+    TranslationEntry(id=TranslationEntries.TRANSLATION_TEXT_INFO_PIXEL_VALUE, default="Pixel Value (hex): "),
 ]

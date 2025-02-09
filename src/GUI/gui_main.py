@@ -79,7 +79,6 @@ class ImageHeatGUI:
         master.title(f"ImageHeat {in_version_num}")
         master.minsize(WINDOW_WIDTH, WINDOW_HEIGHT)
         master.geometry(f"{WINDOW_WIDTH}x{WINDOW_HEIGHT}")
-        self.current_dir = os.path.dirname(os.path.abspath(__file__))
         if platform.uname().system == "Linux":
             icon_filename = "heat_icon.png"
         else:
@@ -94,6 +93,11 @@ class ImageHeatGUI:
         self.preview_final_pil_image = None
         self.validate_spinbox_command = (master.register(self.validate_spinbox), '%P')
         self.current_program_language = tk.StringVar(value="EN")
+        self.pixel_x: int = 1
+        self.pixel_y: int = 1
+        self.pixel_offset: int = 0
+        self.pixel_value_str: str = ""
+        self.pixel_value_rgba: bytearray = bytearray(10)
 
         try:
             if platform.uname().system == "Linux":
@@ -560,26 +564,26 @@ class ImageHeatGUI:
         # INFO BOX #
         ##########################
 
-        self.info_labelframe = tk.LabelFrame(self.main_frame, text="Info", font=self.gui_font)
+        self.info_labelframe = tk.LabelFrame(self.main_frame, text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_INFO_LABELFRAME), font=self.gui_font)
         self.info_labelframe.place(x=-200, y=5, width=195, height=145, relx=1)
 
-        self.file_name_label = HTMLLabel(self.info_labelframe, html=self._get_html_for_infobox_label("File Name: ", ""), wrap=None)
-        self.file_name_tooltip = Hovertip(self.file_name_label, 'File Name')
+        self.file_name_label = HTMLLabel(self.info_labelframe, html=self._get_html_for_infobox_label(self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_INFO_FILENAME_LABEL), ""), wrap=None)
+        self.file_name_tooltip = Hovertip(self.file_name_label, self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_INFO_FILENAME_LABEL))
         self.file_name_label.place(x=5, y=5, width=185, height=18)
 
-        self.file_size_label = HTMLLabel(self.info_labelframe, html=self._get_html_for_infobox_label("File Size: ", ""), wrap=None)
+        self.file_size_label = HTMLLabel(self.info_labelframe, html=self._get_html_for_infobox_label(self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_INFO_FILE_SIZE), ""), wrap=None)
         self.file_size_label.place(x=5, y=25, width=175, height=18)
 
-        self.infobox_pixel_x_label = HTMLLabel(self.info_labelframe, html=self._get_html_for_infobox_label("Pixel X: ", ""), wrap=None)
+        self.infobox_pixel_x_label = HTMLLabel(self.info_labelframe, html=self._get_html_for_infobox_label(self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_INFO_PIXEL_X), ""), wrap=None)
         self.infobox_pixel_x_label.place(x=5, y=45, width=175, height=18)
 
-        self.infobox_pixel_y_label = HTMLLabel(self.info_labelframe, html=self._get_html_for_infobox_label("Pixel Y: ", ""), wrap=None)
+        self.infobox_pixel_y_label = HTMLLabel(self.info_labelframe, html=self._get_html_for_infobox_label(self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_INFO_PIXEL_Y), ""), wrap=None)
         self.infobox_pixel_y_label.place(x=5, y=65, width=175, height=18)
 
-        self.infobox_pixel_offset_label = HTMLLabel(self.info_labelframe, html=self._get_html_for_infobox_label("Pixel Offset: ", ""), wrap=None)
+        self.infobox_pixel_offset_label = HTMLLabel(self.info_labelframe, html=self._get_html_for_infobox_label(self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_INFO_PIXEL_OFFSET), ""), wrap=None)
         self.infobox_pixel_offset_label.place(x=5, y=85, width=175, height=18)
 
-        self.infobox_pixel_value_hex_label = HTMLLabel(self.info_labelframe, html=self._get_html_for_infobox_label("Pixel Value (hex): ", ""), wrap=None)
+        self.infobox_pixel_value_hex_label = HTMLLabel(self.info_labelframe, html=self._get_html_for_infobox_label(self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_INFO_PIXEL_VALUE), ""), wrap=None)
         self.infobox_pixel_value_hex_label.place(x=5, y=105, width=175, height=18)
 
         ##########################
@@ -788,6 +792,14 @@ class ImageHeatGUI:
         self.palette_endianess_label.config(text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_PALETTE_ENDIANESS))
         self.palette_ps2swizzle_checkbutton.config(text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_PS2_PALETTE_SWIZZLE))
         self.image_preview_labelframe.config(text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_IMAGE_PREVIEW))
+        self.info_labelframe.config(text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_INFO_LABELFRAME))
+        self.file_name_label.set_html(self._get_html_for_infobox_label(self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_INFO_FILENAME_LABEL), self.gui_params.img_file_name if self.opened_image else ""))
+        self.file_size_label.set_html(self._get_html_for_infobox_label(self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_INFO_FILE_SIZE), self.get_info_file_size_str() if self.opened_image else ""))
+        self.infobox_pixel_x_label.set_html(self._get_html_for_infobox_label(self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_INFO_PIXEL_X), str(self.pixel_x) if self.opened_image else ""))
+        self.infobox_pixel_y_label.set_html(self._get_html_for_infobox_label(self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_INFO_PIXEL_Y), str(self.pixel_y) if self.opened_image else ""))
+        self.infobox_pixel_offset_label.set_html(self._get_html_for_infobox_label(self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_INFO_PIXEL_OFFSET), str(self.pixel_offset) if self.opened_image else ""))
+        self.infobox_pixel_value_hex_label.set_html(self._get_html_for_infobox_pixel_value_label(self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_INFO_PIXEL_VALUE), self.pixel_value_str, self.pixel_value_rgba))
+
         # TODO - add other texts
 
     def reload_image_callback(self, event):
@@ -911,6 +923,9 @@ class ImageHeatGUI:
             return MAX_END_OFFSET
         return file_size
 
+    def get_info_file_size_str(self) -> str:
+        return str(self.gui_params.total_file_size) + " (" + convert_from_bytes_to_mb_string(self.gui_params.total_file_size) + ")"
+
     def set_gui_elements_at_file_open(self) -> bool:
         # image parameters
         if not self.opened_image:
@@ -935,13 +950,13 @@ class ImageHeatGUI:
         self.parameters_box_disable_enable_logic()
 
         # info labels
-        self.file_name_label.set_html(self._get_html_for_infobox_label("File Name: ", self.gui_params.img_file_name))
+        self.file_name_label.set_html(self._get_html_for_infobox_label(self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_INFO_FILENAME_LABEL), self.gui_params.img_file_name))
         self.file_name_tooltip.text = self.gui_params.img_file_name
-        self.file_size_label.set_html(self._get_html_for_infobox_label("File Size: ", str(self.gui_params.total_file_size) + " (" + convert_from_bytes_to_mb_string(self.gui_params.total_file_size) + ")"))
-        self.infobox_pixel_x_label.set_html(self._get_html_for_infobox_label("Pixel X: ", ""))
-        self.infobox_pixel_y_label.set_html(self._get_html_for_infobox_label("Pixel Y: ", ""))
-        self.infobox_pixel_offset_label.set_html(self._get_html_for_infobox_label("Pixel Offset: ", ""))
-        self.infobox_pixel_value_hex_label.set_html(self._get_html_for_infobox_label("Pixel Value (hex): ", ""))
+        self.file_size_label.set_html(self._get_html_for_infobox_label(self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_INFO_FILE_SIZE), self.get_info_file_size_str()))
+        self.infobox_pixel_x_label.set_html(self._get_html_for_infobox_label(self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_INFO_PIXEL_X), ""))
+        self.infobox_pixel_y_label.set_html(self._get_html_for_infobox_label(self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_INFO_PIXEL_Y), ""))
+        self.infobox_pixel_offset_label.set_html(self._get_html_for_infobox_label(self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_INFO_PIXEL_OFFSET), ""))
+        self.infobox_pixel_value_hex_label.set_html(self._get_html_for_infobox_label(self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_INFO_PIXEL_VALUE), ""))
 
         # post-processing
         self.postprocessing_zoom_combobox.set(DEFAULT_ZOOM_NAME)
@@ -1245,24 +1260,27 @@ class ImageHeatGUI:
             else:
                 logger.warning(f"Not supported rotate type selected! Rotate_id: {m_rotate_id}")
 
+            self.pixel_x = x
+            self.pixel_y = y
+
             # pixel offset logic
-            pixel_offset: int = int((y - 1) * self.gui_params.img_width * bytes_per_pixel + x * bytes_per_pixel - bytes_per_pixel)
-            pixel_offset_rgba: int = int((y - 1) * self.gui_params.img_width * 4 + x * 4 - 4)
+            self.pixel_offset = int((self.pixel_y - 1) * self.gui_params.img_width * bytes_per_pixel + self.pixel_x * bytes_per_pixel - bytes_per_pixel)
+            pixel_offset_rgba: int = int((self.pixel_y - 1) * self.gui_params.img_width * 4 + self.pixel_x * 4 - 4)
 
-            if pixel_offset + bytes_per_pixel <= (self.gui_params.img_end_offset - self.gui_params.img_start_offset):
+            if self.pixel_offset + bytes_per_pixel <= (self.gui_params.img_end_offset - self.gui_params.img_start_offset):
 
-                self.infobox_pixel_x_label.set_html(self._get_html_for_infobox_label("Pixel X: ", str(x)))
-                self.infobox_pixel_y_label.set_html(self._get_html_for_infobox_label("Pixel Y: ", str(y)))
+                self.infobox_pixel_x_label.set_html(self._get_html_for_infobox_label(self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_INFO_PIXEL_X), str(self.pixel_x)))
+                self.infobox_pixel_y_label.set_html(self._get_html_for_infobox_label(self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_INFO_PIXEL_Y), str(self.pixel_y)))
 
                 if not is_compressed_image_format(image_format) and compression_id == "none":
-                    pixel_value: bytearray = self.opened_image.encoded_image_data[pixel_offset: pixel_offset + int(bytes_per_pixel)]
-                    pixel_value_str: str = convert_bytes_to_hex_string(pixel_value)
-                    pixel_value_rgba: bytearray = self.opened_image.decoded_image_data[pixel_offset_rgba: pixel_offset_rgba + 4]
-                    self.infobox_pixel_offset_label.set_html(self._get_html_for_infobox_label("Pixel Offset: ", str(pixel_offset)))
-                    self.infobox_pixel_value_hex_label.set_html(self._get_html_for_infobox_pixel_value_label("Pixel Value (hex): ", pixel_value_str, pixel_value_rgba))
+                    pixel_value: bytearray = self.opened_image.encoded_image_data[self.pixel_offset: self.pixel_offset + int(bytes_per_pixel)]
+                    self.pixel_value_str = convert_bytes_to_hex_string(pixel_value)
+                    self.pixel_value_rgba = self.opened_image.decoded_image_data[pixel_offset_rgba: pixel_offset_rgba + 4]
+                    self.infobox_pixel_offset_label.set_html(self._get_html_for_infobox_label(self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_INFO_PIXEL_OFFSET), str(self.pixel_offset)))
+                    self.infobox_pixel_value_hex_label.set_html(self._get_html_for_infobox_pixel_value_label(self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_INFO_PIXEL_VALUE), self.pixel_value_str, self.pixel_value_rgba))
                 else:
-                    self.infobox_pixel_offset_label.set_html(self._get_html_for_infobox_label("Pixel Offset: ", "n/a"))
-                    self.infobox_pixel_value_hex_label.set_html(self._get_html_for_infobox_label("Pixel Value (hex): ", "n/a"))
+                    self.infobox_pixel_offset_label.set_html(self._get_html_for_infobox_label(self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_INFO_PIXEL_OFFSET), "n/a"))
+                    self.infobox_pixel_value_hex_label.set_html(self._get_html_for_infobox_label(self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_INFO_PIXEL_VALUE), "n/a"))
 
         # assign final preview values
         self.preview_final_pil_image = pil_img
