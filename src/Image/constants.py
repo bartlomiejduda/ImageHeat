@@ -228,6 +228,8 @@ class TranslationEntries(str, Enum):
     TRANSLATION_TEXT_INFO_PIXEL_OFFSET = "TRANSLATION_TEXT_INFO_PIXEL_OFFSET"
     TRANSLATION_TEXT_INFO_PIXEL_VALUE = "TRANSLATION_TEXT_INFO_PIXEL_VALUE"
 
+    TRANSLATION_TEXT_CONTROLS_LABELFRAME = "TRANSLATION_TEXT_CONTROLS_LABELFRAME"
+
 
 @dataclass
 class TranslationEntry:
@@ -263,4 +265,5 @@ TRANSLATION_MEMORY: List[TranslationEntry] = [
     TranslationEntry(id=TranslationEntries.TRANSLATION_TEXT_INFO_PIXEL_Y, default="Pixel Y: "),
     TranslationEntry(id=TranslationEntries.TRANSLATION_TEXT_INFO_PIXEL_OFFSET, default="Pixel Offset: "),
     TranslationEntry(id=TranslationEntries.TRANSLATION_TEXT_INFO_PIXEL_VALUE, default="Pixel Value (hex): "),
+    TranslationEntry(id=TranslationEntries.TRANSLATION_TEXT_CONTROLS_LABELFRAME, default="Controls"),
 ]

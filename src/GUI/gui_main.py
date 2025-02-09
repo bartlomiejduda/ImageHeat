@@ -590,7 +590,7 @@ class ImageHeatGUI:
         # CONTROLS BOX #
         ##########################
 
-        self.controls_labelframe = tk.LabelFrame(self.main_frame, text="Controls", font=self.gui_font)
+        self.controls_labelframe = tk.LabelFrame(self.main_frame, text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_CONTROLS_LABELFRAME), font=self.gui_font)
         self.controls_labelframe.place(x=-200, y=150, width=195, height=185, relx=1)
 
         self.controls_all_info_label = HTMLLabel(self.controls_labelframe, html=self._get_html_for_controls_label(), wrap=None)
@@ -798,7 +798,8 @@ class ImageHeatGUI:
         self.infobox_pixel_x_label.set_html(self._get_html_for_infobox_label(self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_INFO_PIXEL_X), str(self.pixel_x) if self.opened_image else ""))
         self.infobox_pixel_y_label.set_html(self._get_html_for_infobox_label(self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_INFO_PIXEL_Y), str(self.pixel_y) if self.opened_image else ""))
         self.infobox_pixel_offset_label.set_html(self._get_html_for_infobox_label(self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_INFO_PIXEL_OFFSET), str(self.pixel_offset) if self.opened_image else ""))
-        self.infobox_pixel_value_hex_label.set_html(self._get_html_for_infobox_pixel_value_label(self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_INFO_PIXEL_VALUE), self.pixel_value_str, self.pixel_value_rgba))
+        self.infobox_pixel_value_hex_label.set_html(self._get_html_for_infobox_pixel_value_label(self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_INFO_PIXEL_VALUE), self.pixel_value_str, self.pixel_value_rgba) if self.opened_image else self._get_html_for_infobox_label(self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_INFO_PIXEL_VALUE), ""))
+        self.controls_labelframe.config(text=self.get_translation_text(TranslationEntries.TRANSLATION_TEXT_CONTROLS_LABELFRAME))
 
         # TODO - add other texts
 
@@ -840,19 +841,22 @@ class ImageHeatGUI:
         '''
         return html
 
+    def _get_line_for_controls_html_str(self, action_text: str, shortcut_text: str) -> str:
+        return f'''<span>{action_text} - </span> <span style="color: blue">{shortcut_text}</span><br>'''
+
     def _get_html_for_controls_label(self) -> str:
-        html: str = '''<div style="font-family: Arial; font-size: 8px; row-gap:24px;">
-                        <span>Img Width - </span> <span style="color: blue">Left/Right</span><br>
-                        <span>Img Height - </span> <span style="color: blue">Up/Down</span><br>
-                        <span>Double/Halve Width - </span> <span style="color: blue">Q/W</span><br>
-                        <span>Step-By-Byte - </span> <span style="color: blue">CTRL+Up/Down</span><br>
-                        <span>Step-By-Row - </span> <span style="color: blue">SHIFT+Up/Down</span><br>
-                        <span>Pixel Format - </span> <span style="color: blue">Z/X</span><br>
-                        <span>Endianess - </span> <span style="color: blue">E</span><br>
-                        <span>Swizzling - </span> <span style="color: blue">K/L</span><br>
-                        <span>Compression - </span> <span style="color: blue">O/P</span><br>
-                        <span>Reload Img - </span> <span style="color: blue">Enter</span><br>
-                        <span>Zoom - </span> <span style="color: blue">Mouse Wheel</span><br>
+        html: str = f'''<div style="font-family: Arial; font-size: 8px; row-gap:24px;">
+                        {self._get_line_for_controls_html_str("Img Width", "Left/Right")}
+                        {self._get_line_for_controls_html_str("Img Height", "Up/Down")}
+                        {self._get_line_for_controls_html_str("Double/Halve Width", "Q/W")}
+                        {self._get_line_for_controls_html_str("Step-By-Byte", "CTRL+Up/Down")}
+                        {self._get_line_for_controls_html_str("Step-By-Row", "SHIFT+Up/Down")}
+                        {self._get_line_for_controls_html_str("Pixel Format", "Z/X")}
+                        {self._get_line_for_controls_html_str("Endianess", "E")}
+                        {self._get_line_for_controls_html_str("Swizzling", "K/L")}
+                        {self._get_line_for_controls_html_str("Compression", "O/P")}
+                        {self._get_line_for_controls_html_str("Reload Img", "Enter")}
+                        {self._get_line_for_controls_html_str("Zoom", "Mouse Wheel")}
                         </div>
         '''
         return html

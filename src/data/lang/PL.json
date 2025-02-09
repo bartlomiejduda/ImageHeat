@@ -28,6 +28,8 @@
     "TRANSLATION_TEXT_INFO_PIXEL_X": "Piksel X: ",
     "TRANSLATION_TEXT_INFO_PIXEL_Y": "Piksel Y: ",
     "TRANSLATION_TEXT_INFO_PIXEL_OFFSET": "Offset Piksela: ",
-    "TRANSLATION_TEXT_INFO_PIXEL_VALUE": "Piksel (hex): "
+    "TRANSLATION_TEXT_INFO_PIXEL_VALUE": "Piksel (hex): ",
+
+    "TRANSLATION_TEXT_CONTROLS_LABELFRAME": "Skróty Klawiszowe"
   }
 }
