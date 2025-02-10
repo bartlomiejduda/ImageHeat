@@ -600,11 +600,11 @@ class ImageHeatGUI:
         # POST-PROCESSING BOX #
         ##########################
 
-        self.postprocessing_labelframe = tk.LabelFrame(self.main_frame, text="Post-Processing", font=self.gui_font)
+        self.postprocessing_labelframe = tk.LabelFrame(self.main_frame, text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_POST_PROCESSING_LABELFRAME), font=self.gui_font)
         self.postprocessing_labelframe.place(x=-200, y=335, width=195, height=150, relx=1)
 
         # zoom
-        self.postprocessing_zoom_label = tk.Label(self.postprocessing_labelframe, text="Zoom", anchor="w", font=self.gui_font)
+        self.postprocessing_zoom_label = tk.Label(self.postprocessing_labelframe, text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_POST_PROCESSING_ZOOM), anchor="w", font=self.gui_font)
         self.postprocessing_zoom_label.place(x=5, y=5, width=60, height=20)
 
         self.postprocessing_zoom_combobox = ttk.Combobox(self.postprocessing_labelframe, values=ZOOM_TYPES_NAMES, font=self.gui_font, state='readonly')
@@ -632,7 +632,7 @@ class ImageHeatGUI:
         self.master.bind("<MouseWheel>", _zoom_by_shortcut)
 
         # zoom resampling
-        self.postprocessing_zoom_resampling_label = tk.Label(self.postprocessing_labelframe, text="Resampling", anchor="w", font=self.gui_font)
+        self.postprocessing_zoom_resampling_label = tk.Label(self.postprocessing_labelframe, text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_POST_PROCESSING_RESAMPLING), anchor="w", font=self.gui_font)
         self.postprocessing_zoom_resampling_label.place(x=5, y=30, width=60, height=20)
 
         self.postprocessing_zoom_resampling_combobox = ttk.Combobox(self.postprocessing_labelframe, values=ZOOM_RESAMPLING_TYPES_NAMES, font=self.gui_font, state='readonly')
@@ -642,7 +642,7 @@ class ImageHeatGUI:
 
         # vertical flip
         self.postprocessing_vertical_flip_variable = tk.StringVar(value="OFF")
-        self.postprocessing_vertical_flip_checkbutton = tk.Checkbutton(self.postprocessing_labelframe, text="Vertical Flip (Top-Down)",
+        self.postprocessing_vertical_flip_checkbutton = tk.Checkbutton(self.postprocessing_labelframe, text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_POST_PROCESSING_VERTICAL_FLIP),
                                                                        variable=self.postprocessing_vertical_flip_variable, anchor="w",
                                                                        onvalue="ON", offvalue="OFF", font=self.gui_font,
                                                                        command=self.gui_reload_image_on_gui_element_change)
@@ -651,14 +651,14 @@ class ImageHeatGUI:
         # horizontal flip
         self.postprocessing_horizontal_flip_variable = tk.StringVar(value="OFF")
         self.postprocessing_horizontal_flip_checkbutton = tk.Checkbutton(self.postprocessing_labelframe,
-                                                                         text="Horizontal Flip (Left-Right)",
+                                                                         text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_POST_PROCESSING_HORIZONTAL_FLIP),
                                                                          variable=self.postprocessing_horizontal_flip_variable, anchor="w",
                                                                          onvalue="ON", offvalue="OFF", font=self.gui_font,
                                                                          command=self.gui_reload_image_on_gui_element_change)
         self.postprocessing_horizontal_flip_checkbutton.place(x=5, y=75, width=170, height=20)
 
         # rotate
-        self.postprocessing_rotate_label = tk.Label(self.postprocessing_labelframe, text="Rotate", anchor="w",
+        self.postprocessing_rotate_label = tk.Label(self.postprocessing_labelframe, text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_POST_PROCESSING_ROTATE), anchor="w",
                                                     font=self.gui_font)
         self.postprocessing_rotate_label.place(x=5, y=100, width=60, height=20)
         self.postprocessing_rotate_combobox = ttk.Combobox(self.postprocessing_labelframe,
@@ -801,6 +801,13 @@ class ImageHeatGUI:
         self.infobox_pixel_value_hex_label.set_html(self._get_html_for_infobox_pixel_value_label(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_PIXEL_VALUE), self.pixel_value_str, self.pixel_value_rgba) if self.opened_image else self._get_html_for_infobox_label(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_PIXEL_VALUE), ""))
         self.controls_labelframe.config(text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_CONTROLS_LABELFRAME))
         self.controls_all_info_label.set_html(self._get_html_for_controls_label())
+        self.postprocessing_labelframe.config(text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_POST_PROCESSING_LABELFRAME))
+        self.postprocessing_zoom_label.config(text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_POST_PROCESSING_ZOOM))
+        self.postprocessing_zoom_resampling_label.config(text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_POST_PROCESSING_RESAMPLING))
+        self.postprocessing_vertical_flip_checkbutton.config(text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_POST_PROCESSING_VERTICAL_FLIP))
+        self.postprocessing_horizontal_flip_checkbutton.config(text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_POST_PROCESSING_HORIZONTAL_FLIP))
+        self.postprocessing_rotate_label.config(text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_POST_PROCESSING_ROTATE))
+
         # TODO - add other texts
 
     def reload_image_callback(self, event):
