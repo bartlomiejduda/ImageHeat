@@ -689,29 +689,27 @@ class ImageHeatGUI:
         # file submenu
         self.filemenu = tk.Menu(self.menubar, tearoff=0)
         self.filemenu.add_command(
-            label="Open File",
+            label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_FILEMENU_OPEN_FILE),
             command=lambda: self.open_image_file(),
             accelerator="Ctrl+O",
         )
         master.bind_all("<Control-o>", lambda x: self.open_image_file())
 
-        self.export_label: str = "Save As..."
         self.filemenu.add_command(
-            label=self.export_label,
+            label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_FILEMENU_SAVE_AS),
             command=lambda: self.export_image_file(),
             accelerator="Ctrl+S",
         )
         master.bind_all("<Control-s>", lambda x: self.export_image_file())
-        self.filemenu.entryconfig(self.export_label, state="disabled")
+        self.filemenu.entryconfig(1, state="disabled")
 
-        self.export_raw_label: str = "Save Raw Data"
         self.filemenu.add_command(
-            label=self.export_raw_label,
+            label="Save Raw Data",
             command=lambda: self.export_raw_file(),
             accelerator="Ctrl+D",
         )
         master.bind_all("<Control-d>", lambda x: self.export_raw_file())
-        self.filemenu.entryconfig(self.export_raw_label, state="disabled")
+        self.filemenu.entryconfig(2, state="disabled")
 
         self.filemenu.add_separator()
         self.filemenu.add_command(label="Quit", command=lambda: self.quit_program(), accelerator="Ctrl+Q")
@@ -807,6 +805,8 @@ class ImageHeatGUI:
         self.postprocessing_vertical_flip_checkbutton.config(text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_POST_PROCESSING_VERTICAL_FLIP))
         self.postprocessing_horizontal_flip_checkbutton.config(text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_POST_PROCESSING_HORIZONTAL_FLIP))
         self.postprocessing_rotate_label.config(text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_POST_PROCESSING_ROTATE))
+        self.filemenu.entryconfigure(0, label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_FILEMENU_OPEN_FILE))
+        self.filemenu.entryconfigure(1, label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_FILEMENU_SAVE_AS))
 
         # TODO - add other texts
 
@@ -1021,8 +1021,8 @@ class ImageHeatGUI:
         self.init_image_preview_logic()
 
         # menu bar logic
-        self.filemenu.entryconfig(self.export_label, state="normal")
-        self.filemenu.entryconfig(self.export_raw_label, state="normal")
+        self.filemenu.entryconfig(1, state="normal")
+        self.filemenu.entryconfig(2, state="normal")
 
         logger.info("Image has been opened successfully")
         return True
