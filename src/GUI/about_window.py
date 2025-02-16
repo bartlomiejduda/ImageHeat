@@ -6,6 +6,8 @@ import center_tk_window
 from PIL import Image, ImageTk
 from reversebox.common.logger import get_logger
 
+from src.Image.constants import TranslationKeys
+
 logger = get_logger(__name__)
 
 
@@ -14,7 +16,7 @@ class AboutWindow:
         ABOUT_WINDOW_WIDTH = 400
         ABOUT_WINDOW_HEIGHT = 190
         self.about_window = tk.Toplevel(width=ABOUT_WINDOW_WIDTH, height=ABOUT_WINDOW_HEIGHT)
-        self.about_window.wm_title("About ImageHeat")
+        self.about_window.wm_title(gui_object.get_translation_text(TranslationKeys.TRANSLATION_TEXT_ABOUT_WINDOW_TITLE))
 
         self.about_window.minsize(ABOUT_WINDOW_WIDTH, ABOUT_WINDOW_HEIGHT)
         self.about_window.maxsize(ABOUT_WINDOW_WIDTH, ABOUT_WINDOW_HEIGHT)
@@ -53,14 +55,15 @@ class AboutWindow:
         self.about_title_label_tool_name_label.place(x=75, y=5, width=300, height=40)
 
         self.about_title_label_version_label = tk.Label(
-            self.about_title_frame, text="Version: " + str(gui_object.VERSION_NUM), font=("Arial", 12), anchor="center"
+            self.about_title_frame,
+            text=gui_object.get_translation_text(TranslationKeys.TRANSLATION_TEXT_ABOUT_WINDOW_VERSION)
+            + str(gui_object.VERSION_NUM),
+            font=("Arial", 12),
+            anchor="center",
         )
         self.about_title_label_version_label.place(x=75, y=45, width=300, height=20)
 
-        copyright_text: str = (
-            "Copyright 2024-2025 © Bartlomiej Duda. All Rights Reserved.\n"
-            "For the latest version visit ImageHeat Github page at\n"
-        )
+        copyright_text: str = gui_object.get_translation_text(TranslationKeys.TRANSLATION_TEXT_ABOUT_WINDOW_COPYRIGHT)
         self.about_description_copyright_label = tk.Label(
             self.about_description_frame, text=copyright_text, anchor="center"
         )

@@ -567,12 +567,12 @@ class ImageHeatGUI:
         self.info_labelframe = tk.LabelFrame(self.main_frame, text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_LABELFRAME), font=self.gui_font)
         self.info_labelframe.place(x=-200, y=5, width=195, height=145, relx=1)
 
-        self.file_name_label = HTMLLabel(self.info_labelframe, html=self._get_html_for_infobox_label(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_FILENAME_LABEL), ""), wrap=None)
-        self.file_name_tooltip = Hovertip(self.file_name_label, self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_FILENAME_LABEL))
-        self.file_name_label.place(x=5, y=5, width=185, height=18)
+        self.infobox_file_name_label = HTMLLabel(self.info_labelframe, html=self._get_html_for_infobox_label(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_FILENAME_LABEL), ""), wrap=None)
+        self.infobox_file_name_tooltip = Hovertip(self.infobox_file_name_label, self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_FILENAME_LABEL))
+        self.infobox_file_name_label.place(x=5, y=5, width=185, height=18)
 
-        self.file_size_label = HTMLLabel(self.info_labelframe, html=self._get_html_for_infobox_label(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_FILE_SIZE), ""), wrap=None)
-        self.file_size_label.place(x=5, y=25, width=175, height=18)
+        self.infobox_file_size_label = HTMLLabel(self.info_labelframe, html=self._get_html_for_infobox_label(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_FILE_SIZE), ""), wrap=None)
+        self.infobox_file_size_label.place(x=5, y=25, width=175, height=18)
 
         self.infobox_pixel_x_label = HTMLLabel(self.info_labelframe, html=self._get_html_for_infobox_label(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_PIXEL_X), ""), wrap=None)
         self.infobox_pixel_x_label.place(x=5, y=45, width=175, height=18)
@@ -704,7 +704,7 @@ class ImageHeatGUI:
         self.filemenu.entryconfig(1, state="disabled")
 
         self.filemenu.add_command(
-            label="Save Raw Data",
+            label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_FILEMENU_SAVE_RAW_DATA),
             command=lambda: self.export_raw_file(),
             accelerator="Ctrl+D",
         )
@@ -712,25 +712,26 @@ class ImageHeatGUI:
         self.filemenu.entryconfig(2, state="disabled")
 
         self.filemenu.add_separator()
-        self.filemenu.add_command(label="Quit", command=lambda: self.quit_program(), accelerator="Ctrl+Q")
+        self.filemenu.add_command(label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_FILEMENU_QUIT),
+                                  command=lambda: self.quit_program(), accelerator="Ctrl+Q")
         master.bind_all("<Control-q>", lambda x: self.quit_program())
-        self.menubar.add_cascade(label="File", menu=self.filemenu)
+        self.menubar.add_cascade(label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_FILEMENU_FILE), menu=self.filemenu)
 
         # options submenu
         self.optionsmenu = tk.Menu(self.menubar, tearoff=0)
 
         self.languagemenu = tk.Menu(self.optionsmenu, tearoff=0)
-        self.optionsmenu.add_cascade(label='Language', menu=self.languagemenu)
+        self.optionsmenu.add_cascade(label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_LANGUAGE), menu=self.languagemenu)
 
-        self.languagemenu.add_radiobutton(label="English (Default)", variable=self.current_program_language, value="EN", command=lambda: self.set_program_language())
-        self.languagemenu.add_radiobutton(label="Polish", variable=self.current_program_language, value="PL", command=lambda: self.set_program_language())
-        self.menubar.add_cascade(label="Options", menu=self.optionsmenu)
+        self.languagemenu.add_radiobutton(label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_LANGUAGE_EN), variable=self.current_program_language, value="EN", command=lambda: self.set_program_language())
+        self.languagemenu.add_radiobutton(label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_LANGUAGE_PL), variable=self.current_program_language, value="PL", command=lambda: self.set_program_language())
+        self.menubar.add_cascade(label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_OPTIONS), menu=self.optionsmenu)
 
         # help submenu
         self.helpmenu = tk.Menu(self.menubar, tearoff=0)
-        self.helpmenu.add_command(label="About...", command=lambda: self.show_about_window(), accelerator="Ctrl+H")
+        self.helpmenu.add_command(label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_HELPMENU_ABOUT), command=lambda: self.show_about_window(), accelerator="Ctrl+H")
         master.bind_all("<Control-h>", lambda x: self.show_about_window())
-        self.menubar.add_cascade(label="Help", menu=self.helpmenu)
+        self.menubar.add_cascade(label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_HELPMENU_HELP), menu=self.helpmenu)
 
         master.config(menu=self.menubar)
 
@@ -789,26 +790,40 @@ class ImageHeatGUI:
         self.palette_paloffset_label.config(text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_PAL_OFFSET))
         self.palette_endianess_label.config(text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_PALETTE_ENDIANESS))
         self.palette_ps2swizzle_checkbutton.config(text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_PS2_PALETTE_SWIZZLE))
+
         self.image_preview_labelframe.config(text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_IMAGE_PREVIEW))
+
         self.info_labelframe.config(text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_LABELFRAME))
-        self.file_name_label.set_html(self._get_html_for_infobox_label(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_FILENAME_LABEL), self.gui_params.img_file_name if self.opened_image else ""))
-        self.file_size_label.set_html(self._get_html_for_infobox_label(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_FILE_SIZE), self.get_info_file_size_str() if self.opened_image else ""))
+        self.infobox_file_name_label.set_html(self._get_html_for_infobox_label(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_FILENAME_LABEL), self.gui_params.img_file_name if self.opened_image else ""))
+        self.infobox_file_size_label.set_html(self._get_html_for_infobox_label(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_FILE_SIZE), self.get_info_file_size_str() if self.opened_image else ""))
         self.infobox_pixel_x_label.set_html(self._get_html_for_infobox_label(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_PIXEL_X), str(self.pixel_x) if self.opened_image else ""))
         self.infobox_pixel_y_label.set_html(self._get_html_for_infobox_label(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_PIXEL_Y), str(self.pixel_y) if self.opened_image else ""))
         self.infobox_pixel_offset_label.set_html(self._get_html_for_infobox_label(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_PIXEL_OFFSET), str(self.pixel_offset) if self.opened_image else ""))
         self.infobox_pixel_value_hex_label.set_html(self._get_html_for_infobox_pixel_value_label(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_PIXEL_VALUE), self.pixel_value_str, self.pixel_value_rgba) if self.opened_image else self._get_html_for_infobox_label(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_PIXEL_VALUE), ""))
+
         self.controls_labelframe.config(text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_CONTROLS_LABELFRAME))
         self.controls_all_info_label.set_html(self._get_html_for_controls_label())
+
         self.postprocessing_labelframe.config(text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_POST_PROCESSING_LABELFRAME))
         self.postprocessing_zoom_label.config(text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_POST_PROCESSING_ZOOM))
         self.postprocessing_zoom_resampling_label.config(text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_POST_PROCESSING_RESAMPLING))
         self.postprocessing_vertical_flip_checkbutton.config(text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_POST_PROCESSING_VERTICAL_FLIP))
         self.postprocessing_horizontal_flip_checkbutton.config(text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_POST_PROCESSING_HORIZONTAL_FLIP))
         self.postprocessing_rotate_label.config(text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_POST_PROCESSING_ROTATE))
+
         self.filemenu.entryconfigure(0, label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_FILEMENU_OPEN_FILE))
         self.filemenu.entryconfigure(1, label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_FILEMENU_SAVE_AS))
+        self.filemenu.entryconfigure(2, label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_FILEMENU_SAVE_RAW_DATA))
+        self.filemenu.entryconfigure(4, label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_FILEMENU_QUIT))
+        self.menubar.entryconfigure(1, label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_FILEMENU_FILE))
 
-        # TODO - add other texts
+        self.optionsmenu.entryconfigure(0, label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_LANGUAGE))
+        self.languagemenu.entryconfigure(0, label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_LANGUAGE_EN))
+        self.languagemenu.entryconfigure(1, label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_LANGUAGE_PL))
+        self.menubar.entryconfigure(2, label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_OPTIONS))
+
+        self.helpmenu.entryconfigure(0, label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_HELPMENU_ABOUT))
+        self.menubar.entryconfigure(3, label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_HELPMENU_HELP))
 
     def reload_image_callback(self, event):
         self.gui_reload_image_on_gui_element_change()
@@ -961,9 +976,9 @@ class ImageHeatGUI:
         self.parameters_box_disable_enable_logic()
 
         # info labels
-        self.file_name_label.set_html(self._get_html_for_infobox_label(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_FILENAME_LABEL), self.gui_params.img_file_name))
-        self.file_name_tooltip.text = self.gui_params.img_file_name
-        self.file_size_label.set_html(self._get_html_for_infobox_label(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_FILE_SIZE), self.get_info_file_size_str()))
+        self.infobox_file_name_label.set_html(self._get_html_for_infobox_label(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_FILENAME_LABEL), self.gui_params.img_file_name))
+        self.infobox_file_name_tooltip.text = self.gui_params.img_file_name
+        self.infobox_file_size_label.set_html(self._get_html_for_infobox_label(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_FILE_SIZE), self.get_info_file_size_str()))
         self.infobox_pixel_x_label.set_html(self._get_html_for_infobox_label(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_PIXEL_X), ""))
         self.infobox_pixel_y_label.set_html(self._get_html_for_infobox_label(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_PIXEL_Y), ""))
         self.infobox_pixel_offset_label.set_html(self._get_html_for_infobox_label(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_PIXEL_OFFSET), ""))
@@ -1003,7 +1018,7 @@ class ImageHeatGUI:
             in_file_name = in_file_path.split("/")[-1]
         except Exception as error:
             logger.error("Failed to open file! Error: %s", error)
-            messagebox.showwarning("Warning", "Failed to open file!")
+            messagebox.showwarning("Warning", self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_POPUPS_FAILED_TO_OPEN_FILE))
             return False
 
         logger.info(f"Loading file {in_file_name}...")
@@ -1037,14 +1052,14 @@ class ImageHeatGUI:
             in_file_path = in_file.name
         except Exception as error:
             logger.error("Failed to open file! Error: %s", error)
-            messagebox.showwarning("Warning", "Failed to open file!")
+            messagebox.showwarning("Warning", self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_POPUPS_FAILED_TO_OPEN_FILE))
             return False
 
         # gui params logic
         self.gui_params.palette_file_path = in_file_path
 
         # browse button logic
-        self.palette_palfile_button.configure(text="File OK", fg='blue')
+        self.palette_palfile_button.configure(text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_PALETTE_PARAMETERS_FILE_OK), fg='blue')
 
         self.gui_reload_image_on_gui_element_change()
         return True
@@ -1057,11 +1072,13 @@ class ImageHeatGUI:
                     mode="wb",
                     defaultextension="" if platform.uname().system == "Linux" else ".dds",
                     initialfile="exported_image",
-                    filetypes=(("DDS files", "*.dds"), ("PNG files", "*.png"), ("BMP files", "*.bmp")),
+                    filetypes=((self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_EXPORT_FILETYPES_DDS), "*.dds"),
+                               (self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_EXPORT_FILETYPES_PNG), "*.png"),
+                               (self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_EXPORT_FILETYPES_BMP), "*.bmp")),
                 )
             except Exception as error:
                 logger.error(f"Error: {error}")
-                messagebox.showwarning("Warning", "Failed to save file!")
+                messagebox.showwarning("Warning", self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_POPUPS_FAILED_TO_SAVE_FILE))
             if out_file is None:
                 return False  # user closed file dialog on purpose
 
@@ -1073,12 +1090,12 @@ class ImageHeatGUI:
             )
             if not out_data:
                 logger.error("Empty data to export!")
-                messagebox.showwarning("Warning", "Empty image data! Export not possible!")
+                messagebox.showwarning("Warning", self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_POPUPS_EMPTY_IMAGE_DATA))
                 return False
 
             out_file.write(out_data)
             out_file.close()
-            messagebox.showinfo("Info", "File saved successfully!")
+            messagebox.showinfo("Info", self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_POPUPS_FILE_SAVED_SUCCESSFULLY))
             logger.info(f"Image has been exported successfully to {out_file.name}")
         else:
             logger.info("Image is not opened yet...")
@@ -1093,11 +1110,11 @@ class ImageHeatGUI:
                     mode="wb",
                     defaultextension=".bin",
                     initialfile="exported_raw_data",
-                    filetypes=(("Binary files", "*.bin"), ),
+                    filetypes=((self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_EXPORT_FILETYPES_BINARY), "*.bin"), ),
                 )
             except Exception as error:
                 logger.error(f"Error: {error}")
-                messagebox.showwarning("Warning", "Failed to save file!")
+                messagebox.showwarning("Warning", self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_POPUPS_FAILED_TO_SAVE_FILE))
             if out_file is None:
                 return False  # user closed file dialog on purpose
 
@@ -1105,7 +1122,7 @@ class ImageHeatGUI:
 
             out_file.write(out_data)
             out_file.close()
-            messagebox.showinfo("Info", "Raw data saved successfully!")
+            messagebox.showinfo("Info", self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_POPUPS_RAW_DATA_SAVED_SUCCESSFULLY))
             logger.info(f"Raw data has been exported successfully to {out_file.name}")
         else:
             logger.info("Image is not opened yet...")
