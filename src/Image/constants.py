@@ -64,6 +64,7 @@ SUPPORTED_SWIZZLING_TYPES: list[SwizzlingType] = [
     SwizzlingType(display_name="XBOX / PS3 (Morton)", unique_id="morton"),
     SwizzlingType(display_name="Dreamcast / PS Vita", unique_id="dreamcast_psvita"),
     SwizzlingType(display_name="PS4 (Morton)", unique_id="ps4"),
+    SwizzlingType(display_name="Nintendo Switch", unique_id="nintendo_switch"),
     SwizzlingType(display_name="GameCube / WII", unique_id="gamecube_wii"),
     SwizzlingType(display_name="XBOX 360", unique_id="x360"),
     SwizzlingType(display_name="PS2", unique_id="ps2"),

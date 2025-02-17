@@ -26,6 +26,7 @@ from reversebox.image.swizzling.swizzle_psp import unswizzle_psp
 from reversebox.image.swizzling.swizzle_psvita_dreamcast import (
     unswizzle_psvita_dreamcast,
 )
+from reversebox.image.swizzling.swizzle_switch import unswizzle_switch
 from reversebox.image.swizzling.swizzle_x360 import unswizzle_x360
 
 from src.GUI.gui_params import GuiParams
@@ -116,6 +117,8 @@ class HeatImage:
             self.encoded_image_data = unswizzle_psvita_dreamcast(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_bpp)
         elif swizzling_id == "ps4":
             self.encoded_image_data = unswizzle_ps4(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_bpp)
+        elif swizzling_id == "nintendo_switch":
+            self.encoded_image_data = unswizzle_switch(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height)
         elif swizzling_id == "gamecube_wii":
             self.encoded_image_data = unswizzle_gamecube(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_bpp)
         elif swizzling_id == "x360":
