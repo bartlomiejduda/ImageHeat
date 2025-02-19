@@ -93,6 +93,7 @@ class ImageHeatGUI:
         self.preview_final_pil_image = None
         self.validate_spinbox_command = (master.register(self.validate_spinbox), '%P')
         self.current_program_language = tk.StringVar(value="EN")
+        self.current_background_color = tk.StringVar(value="#595959")
         self.pixel_x: int = 1
         self.pixel_y: int = 1
         self.pixel_offset: int = 0
@@ -725,6 +726,13 @@ class ImageHeatGUI:
 
         self.languagemenu.add_radiobutton(label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_LANGUAGE_EN), variable=self.current_program_language, value="EN", command=lambda: self.set_program_language())
         self.languagemenu.add_radiobutton(label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_LANGUAGE_PL), variable=self.current_program_language, value="PL", command=lambda: self.set_program_language())
+
+        self.backgroundmenu = tk.Menu(self.optionsmenu, tearoff=0)
+        self.optionsmenu.add_cascade(label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_BACKGROUND_COLOR), menu=self.backgroundmenu)
+        self.backgroundmenu.add_radiobutton(label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_BACKGROUND_GRAY), variable=self.current_background_color, value="#595959", command=lambda: self.reload_image_callback(None))
+        self.backgroundmenu.add_radiobutton(label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_BACKGROUND_BLACK), variable=self.current_background_color, value="#000000", command=lambda: self.reload_image_callback(None))
+        self.backgroundmenu.add_radiobutton(label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_BACKGROUND_WHITE), variable=self.current_background_color, value="#FFFFFF", command=lambda: self.reload_image_callback(None))
+
         self.menubar.add_cascade(label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_OPTIONS), menu=self.optionsmenu)
 
         # help submenu
@@ -818,8 +826,12 @@ class ImageHeatGUI:
         self.menubar.entryconfigure(1, label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_FILEMENU_FILE))
 
         self.optionsmenu.entryconfigure(0, label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_LANGUAGE))
+        self.optionsmenu.entryconfigure(1, label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_BACKGROUND_COLOR))
         self.languagemenu.entryconfigure(0, label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_LANGUAGE_EN))
         self.languagemenu.entryconfigure(1, label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_LANGUAGE_PL))
+        self.backgroundmenu.entryconfigure(0, label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_BACKGROUND_GRAY))
+        self.backgroundmenu.entryconfigure(1, label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_BACKGROUND_BLACK))
+        self.backgroundmenu.entryconfigure(2, label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_BACKGROUND_WHITE))
         self.menubar.entryconfigure(2, label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_OPTIONS))
 
         self.helpmenu.entryconfigure(0, label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_HELPMENU_ABOUT))
@@ -1237,7 +1249,7 @@ class ImageHeatGUI:
 
             self.preview_instance = tk.Canvas(
                 self.image_preview_canvasframe,
-                bg="#595959",  # TODO - add option to change background color
+                bg=self.current_background_color.get(),
                 width=preview_img_width,
                 height=preview_img_height,
                 highlightthickness=0
