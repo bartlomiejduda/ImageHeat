@@ -198,6 +198,15 @@ DEFAULT_ZOOM_RESAMPLING_NAME: str = ZOOM_RESAMPLING_TYPES_NAMES[0]
 DEFAULT_ROTATE_NAME: str = ROTATE_TYPES_NAMES[0]
 
 
+class ConfigKeys(str, Enum):
+    SAVE_AS_DIRECTORY_PATH = "save_as_directory_path"
+    SAVE_RAW_DATA_DIRECTORY_PATH = "save_raw_data_directory_path"
+    OPEN_FILE_DIRECTORY_PATH = "open_file_directory_path"
+    OPEN_PALETTE_DIRECTORY_PATH = "open_palette_directory_path"
+    CURRENT_PROGRAM_LANGUAGE = "current_program_language"
+    CURRENT_CANVAS_COLOR = "current_canvas_color"
+
+
 class TranslationKeys(str, Enum):
     TRANSLATION_TEXT_IMAGE_PARAMETERS = "TRANSLATION_TEXT_IMAGE_PARAMETERS"
     TRANSLATION_TEXT_IMAGE_WIDTH = "TRANSLATION_TEXT_IMAGE_WIDTH"

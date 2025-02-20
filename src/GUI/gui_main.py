@@ -10,6 +10,7 @@ import platform
 import sys
 import time
 import tkinter as tk
+from configparser import ConfigParser
 from idlelib.tooltip import Hovertip
 from tkinter import filedialog, messagebox, ttk
 from typing import List, Optional
@@ -51,6 +52,7 @@ from src.Image.constants import (
     TRANSLATION_MEMORY,
     ZOOM_RESAMPLING_TYPES_NAMES,
     ZOOM_TYPES_NAMES,
+    ConfigKeys,
     TranslationEntry,
     TranslationKeys,
     get_compression_id,
@@ -92,14 +94,13 @@ class ImageHeatGUI:
         self.ph_img = None
         self.preview_final_pil_image = None
         self.validate_spinbox_command = (master.register(self.validate_spinbox), '%P')
-        self.current_program_language = tk.StringVar(value="EN")
-        self.current_background_color = tk.StringVar(value="#595959")
         self.pixel_x: int = 1
         self.pixel_y: int = 1
         self.pixel_offset: int = 0
         self.pixel_value_str: str = ""
         self.pixel_value_rgba: bytearray = bytearray(10)
 
+        # icon logic
         try:
             if platform.uname().system == "Linux":
                 self.master.iconphoto(False, tk.PhotoImage(file=self.icon_path))
@@ -107,6 +108,37 @@ class ImageHeatGUI:
                 self.master.iconbitmap(self.icon_path)
         except tk.TclError:
             logger.info("Can't load the icon file from %s", self.icon_path)
+
+        # user config logic
+        self.user_config = ConfigParser()
+        self.user_config_file_name: str = "config.ini"
+        self.user_config.add_section("config")
+        self.user_config.set("config", ConfigKeys.SAVE_AS_DIRECTORY_PATH, "")
+        self.user_config.set("config", ConfigKeys.SAVE_RAW_DATA_DIRECTORY_PATH, "")
+        self.user_config.set("config", ConfigKeys.OPEN_FILE_DIRECTORY_PATH, "")
+        self.user_config.set("config", ConfigKeys.OPEN_PALETTE_DIRECTORY_PATH, "")
+        self.user_config.set("config", ConfigKeys.CURRENT_PROGRAM_LANGUAGE, "EN")
+        self.user_config.set("config", ConfigKeys.CURRENT_CANVAS_COLOR, "#595959")
+        if not os.path.exists(self.user_config_file_name):
+            with open(self.user_config_file_name, "w") as configfile:
+                self.user_config.write(configfile)
+
+        self.user_config.read(self.user_config_file_name)
+        try:
+            self.current_save_as_directory_path = self.user_config.get("config", ConfigKeys.SAVE_AS_DIRECTORY_PATH)
+            self.current_save_raw_data_directory_path = self.user_config.get("config", ConfigKeys.SAVE_RAW_DATA_DIRECTORY_PATH)
+            self.current_open_file_directory_path = self.user_config.get("config", ConfigKeys.OPEN_FILE_DIRECTORY_PATH)
+            self.current_open_palette_directory_path = self.user_config.get("config", ConfigKeys.OPEN_PALETTE_DIRECTORY_PATH)
+            self.current_program_language = tk.StringVar(value=self.user_config.get("config", ConfigKeys.CURRENT_PROGRAM_LANGUAGE))
+            self.current_background_color = tk.StringVar(value=self.user_config.get("config", ConfigKeys.CURRENT_CANVAS_COLOR))
+        except Exception as error:
+            logger.error(f"Error while loading user config: {error}")
+            self.current_save_as_directory_path = ""
+            self.current_save_raw_data_directory_path = ""
+            self.current_open_file_directory_path = ""
+            self.current_open_palette_directory_path = ""
+            self.current_program_language = tk.StringVar(value="EN")
+            self.current_background_color = tk.StringVar(value="#595959")
 
         ########################
         # MAIN FRAME           #
@@ -743,6 +775,13 @@ class ImageHeatGUI:
 
         master.config(menu=self.menubar)
 
+        ######################################################################################################
+        #                           STARTUP LOGIC  (options menu logic)                                      #
+        ######################################################################################################
+
+        # set language on startup logic
+        self.set_program_language()
+
     ######################################################################################################
     #                                             methods                                                #
     ######################################################################################################
@@ -837,10 +876,20 @@ class ImageHeatGUI:
         self.helpmenu.entryconfigure(0, label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_HELPMENU_ABOUT))
         self.menubar.entryconfigure(3, label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_HELPMENU_HELP))
 
+        # save current language to config file
+        self.user_config.set("config", ConfigKeys.CURRENT_PROGRAM_LANGUAGE, self.current_program_language.get())
+        with open(self.user_config_file_name, "w") as configfile:
+            self.user_config.write(configfile)
+
     def reload_image_callback(self, event):
         self.gui_reload_image_on_gui_element_change()
         self.parameters_box_disable_enable_logic()
         self.master.focus()
+
+        # save current canvas color to config file
+        self.user_config.set("config", ConfigKeys.CURRENT_CANVAS_COLOR, self.current_background_color.get())
+        with open(self.user_config_file_name, "w") as configfile:
+            self.user_config.write(configfile)
 
     def check_if_paletted_format_chosen(self, pixel_format: str) -> bool:
         for format_name in PALETTE_FORMATS_NAMES:
@@ -1019,13 +1068,20 @@ class ImageHeatGUI:
             logger.info("Image is not opened yet...")
         return True
 
+    # File > Open
     def open_image_file(self) -> bool:
         try:
-            in_file = filedialog.askopenfile(
-                mode="rb"
-            )
+            in_file = filedialog.askopenfile(mode="rb", initialdir=self.current_open_file_directory_path)
             if not in_file:
                 return False
+            try:
+                selected_directory = os.path.dirname(in_file.name)
+                self.current_open_file_directory_path = selected_directory  # set directory path from history
+                self.user_config.set("config", ConfigKeys.OPEN_FILE_DIRECTORY_PATH, selected_directory)  # save directory path to config file
+                with open(self.user_config_file_name, "w") as configfile:
+                    self.user_config.write(configfile)
+            except Exception:
+                pass
             in_file_path = in_file.name
             in_file_name = in_file_path.split("/")[-1]
         except Exception as error:
@@ -1056,11 +1112,17 @@ class ImageHeatGUI:
 
     def open_palette_file(self) -> bool:
         try:
-            in_file = filedialog.askopenfile(
-                mode="rb"
-            )
+            in_file = filedialog.askopenfile(mode="rb", initialdir=self.current_open_palette_directory_path)
             if not in_file:
                 return False
+            try:
+                selected_directory = os.path.dirname(in_file.name)
+                self.current_open_palette_directory_path = selected_directory  # set directory path from history
+                self.user_config.set("config", ConfigKeys.OPEN_PALETTE_DIRECTORY_PATH, selected_directory)  # save directory path to config file
+                with open(self.user_config_file_name, "w") as configfile:
+                    self.user_config.write(configfile)
+            except Exception:
+                pass
             in_file_path = in_file.name
         except Exception as error:
             logger.error("Failed to open file! Error: %s", error)
@@ -1076,6 +1138,7 @@ class ImageHeatGUI:
         self.gui_reload_image_on_gui_element_change()
         return True
 
+    # File > Save As
     def export_image_file(self) -> bool:
         if self.opened_image:
             out_file = None
@@ -1084,10 +1147,20 @@ class ImageHeatGUI:
                     mode="wb",
                     defaultextension="" if platform.uname().system == "Linux" else ".dds",
                     initialfile="exported_image",
+                    initialdir=self.current_save_as_directory_path,
                     filetypes=((self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_EXPORT_FILETYPES_DDS), "*.dds"),
                                (self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_EXPORT_FILETYPES_PNG), "*.png"),
                                (self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_EXPORT_FILETYPES_BMP), "*.bmp")),
                 )
+                try:
+                    selected_directory = os.path.dirname(out_file.name)
+                    self.current_save_as_directory_path = selected_directory  # set directory path from history
+                    self.user_config.set("config", ConfigKeys.SAVE_AS_DIRECTORY_PATH, selected_directory)  # save directory path to config file
+                    with open(self.user_config_file_name, "w") as configfile:
+                        self.user_config.write(configfile)
+                except Exception:
+                    pass
+
             except Exception as error:
                 logger.error(f"Error: {error}")
                 messagebox.showwarning("Warning", self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_POPUPS_FAILED_TO_SAVE_FILE))
@@ -1114,6 +1187,7 @@ class ImageHeatGUI:
 
         return True
 
+    # File > Save Raw Data
     def export_raw_file(self) -> bool:
         if self.opened_image:
             out_file = None
@@ -1122,8 +1196,17 @@ class ImageHeatGUI:
                     mode="wb",
                     defaultextension=".bin",
                     initialfile="exported_raw_data",
+                    initialdir=self.current_save_raw_data_directory_path,
                     filetypes=((self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_EXPORT_FILETYPES_BINARY), "*.bin"), ),
                 )
+                try:
+                    selected_directory = os.path.dirname(out_file.name)
+                    self.current_save_raw_data_directory_path = selected_directory  # set directory path from history
+                    self.user_config.set("config", ConfigKeys.SAVE_RAW_DATA_DIRECTORY_PATH, selected_directory)  # save directory path to config file
+                    with open(self.user_config_file_name, "w") as configfile:
+                        self.user_config.write(configfile)
+                except Exception:
+                    pass
             except Exception as error:
                 logger.error(f"Error: {error}")
                 messagebox.showwarning("Warning", self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_POPUPS_FAILED_TO_SAVE_FILE))
