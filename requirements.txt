@@ -1,7 +1,7 @@
 center_tk_window==1.0.0
-cx-Freeze==7.2.5
+cx-Freeze==7.2.10
 Pillow==10.4.0
 pre-commit==4.0.1
 pytest==8.3.3
-ReverseBox==0.25.3
+ReverseBox==0.25.5
 tkhtmlview==0.3.1
