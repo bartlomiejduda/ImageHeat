@@ -231,7 +231,6 @@ class TranslationKeys(str, Enum):
     TRANSLATION_TEXT_PAL_OFFSET = "TRANSLATION_TEXT_PAL_OFFSET"
     TRANSLATION_TEXT_PALETTE_ENDIANESS = "TRANSLATION_TEXT_PALETTE_ENDIANESS"
     TRANSLATION_TEXT_PS2_PALETTE_SWIZZLE = "TRANSLATION_TEXT_PS2_PALETTE_SWIZZLE"
-    TRANSLATION_TEXT_PALETTE_PARAMETERS_FILE_OK = "TRANSLATION_TEXT_PALETTE_PARAMETERS_FILE_OK"
 
     TRANSLATION_TEXT_IMAGE_PREVIEW = "TRANSLATION_TEXT_IMAGE_PREVIEW"
 
@@ -328,7 +327,6 @@ TRANSLATION_MEMORY: List[TranslationEntry] = [
     TranslationEntry(id=TranslationKeys.TRANSLATION_TEXT_PAL_OFFSET, default="Pal. Offset"),
     TranslationEntry(id=TranslationKeys.TRANSLATION_TEXT_PALETTE_ENDIANESS, default="Palette Endianess"),
     TranslationEntry(id=TranslationKeys.TRANSLATION_TEXT_PS2_PALETTE_SWIZZLE, default="PS2 Palette Swizzle"),
-    TranslationEntry(id=TranslationKeys.TRANSLATION_TEXT_PALETTE_PARAMETERS_FILE_OK, default="File OK"),
     TranslationEntry(id=TranslationKeys.TRANSLATION_TEXT_IMAGE_PREVIEW, default="Image Preview"),
     TranslationEntry(id=TranslationKeys.TRANSLATION_TEXT_INFO_LABELFRAME, default="Info"),
     TranslationEntry(id=TranslationKeys.TRANSLATION_TEXT_INFO_FILENAME_LABEL, default="File Name: "),

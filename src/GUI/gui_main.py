@@ -1124,6 +1124,7 @@ class ImageHeatGUI:
             except Exception:
                 pass
             in_file_path = in_file.name
+            in_file_name = in_file_path.split("/")[-1]
         except Exception as error:
             logger.error("Failed to open file! Error: %s", error)
             messagebox.showwarning("Warning", self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_POPUPS_FAILED_TO_OPEN_FILE))
@@ -1133,7 +1134,11 @@ class ImageHeatGUI:
         self.gui_params.palette_file_path = in_file_path
 
         # browse button logic
-        self.palette_palfile_button.configure(text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_PALETTE_PARAMETERS_FILE_OK), fg='blue')
+        self.gui_params.img_palette_name = in_file_name
+        button_label_text: str = in_file_name
+        if len(button_label_text) > 11:
+            button_label_text = "..." + button_label_text[len(button_label_text) - 11:]
+        self.palette_palfile_button.configure(text=button_label_text, fg='blue')
 
         self.gui_reload_image_on_gui_element_change()
         return True

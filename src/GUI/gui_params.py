@@ -33,6 +33,7 @@ class GuiParams:
         self.palette_offset: Optional[int] = None
         self.palette_endianess: Optional[str] = None
         self.palette_ps2_swizzle_flag: Optional[bool] = None
+        self.img_palette_name: Optional[str] = None
 
         # post-processing
         self.zoom_name: str = DEFAULT_ZOOM_NAME
