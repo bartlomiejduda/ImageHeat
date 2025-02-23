@@ -54,8 +54,12 @@ class RotateType:
     unique_id: str
 
 
+EXCLUDED_PIXEL_FORMATS: list[ImageFormats] = [ImageFormats.RGB121, ImageFormats.RGB121_BYTE]
+
 SUPPORTED_PIXEL_FORMATS: list[PixelFormat] = [
-    PixelFormat(format_name=image_format.name, format_type=image_format) for image_format in ImageFormats
+    PixelFormat(format_name=image_format.name, format_type=image_format)
+    for image_format in ImageFormats
+    if image_format not in EXCLUDED_PIXEL_FORMATS
 ]
 
 SUPPORTED_SWIZZLING_TYPES: list[SwizzlingType] = [

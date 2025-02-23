@@ -16,7 +16,7 @@ else:
 executables = [
     Executable(
         "src/main.py",
-        copyright="Copyright (C) 2024 Bartlomiej Duda",
+        copyright="Copyright (C) 2024-2025 Bartlomiej Duda",
         base=base,
         icon="src/data/img/heat_icon.ico",
         target_name=target_name,
