@@ -1,5 +1,5 @@
 """
-Copyright © 2024  Bartłomiej Duda
+Copyright © 2024-2025  Bartłomiej Duda
 License: GPL-3.0 License
 """
 
@@ -28,6 +28,7 @@ class GuiParams:
         self.img_file_name: Optional[str] = None
 
         # palette parameters
+        self.palette_format: Optional[str] = None
         self.palette_loadfrom_value: Optional[int] = None
         self.palette_file_path: Optional[str] = None
         self.palette_offset: Optional[int] = None

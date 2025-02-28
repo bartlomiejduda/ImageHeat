@@ -77,6 +77,7 @@ class HeatImage:
 
         image_decoder = ImageDecoder()
         image_format: ImageFormats = self._get_image_format_from_str(self.gui_params.pixel_format)
+        palette_format: ImageFormats = self._get_image_format_from_str(self.gui_params.palette_format)
 
         # endianess logic
         endianess_id: str = get_endianess_id(self.gui_params.endianess_type)
@@ -202,39 +203,10 @@ class HeatImage:
             self.decoded_image_data = image_decoder.decode_image(
                 self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_format, endianess_id
             )
-        elif image_format in (ImageFormats.PAL4_RGBX5551,
-                              ImageFormats.PAL4_BGRX5551,
-                              ImageFormats.PAL4_XRGB1555,
-                              ImageFormats.PAL4_XBGR1555,
-                              ImageFormats.PAL4_RGB888,
-                              ImageFormats.PAL4_BGR888,
-                              ImageFormats.PAL4_RGBA8888,
-                              ImageFormats.PAL4_BGRA8888,
-                              ImageFormats.PAL4_IA8,
-                              ImageFormats.PAL4_RGB565,
-                              ImageFormats.PAL4_RGB5A3,
-                              ImageFormats.PAL4_GRAY8,
-
-                              ImageFormats.PAL8_RGBX2222,
-                              ImageFormats.PAL8_RGBX5551,
-                              ImageFormats.PAL8_BGRX5551,
-                              ImageFormats.PAL8_XRGB1555,
-                              ImageFormats.PAL8_XBGR1555,
-                              ImageFormats.PAL8_RGB888,
-                              ImageFormats.PAL8_BGR888,
-                              ImageFormats.PAL8_RGBX6666,
-                              ImageFormats.PAL8_IA8,
-                              ImageFormats.PAL8_RGB565,
-                              ImageFormats.PAL8_RGB5A3,
-                              ImageFormats.PAL8_RGBA8888,
-                              ImageFormats.PAL8_BGRA8888,
-                              ImageFormats.PAL8_GRAY8,
-
-                              ImageFormats.PAL16_IA8,
-                              ImageFormats.PAL16_RGB565,
-                              ImageFormats.PAL16_RGB5A3,
-                              ImageFormats.PAL16_RGBA8888,
-                              ImageFormats.PAL_I8A8_BGRA8888
+        elif image_format in (ImageFormats.PAL4,
+                              ImageFormats.PAL8,
+                              ImageFormats.PAL16,
+                              ImageFormats.PAL_I8A8
                               ):
 
             if (self.gui_params.palette_loadfrom_value == 1 and self.gui_params.img_file_path is not None) \
@@ -244,8 +216,8 @@ class HeatImage:
                 self.heat_palette.palette_reload()
 
                 self.decoded_image_data = image_decoder.decode_indexed_image(
-                    self.encoded_image_data, self.heat_palette.decoded_palette_data, self.gui_params.img_width, self.gui_params.img_height, image_format,
-                    endianess_id, palette_endianess_id
+                    self.encoded_image_data, self.heat_palette.decoded_palette_data, self.gui_params.img_width, self.gui_params.img_height,
+                    image_format, palette_format, endianess_id, palette_endianess_id
                 )
             else:
                 logger.info("Palette not loaded...")

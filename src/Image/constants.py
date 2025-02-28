@@ -54,12 +54,56 @@ class RotateType:
     unique_id: str
 
 
-EXCLUDED_PIXEL_FORMATS: list[ImageFormats] = [ImageFormats.RGB121, ImageFormats.RGB121_BYTE]
+EXCLUDED_PIXEL_FORMATS: list[ImageFormats] = [
+    ImageFormats.RGB121,
+    ImageFormats.RGB121_BYTE,
+    ImageFormats.GST121,
+    ImageFormats.GST122,
+    ImageFormats.GST421,
+    ImageFormats.GST422,
+    ImageFormats.GST221,
+    ImageFormats.GST222,
+    ImageFormats.GST821,
+    ImageFormats.GST822,
+]
 
 SUPPORTED_PIXEL_FORMATS: list[PixelFormat] = [
     PixelFormat(format_name=image_format.name, format_type=image_format)
     for image_format in ImageFormats
     if image_format not in EXCLUDED_PIXEL_FORMATS
+]
+
+SUPPORTED_PALETTE_FORMATS: list[ImageFormats] = [
+    ImageFormats.RGB565,
+    ImageFormats.BGR565,
+    ImageFormats.RGBX5551,
+    ImageFormats.BGRX5551,
+    ImageFormats.XRGB1555,
+    ImageFormats.XBGR1555,
+    ImageFormats.RGBA4444,
+    ImageFormats.RGBX4444,
+    ImageFormats.BGRA4444,
+    ImageFormats.BGRX4444,
+    ImageFormats.ARGB4444,
+    ImageFormats.XRGB4444,
+    ImageFormats.ABGR4444,
+    ImageFormats.XBGR4444,
+    ImageFormats.RGB888,
+    ImageFormats.BGR888,
+    ImageFormats.RGBA8888,
+    ImageFormats.RGBX8888,
+    ImageFormats.BGRA8888,
+    ImageFormats.BGRX8888,
+    ImageFormats.ARGB8888,
+    ImageFormats.ABGR8888,
+    ImageFormats.XRGB8888,
+    ImageFormats.N64_I4,
+    ImageFormats.N64_I8,
+    ImageFormats.N64_IA4,
+    ImageFormats.N64_IA8,
+    ImageFormats.N64_RGB5A3,
+    ImageFormats.GRAY8,
+    ImageFormats.RGBX2222,
 ]
 
 SUPPORTED_SWIZZLING_TYPES: list[SwizzlingType] = [
@@ -183,6 +227,7 @@ check_unique_ids(SUPPORTED_ROTATE_TYPES)
 check_unique_ids(SUPPORTED_ZOOM_RESAMPLING_TYPES)
 
 PIXEL_FORMATS_NAMES: list = [pixel_format.format_name for pixel_format in SUPPORTED_PIXEL_FORMATS]
+PALETTE_FORMATS_NAMES: list = [palette_format.value.upper() for palette_format in SUPPORTED_PALETTE_FORMATS]
 SWIZZLING_TYPES_NAMES: list = [swizzling_type.display_name for swizzling_type in SUPPORTED_SWIZZLING_TYPES]
 COMPRESSION_TYPES_NAMES: list = [compression_type.display_name for compression_type in SUPPORTED_COMPRESSION_TYPES]
 ENDIANESS_TYPES_NAMES: list = [endianess_type.display_name for endianess_type in SUPPORTED_ENDIANESS_TYPES]
@@ -191,9 +236,10 @@ ZOOM_RESAMPLING_TYPES_NAMES: list = [
     zoom_resampling_type.display_name for zoom_resampling_type in SUPPORTED_ZOOM_RESAMPLING_TYPES
 ]
 ROTATE_TYPES_NAMES: list = [rotate_type.display_name for rotate_type in SUPPORTED_ROTATE_TYPES]
-PALETTE_FORMATS_NAMES: list = ["pal", "gst"]
+PALETTE_FORMATS_REGEX_NAMES: list = ["pal", "gst"]
 
 DEFAULT_PIXEL_FORMAT_NAME: str = "RGB565"
+DEFAULT_PALETTE_FORMAT_NAME: str = "RGB565"
 DEFAULT_ENDIANESS_NAME: str = ENDIANESS_TYPES_NAMES[0]
 DEFAULT_SWIZZLING_NAME: str = SWIZZLING_TYPES_NAMES[0]
 DEFAULT_COMPRESSION_NAME: str = COMPRESSION_TYPES_NAMES[0]
@@ -228,6 +274,7 @@ class TranslationKeys(str, Enum):
     TRANSLATION_TEXT_ANOTHER_FILE = "TRANSLATION_TEXT_ANOTHER_FILE"
     TRANSLATION_TEXT_PALETTE_FILE = "TRANSLATION_TEXT_PALETTE_FILE"
     TRANSLATION_TEXT_BROWSE = "TRANSLATION_TEXT_BROWSE"
+    TRANSLATION_TEXT_PAL_FORMAT = "TRANSLATION_TEXT_PAL_FORMAT"
     TRANSLATION_TEXT_PAL_OFFSET = "TRANSLATION_TEXT_PAL_OFFSET"
     TRANSLATION_TEXT_PALETTE_ENDIANESS = "TRANSLATION_TEXT_PALETTE_ENDIANESS"
     TRANSLATION_TEXT_PS2_PALETTE_SWIZZLE = "TRANSLATION_TEXT_PS2_PALETTE_SWIZZLE"
@@ -324,6 +371,7 @@ TRANSLATION_MEMORY: List[TranslationEntry] = [
     TranslationEntry(id=TranslationKeys.TRANSLATION_TEXT_ANOTHER_FILE, default="Another File"),
     TranslationEntry(id=TranslationKeys.TRANSLATION_TEXT_PALETTE_FILE, default="Palette File"),
     TranslationEntry(id=TranslationKeys.TRANSLATION_TEXT_BROWSE, default="Browse..."),
+    TranslationEntry(id=TranslationKeys.TRANSLATION_TEXT_PAL_FORMAT, default="Palette Format"),
     TranslationEntry(id=TranslationKeys.TRANSLATION_TEXT_PAL_OFFSET, default="Pal. Offset"),
     TranslationEntry(id=TranslationKeys.TRANSLATION_TEXT_PALETTE_ENDIANESS, default="Palette Endianess"),
     TranslationEntry(id=TranslationKeys.TRANSLATION_TEXT_PS2_PALETTE_SWIZZLE, default="PS2 Palette Swizzle"),
