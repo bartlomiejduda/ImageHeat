@@ -551,6 +551,32 @@ class ImageHeatGUI:
         self.palette_format_combobox.place(x=5, y=85, width=145, height=20)
         self.palette_format_combobox.set(DEFAULT_PALETTE_FORMAT_NAME)
 
+        def _get_previous_palette_format_by_key(event):
+            if event.state & 5:
+                return  # skip SHIFT or CTRL
+
+            selection = self.palette_format_combobox.current()
+            last = len(self.palette_format_combobox['values']) - 1
+            try:
+                self.palette_format_combobox.current(selection - 1)
+            except tk.TclError:
+                self.palette_format_combobox.current(last)
+            self.reload_image_callback(event)
+
+        def _get_next_palette_format_by_key(event):
+            if event.state & 5:
+                return  # skip SHIFT or CTRL
+
+            selection = self.palette_format_combobox.current()
+            try:
+                self.palette_format_combobox.current(selection + 1)
+            except tk.TclError:
+                self.palette_format_combobox.current(0)
+            self.reload_image_callback(event)
+
+        self.master.bind("<n>", _get_previous_palette_format_by_key)
+        self.master.bind("<m>", _get_next_palette_format_by_key)
+
         ###########################################
         # PALETTE PARAMETERS BOX  - PAL OFFSET  #
         ###########################################
@@ -641,17 +667,17 @@ class ImageHeatGUI:
         ##########################
 
         self.controls_labelframe = tk.LabelFrame(self.main_frame, text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_CONTROLS_LABELFRAME), font=self.gui_font)
-        self.controls_labelframe.place(x=-200, y=150, width=195, height=185, relx=1)
+        self.controls_labelframe.place(x=-200, y=150, width=195, height=195, relx=1)
 
         self.controls_all_info_label = HTMLLabel(self.controls_labelframe, html=self._get_html_for_controls_label(), wrap=None)
-        self.controls_all_info_label.place(x=5, y=5, width=185, height=160)
+        self.controls_all_info_label.place(x=5, y=5, width=185, height=170)
 
         ##########################
         # POST-PROCESSING BOX #
         ##########################
 
         self.postprocessing_labelframe = tk.LabelFrame(self.main_frame, text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_POST_PROCESSING_LABELFRAME), font=self.gui_font)
-        self.postprocessing_labelframe.place(x=-200, y=335, width=195, height=150, relx=1)
+        self.postprocessing_labelframe.place(x=-200, y=345, width=195, height=150, relx=1)
 
         # zoom
         self.postprocessing_zoom_label = tk.Label(self.postprocessing_labelframe, text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_POST_PROCESSING_ZOOM), anchor="w", font=self.gui_font)
@@ -953,6 +979,7 @@ class ImageHeatGUI:
                         {self._get_line_for_controls_html_str(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_CONTROLS_ACTION_STEP_BY_BYTE), self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_CONTROLS_SHORTCUT_STEP_BY_BYTE))}
                         {self._get_line_for_controls_html_str(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_CONTROLS_ACTION_STEP_BY_ROW), self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_CONTROLS_SHORTCUT_STEP_BY_ROW))}
                         {self._get_line_for_controls_html_str(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_CONTROLS_ACTION_PIXEL_FORMAT), self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_CONTROLS_SHORTCUT_PIXEL_FORMAT))}
+                        {self._get_line_for_controls_html_str(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_CONTROLS_ACTION_PALETTE_FORMAT), self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_CONTROLS_SHORTCUT_PALETTE_FORMAT))}
                         {self._get_line_for_controls_html_str(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_CONTROLS_ACTION_ENDIANESS), self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_CONTROLS_SHORTCUT_ENDIANESS))}
                         {self._get_line_for_controls_html_str(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_CONTROLS_ACTION_SWIZZLING), self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_CONTROLS_SHORTCUT_SWIZZLING))}
                         {self._get_line_for_controls_html_str(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_CONTROLS_ACTION_COMPRESSION), self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_CONTROLS_SHORTCUT_COMPRESSION))}
