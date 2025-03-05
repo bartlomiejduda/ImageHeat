@@ -1326,7 +1326,7 @@ class ImageHeatGUI:
         return True
 
     def execute_image_preview_logic(self) -> bool:
-        logger.info("Init image preview...")
+        logger.info("[PREVIEW] Init image preview...")
         start_time = time.time()
         preview_img_width: int = int(self.gui_params.img_width)
         preview_img_height: int = int(self.gui_params.img_height)
@@ -1335,6 +1335,7 @@ class ImageHeatGUI:
         pil_img = None
 
         try:
+            logger.info("[PREVIEW] Creating PIL image...")
             pil_img: Image = Image.frombuffer(
                 "RGBA",
                 (preview_img_width, preview_img_height),
@@ -1347,10 +1348,12 @@ class ImageHeatGUI:
 
             # post-processing logic start
             # zoom
+            logger.info("[PREVIEW] Post-processing logic...")
             self.preview_zoom_value: float = get_zoom_value(self.gui_params.zoom_name)
             preview_img_width = int(self.preview_zoom_value * preview_img_width)
             preview_img_height = int(self.preview_zoom_value * preview_img_height)
-            pil_img = pil_img.resize((preview_img_width, preview_img_height), get_resampling_type(self.gui_params.zoom_resampling_name))
+            if self.preview_zoom_value != 1.0:
+                pil_img = pil_img.resize((preview_img_width, preview_img_height), get_resampling_type(self.gui_params.zoom_resampling_name))
 
             # flipping
             if self.gui_params.vertical_flip_flag:
@@ -1377,8 +1380,11 @@ class ImageHeatGUI:
             else:
                 logger.warning(f"Not supported rotate type selected! Rotate_id: {rotate_id}")
 
+            logger.info("[PREVIEW] Photo image...")
+            # TODO - fix performance issue with creating photo image
             self.ph_img = ImageTk.PhotoImage(pil_img)
 
+            logger.info("[PREVIEW] Canvas logic...")
             if self.preview_instance:
                 self.preview_instance.destroy()  # destroy canvas to prevent memory leak
 

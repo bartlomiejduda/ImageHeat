@@ -123,7 +123,8 @@ class HeatImage:
         elif swizzling_id == "gamecube_wii":
             self.encoded_image_data = unswizzle_gamecube(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_bpp)
         elif swizzling_id == "x360":
-            self.encoded_image_data = unswizzle_x360(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_bpp)
+            self.encoded_image_data = unswizzle_x360(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height,
+                                                     block_pixel_size=4, texel_byte_pitch=16)
         elif swizzling_id == "ps2":
             self.encoded_image_data = unswizzle_ps2(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_bpp)
         elif swizzling_id == "ps2_ea_4bit":
