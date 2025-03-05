@@ -1332,11 +1332,11 @@ class ImageHeatGUI:
         preview_img_height: int = int(self.gui_params.img_height)
         preview_data_size: int = preview_img_width * preview_img_height * 4
         preview_data: bytes = self.opened_image.decoded_image_data[:preview_data_size]
-        pil_img = None
+        pil_img: Optional[Image] = None
 
         try:
             logger.info("[PREVIEW] Creating PIL image...")
-            pil_img: Image = Image.frombuffer(
+            pil_img = Image.frombuffer(
                 "RGBA",
                 (preview_img_width, preview_img_height),
                 preview_data,
@@ -1380,9 +1380,15 @@ class ImageHeatGUI:
             else:
                 logger.warning(f"Not supported rotate type selected! Rotate_id: {rotate_id}")
 
-            logger.info("[PREVIEW] Photo image...")
-            # TODO - fix performance issue with creating photo image
-            self.ph_img = ImageTk.PhotoImage(pil_img)
+            def _mask_pillow_image(image: Image):  # massive performance boost after masking!
+                mask = image.copy()
+                mask.putalpha(1)
+                mask.paste(image, (0, 0), image)
+                image = mask.copy()
+                return image
+
+            logger.info("[PREVIEW] Creating photo image...")
+            self.ph_img = ImageTk.PhotoImage(_mask_pillow_image(pil_img))
 
             logger.info("[PREVIEW] Canvas logic...")
             if self.preview_instance:
@@ -1468,7 +1474,7 @@ class ImageHeatGUI:
 
         self.preview_instance.bind('<Motion>', _mouse_motion)
         execution_time = time.time() - start_time
-        logger.info(f"Image preview for pixel_format={self.gui_params.pixel_format} finished successfully. Time: {round(execution_time, 2)} seconds.")
+        logger.info(f"[PREVIEW] Image preview for pixel_format={self.gui_params.pixel_format} finished successfully. Time: {round(execution_time, 2)} seconds.")
         return True
 
 # fmt: on
