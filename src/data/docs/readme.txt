@@ -21,7 +21,7 @@ It was built to run on Windows x64 machines.
 
 
 # Issues #
-This program is in an early stage of development,
+This program is still in development,
 so some functionalities may not work properly.
 
 # More info #

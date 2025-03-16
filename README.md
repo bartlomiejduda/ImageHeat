@@ -7,7 +7,7 @@ All formats supported by **[ReverseBox](https://github.com/bartlomiejduda/Revers
 
 There is also support for:
 * texture unswizzlig for platforms like PSP, PS2, PS3, PS4, XBOX etc.
-* decoding indexed image formats like PAL4 and PAL8
+* decoding indexed image formats like PAL4, PAL8 and PAL16
 * decompressing data using algorithms like RLE, PackBits, ZLIB etc.
 * PS2 palette unswizzling
 * post-processing options like zoom, vertical flip, horizontal flip and rotate
