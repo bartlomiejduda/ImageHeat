@@ -3,5 +3,5 @@ cx-Freeze==7.2.10
 Pillow==10.4.0
 pre-commit==4.0.1
 pytest==8.3.3
-ReverseBox==0.26.6
+ReverseBox==0.26.7
 tkhtmlview==0.3.1

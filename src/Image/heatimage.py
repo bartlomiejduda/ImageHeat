@@ -122,10 +122,19 @@ class HeatImage:
             self.encoded_image_data = unswizzle_switch(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height)
         elif swizzling_id == "gamecube_wii":
             self.encoded_image_data = unswizzle_gamecube(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_bpp)
-        elif swizzling_id == "x360":
+        elif swizzling_id == "x360_1_1":  # 8-bpp
+            self.encoded_image_data = unswizzle_x360(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height,
+                                                     block_pixel_size=1, texel_byte_pitch=1)
+        elif swizzling_id == "x360_1_2":  # 16-bpp
+            self.encoded_image_data = unswizzle_x360(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height,
+                                                     block_pixel_size=1, texel_byte_pitch=2)
+        elif swizzling_id == "x360_1_4":  # 32-bpp
+            self.encoded_image_data = unswizzle_x360(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height,
+                                                     block_pixel_size=1, texel_byte_pitch=4)
+        elif swizzling_id == "x360_4_8":  # 64-bit 4x4 blocks
             self.encoded_image_data = unswizzle_x360(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height,
                                                      block_pixel_size=4, texel_byte_pitch=8)
-        elif swizzling_id == "x360_pitch16":  # used in MT Framework
+        elif swizzling_id == "x360_4_16":  # 128-bit 4x4 blocks, used in MT Framework
             self.encoded_image_data = unswizzle_x360(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height,
                                                      block_pixel_size=4, texel_byte_pitch=16)
         elif swizzling_id == "ps2":
