@@ -19,7 +19,10 @@ from reversebox.image.image_formats import ImageFormats
 from reversebox.image.swizzling.swizzle_3ds import unswizzle_3ds
 from reversebox.image.swizzling.swizzle_bc import unswizzle_bc
 from reversebox.image.swizzling.swizzle_gamecube import unswizzle_gamecube
-from reversebox.image.swizzling.swizzle_morton import unswizzle_morton
+from reversebox.image.swizzling.swizzle_morton import (
+    unswizzle_morton,
+    unswizzle_morton_bc,
+)
 from reversebox.image.swizzling.swizzle_morton_ps4 import unswizzle_ps4
 from reversebox.image.swizzling.swizzle_ps2 import unswizzle_ps2, unswizzle_ps2_ea_4bit
 from reversebox.image.swizzling.swizzle_psp import unswizzle_psp
@@ -114,6 +117,10 @@ class HeatImage:
             self.encoded_image_data = unswizzle_psp(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_bpp)
         elif swizzling_id == "morton":
             self.encoded_image_data = unswizzle_morton(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_bpp)
+        elif swizzling_id == "morton_bc_wh4":
+            self.encoded_image_data = unswizzle_morton_bc(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_bpp, block_width_height=4)
+        elif swizzling_id == "morton_bc_wh8":
+            self.encoded_image_data = unswizzle_morton_bc(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_bpp, block_width_height=8)
         elif swizzling_id == "dreamcast_psvita":
             self.encoded_image_data = unswizzle_psvita_dreamcast(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_bpp)
         elif swizzling_id == "ps4":

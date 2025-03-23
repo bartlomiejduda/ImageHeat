@@ -111,7 +111,9 @@ SUPPORTED_PALETTE_FORMATS: list[ImageFormats] = [
 SUPPORTED_SWIZZLING_TYPES: list[SwizzlingType] = [
     SwizzlingType(display_name="None", unique_id="none"),
     SwizzlingType(display_name="PSP", unique_id="psp"),
-    SwizzlingType(display_name="XBOX / PS3 (Morton)", unique_id="morton"),
+    SwizzlingType(display_name="XBOX / PS3 (linear)", unique_id="morton"),
+    SwizzlingType(display_name="XBOX / PS3 (BC-WH4)", unique_id="morton_bc_wh4"),
+    SwizzlingType(display_name="XBOX / PS3 (BC-WH8)", unique_id="morton_bc_wh8"),
     SwizzlingType(display_name="Dreamcast / PS Vita", unique_id="dreamcast_psvita"),
     SwizzlingType(display_name="PS4 (Morton)", unique_id="ps4"),
     SwizzlingType(display_name="Nintendo Switch", unique_id="nintendo_switch"),
