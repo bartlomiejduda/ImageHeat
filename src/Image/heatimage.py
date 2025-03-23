@@ -119,7 +119,11 @@ class HeatImage:
         elif swizzling_id == "morton_8x8":
             self.encoded_image_data = unswizzle_morton(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_bpp, block_width_height=8)
         elif swizzling_id == "dreamcast_psvita":
-            self.encoded_image_data = unswizzle_psvita_dreamcast(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_bpp)
+            self.encoded_image_data = unswizzle_psvita_dreamcast(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_bpp, block_width_height=1)
+        elif swizzling_id == "dreamcast_psvita_4x4":
+            self.encoded_image_data = unswizzle_psvita_dreamcast(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_bpp, block_width_height=4)
+        elif swizzling_id == "dreamcast_psvita_8x8":
+            self.encoded_image_data = unswizzle_psvita_dreamcast(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_bpp, block_width_height=8)
         elif swizzling_id == "ps4":
             self.encoded_image_data = unswizzle_ps4(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_bpp)
         elif swizzling_id == "nintendo_switch":
