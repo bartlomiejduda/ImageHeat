@@ -126,8 +126,10 @@ class HeatImage:
             self.encoded_image_data = unswizzle_psvita_dreamcast(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_bpp, block_width_height=8)
         elif swizzling_id == "ps4":
             self.encoded_image_data = unswizzle_ps4(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_bpp)
-        elif swizzling_id == "nintendo_switch":
-            self.encoded_image_data = unswizzle_switch(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height)
+        elif swizzling_id == "nintendo_switch_4_8":
+            self.encoded_image_data = unswizzle_switch(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, bytes_per_block=4, block_height=8)
+        elif swizzling_id == "nintendo_switch_1_16":
+            self.encoded_image_data = unswizzle_switch(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, bytes_per_block=1, block_height=16)
         elif swizzling_id == "gamecube_wii":
             self.encoded_image_data = unswizzle_gamecube(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_bpp)
         elif swizzling_id == "x360_1_1":  # 8-bpp
