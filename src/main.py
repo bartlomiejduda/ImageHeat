@@ -6,15 +6,15 @@ License: GPL-3.0 License
 # Program tested on Python 3.11.6
 
 import os
-import tkinter as tk
 from typing import Final
 
 import center_tk_window
 from reversebox.common.logger import get_logger
+from tkinterdnd2 import TkinterDnD
 
 from src.GUI.gui_main import ImageHeatGUI
 
-VERSION_NUM: Final[str] = "v0.15.4"
+VERSION_NUM: Final[str] = "v0.16.0"
 
 logger = get_logger("main")
 
@@ -29,7 +29,7 @@ def main():
 
     logger.info("Starting main...")
 
-    root = tk.Tk(className="ImageHeat")
+    root = TkinterDnD.Tk(className="ImageHeat")
     ImageHeatGUI(root, VERSION_NUM, MAIN_DIRECTORY)  # start GUI
     root.lift()
     center_tk_window.center_on_screen(root)

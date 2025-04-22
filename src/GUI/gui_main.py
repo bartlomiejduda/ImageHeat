@@ -32,6 +32,7 @@ from reversebox.image.common import (
 from reversebox.image.image_formats import ImageFormats
 from reversebox.image.pillow_wrapper import PillowWrapper
 from tkhtmlview import HTMLLabel
+from tkinterdnd2 import DND_FILES, TkinterDnD
 
 from src.GUI.about_window import AboutWindow
 from src.GUI.gui_params import GuiParams
@@ -73,8 +74,8 @@ logger = get_logger(__name__)
 # fmt: off
 
 
-class ImageHeatGUI:
-    def __init__(self, master: tk.Tk, in_version_num: str, in_main_directory: str):
+class ImageHeatGUI():
+    def __init__(self, master: TkinterDnD.Tk, in_version_num: str, in_main_directory: str):
         logger.info("GUI init...")
         self.master = master
         self.VERSION_NUM = in_version_num
@@ -101,6 +102,10 @@ class ImageHeatGUI:
         self.pixel_offset: int = 0
         self.pixel_value_str: str = ""
         self.pixel_value_rgba: bytearray = bytearray(10)
+
+        # drag and drop logic
+        self.master.drop_target_register(DND_FILES)
+        self.master.dnd_bind('<<Drop>>', self.handle_file_drop)
 
         # icon logic
         try:
@@ -1115,26 +1120,36 @@ class ImageHeatGUI:
             logger.info("Image is not opened yet...")
         return True
 
+    def handle_file_drop(self, event):
+        logger.info("Init handle_file_drop")
+        self.open_image_file(event.data.strip('{}'))
+
     # File > Open
-    def open_image_file(self) -> bool:
-        try:
-            in_file = filedialog.askopenfile(mode="rb", initialdir=self.current_open_file_directory_path)
-            if not in_file:
-                return False
+    def open_image_file(self, image_file_path: Optional[str] = None) -> bool:
+
+        if not image_file_path:
             try:
-                selected_directory = os.path.dirname(in_file.name)
-                self.current_open_file_directory_path = selected_directory  # set directory path from history
-                self.user_config.set("config", ConfigKeys.OPEN_FILE_DIRECTORY_PATH, selected_directory)  # save directory path to config file
-                with open(self.user_config_file_name, "w") as configfile:
-                    self.user_config.write(configfile)
-            except Exception:
-                pass
-            in_file_path = in_file.name
+                in_file = filedialog.askopenfile(mode="rb", initialdir=self.current_open_file_directory_path)
+                if not in_file:
+                    return False
+                try:
+                    selected_directory = os.path.dirname(in_file.name)
+                    self.current_open_file_directory_path = selected_directory  # set directory path from history
+                    self.user_config.set("config", ConfigKeys.OPEN_FILE_DIRECTORY_PATH, selected_directory)  # save directory path to config file
+                    with open(self.user_config_file_name, "w") as configfile:
+                        self.user_config.write(configfile)
+                except Exception:
+                    pass
+                in_file_path = in_file.name
+                in_file_name = in_file_path.split("/")[-1]
+            except Exception as error:
+                logger.error("Failed to open file! Error: %s", error)
+                messagebox.showwarning("Warning", self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_POPUPS_FAILED_TO_OPEN_FILE))
+                return False
+        else:
+            logger.info("Init drag and drop logic")
+            in_file_path = image_file_path
             in_file_name = in_file_path.split("/")[-1]
-        except Exception as error:
-            logger.error("Failed to open file! Error: %s", error)
-            messagebox.showwarning("Warning", self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_POPUPS_FAILED_TO_OPEN_FILE))
-            return False
 
         logger.info(f"Loading file {in_file_name}...")
 

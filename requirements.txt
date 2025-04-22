@@ -4,5 +4,6 @@ numpy==2.2.4
 Pillow==10.4.0
 pre-commit==4.0.1
 pytest==8.3.3
-ReverseBox==0.27.5
+ReverseBox==0.27.9
 tkhtmlview==0.3.1
+tkinterdnd2==0.4.3
