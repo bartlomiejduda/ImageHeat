@@ -32,10 +32,11 @@ from reversebox.image.common import (
 from reversebox.image.image_formats import ImageFormats
 from reversebox.image.pillow_wrapper import PillowWrapper
 from tkhtmlview import HTMLLabel
-from tkinterdnd2 import DND_FILES, TkinterDnD
+from tkinterdnd2 import DND_FILES
 
 from src.GUI.about_window import AboutWindow
 from src.GUI.gui_params import GuiParams
+from src.GUI.gui_root import ImageHeatRoot
 from src.Image.constants import (
     COMPRESSION_TYPES_NAMES,
     DEFAULT_COMPRESSION_NAME,
@@ -75,7 +76,7 @@ logger = get_logger(__name__)
 
 
 class ImageHeatGUI():
-    def __init__(self, master: TkinterDnD.Tk, in_version_num: str, in_main_directory: str):
+    def __init__(self, master: ImageHeatRoot, in_version_num: str, in_main_directory: str):
         logger.info("GUI init...")
         self.master = master
         self.VERSION_NUM = in_version_num
