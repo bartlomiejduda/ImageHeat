@@ -127,7 +127,6 @@ SUPPORTED_SWIZZLING_TYPES: list[SwizzlingType] = [
     SwizzlingType(display_name="XBOX 360 (4, 8)", unique_id="x360_4_8"),
     SwizzlingType(display_name="XBOX 360 (4, 16)", unique_id="x360_4_16"),
     SwizzlingType(display_name="PS2", unique_id="ps2"),
-    SwizzlingType(display_name="PS2 (EA 4-bit)", unique_id="ps2_ea_4bit"),
     SwizzlingType(display_name="BC", unique_id="bc"),
     SwizzlingType(display_name="3DS", unique_id="3ds"),
 ]

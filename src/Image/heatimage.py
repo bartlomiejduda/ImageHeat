@@ -21,7 +21,7 @@ from reversebox.image.swizzling.swizzle_bc import unswizzle_bc
 from reversebox.image.swizzling.swizzle_gamecube import unswizzle_gamecube
 from reversebox.image.swizzling.swizzle_morton import unswizzle_morton
 from reversebox.image.swizzling.swizzle_morton_ps4 import unswizzle_ps4
-from reversebox.image.swizzling.swizzle_ps2 import unswizzle_ps2, unswizzle_ps2_ea_4bit
+from reversebox.image.swizzling.swizzle_ps2 import unswizzle_ps2
 from reversebox.image.swizzling.swizzle_psp import unswizzle_psp
 from reversebox.image.swizzling.swizzle_psvita_dreamcast import (
     unswizzle_psvita_dreamcast,
@@ -149,9 +149,6 @@ class HeatImage:
                                                      block_pixel_size=4, texel_byte_pitch=16)
         elif swizzling_id == "ps2":
             self.encoded_image_data = unswizzle_ps2(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_bpp)
-        elif swizzling_id == "ps2_ea_4bit":
-            if image_bpp == 4:
-                self.encoded_image_data = unswizzle_ps2_ea_4bit(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_bpp)
         elif swizzling_id == "bc":
             self.encoded_image_data = unswizzle_bc(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, 8, 8, image_bpp)
         elif swizzling_id == "3ds":
