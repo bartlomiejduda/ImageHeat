@@ -147,8 +147,10 @@ class HeatImage:
         elif swizzling_id == "x360_4_16":  # 128-bit 4x4 blocks, used in MT Framework
             self.encoded_image_data = unswizzle_x360(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height,
                                                      block_pixel_size=4, texel_byte_pitch=16)
-        elif swizzling_id == "ps2":
-            self.encoded_image_data = unswizzle_ps2(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_bpp)
+        elif swizzling_id == "ps2_type1":
+            self.encoded_image_data = unswizzle_ps2(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_bpp, swizzle_type=1)
+        elif swizzling_id == "ps2_type2":
+            self.encoded_image_data = unswizzle_ps2(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_bpp, swizzle_type=2)
         elif swizzling_id == "bc":
             self.encoded_image_data = unswizzle_bc(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, 8, 8, image_bpp)
         elif swizzling_id == "3ds":
