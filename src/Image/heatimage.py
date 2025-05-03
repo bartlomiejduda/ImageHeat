@@ -151,6 +151,13 @@ class HeatImage:
             self.encoded_image_data = unswizzle_ps2(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_bpp, swizzle_type=1)
         elif swizzling_id == "ps2_type2":
             self.encoded_image_data = unswizzle_ps2(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_bpp, swizzle_type=2)
+        elif swizzling_id == "ps2_type3":
+            try:
+                self.gui_params.img_width *= 2
+                self.gui_params.img_height *= 2
+                self.encoded_image_data = unswizzle_ps2(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_bpp, swizzle_type=3)
+            except Exception:
+                pass
         elif swizzling_id == "bc":
             self.encoded_image_data = unswizzle_bc(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, 8, 8, image_bpp)
         elif swizzling_id == "3ds":
