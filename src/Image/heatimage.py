@@ -27,6 +27,7 @@ from reversebox.image.swizzling.swizzle_psvita_dreamcast import (
     unswizzle_psvita_dreamcast,
 )
 from reversebox.image.swizzling.swizzle_switch import unswizzle_switch
+from reversebox.image.swizzling.swizzle_wii_u import unswizzle_wii_u
 from reversebox.image.swizzling.swizzle_x360 import unswizzle_x360
 
 from src.GUI.gui_params import GuiParams
@@ -158,6 +159,12 @@ class HeatImage:
                 self.encoded_image_data = unswizzle_ps2(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_bpp, swizzle_type=3)
             except Exception:
                 pass
+        elif swizzling_id == "wii_u_linear":
+            self.encoded_image_data = unswizzle_wii_u(self.gui_params.img_width, self.gui_params.img_height, image_format=0x0000001a,
+                                                      tile_mode=0, swizzle_type=0, pitch=64, input_data=self.encoded_image_data)
+        elif swizzling_id == "wii_u_bc":
+            self.encoded_image_data = unswizzle_wii_u(self.gui_params.img_width, self.gui_params.img_height, image_format=0x00000031,
+                                                      tile_mode=4, swizzle_type=0, pitch=64, input_data=self.encoded_image_data)
         elif swizzling_id == "bc":
             self.encoded_image_data = unswizzle_bc(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, 8, 8, image_bpp)
         elif swizzling_id == "3ds":

@@ -129,6 +129,8 @@ SUPPORTED_SWIZZLING_TYPES: list[SwizzlingType] = [
     SwizzlingType(display_name="PS2 (Type 1)", unique_id="ps2_type1"),
     SwizzlingType(display_name="PS2 (Type 2)", unique_id="ps2_type2"),
     SwizzlingType(display_name="PS2 (Type 3)", unique_id="ps2_type3"),
+    SwizzlingType(display_name="WII U (linear)", unique_id="wii_u_linear"),
+    SwizzlingType(display_name="WII U (BC)", unique_id="wii_u_bc"),
     SwizzlingType(display_name="BC", unique_id="bc"),
     SwizzlingType(display_name="3DS", unique_id="3ds"),
 ]
