@@ -7,7 +7,11 @@ import time
 from typing import Optional
 
 from reversebox.common.logger import get_logger
-from reversebox.image.common import get_bpp_for_image_format
+from reversebox.image.common import (
+    calculate_aligned_value,
+    get_block_data_size,
+    get_bpp_for_image_format,
+)
 from reversebox.image.compression.compression_packbits import decompress_packbits
 from reversebox.image.compression.compression_rle_executioners import (
     decompress_rle_executioners,
@@ -126,7 +130,11 @@ class HeatImage:
         elif swizzling_id == "dreamcast_psvita_8x8":
             self.encoded_image_data = unswizzle_psvita_dreamcast(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_bpp, block_width_height=8)
         elif swizzling_id == "ps4":
-            self.encoded_image_data = unswizzle_ps4(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_bpp)
+            self.encoded_image_data = unswizzle_ps4(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, block_width=4, block_height=4, block_data_size=get_block_data_size(image_format))
+        elif swizzling_id == "ps4_padding":
+            self.gui_params.img_width = calculate_aligned_value(self.gui_params.img_width, 32)
+            self.gui_params.img_height = calculate_aligned_value(self.gui_params.img_height, 32)
+            self.encoded_image_data = unswizzle_ps4(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, block_width=4, block_height=4, block_data_size=get_block_data_size(image_format))
         elif swizzling_id == "nintendo_switch_4_8":
             self.encoded_image_data = unswizzle_switch(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, bytes_per_block=4, block_height=8)
         elif swizzling_id == "nintendo_switch_1_16":
