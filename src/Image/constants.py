@@ -147,6 +147,8 @@ SUPPORTED_COMPRESSION_TYPES: list[CompressionType] = [
 SUPPORTED_ENDIANESS_TYPES: list[EndianessType] = [
     EndianessType(display_name="Little Endian", unique_id="little"),
     EndianessType(display_name="Big Endian", unique_id="big"),
+    EndianessType(display_name="Byte Swap (X360)", unique_id="byte_swap_x360"),
+    EndianessType(display_name="Byte Swap (GameCube)", unique_id="byte_swap_gamecube"),
 ]
 
 SUPPORTED_ZOOM_TYPES: list[ZoomType] = [

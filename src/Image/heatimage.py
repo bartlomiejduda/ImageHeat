@@ -7,6 +7,7 @@ import time
 from typing import Optional
 
 from reversebox.common.logger import get_logger
+from reversebox.image.byte_swap import swap_byte_order_gamecube, swap_byte_order_x360
 from reversebox.image.common import (
     calculate_aligned_value,
     get_block_data_size,
@@ -86,6 +87,20 @@ class HeatImage:
 
         # endianess logic
         endianess_id: str = get_endianess_id(self.gui_params.endianess_type)
+
+        if endianess_id == "byte_swap_x360":
+            endianess_id = "little"
+            try:
+                self.encoded_image_data = swap_byte_order_x360(self.encoded_image_data)
+            except Exception as error:
+                logger.warning(f"Byte swap function failed! Error: {error}")
+
+        if endianess_id == "byte_swap_gamecube":
+            endianess_id = "little"
+            try:
+                self.encoded_image_data = swap_byte_order_gamecube(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height)
+            except Exception as error:
+                logger.warning(f"Byte swap function failed! Error: {error}")
 
         # image bpp logic
         try:
