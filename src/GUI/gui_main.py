@@ -26,6 +26,7 @@ from reversebox.common.logger import get_logger
 from reversebox.image.common import (
     convert_bpp_to_bytes_per_pixel,
     convert_bpp_to_bytes_per_pixel_float,
+    get_block_data_size,
     get_bpp_for_image_format,
     is_compressed_image_format,
 )
@@ -341,11 +342,83 @@ class ImageHeatGUI():
                 self.reload_image_callback(event)
                 self.master.focus()
 
+        def _step_up_by_page_by_shortcut(event):  # decrease offsets by page
+            if event.state & 4:
+                return  # skip CTRL
+
+            curr_start_offset: int = 0
+            curr_width: int = 1
+            curr_height: int = 1
+            block_width: int = 1
+            block_height: int = 1
+            current_pixel_format: str = self.pixel_format_combobox.get()
+            image_format: ImageFormats = ImageFormats[current_pixel_format]
+            bpp: int = get_bpp_for_image_format(image_format)
+            bytes_per_pixel: int = convert_bpp_to_bytes_per_pixel(bpp)
+
+            if is_compressed_image_format(image_format):
+                bytes_per_pixel = get_block_data_size(image_format)
+                block_width = 4
+                block_height = 4
+
+            try:
+                curr_start_offset = int(self.current_start_offset.get())
+                curr_width = int(self.current_width.get())
+                curr_height = int(self.current_height.get())
+            except Exception:
+                pass
+            page_size: int = (curr_width // block_width) * (curr_height // block_height) * bytes_per_pixel
+            new_start_offset: int = curr_start_offset - page_size
+            if new_start_offset >= 0:
+                self.current_start_offset.set(str(new_start_offset))
+                self.reload_image_callback(event)
+                self.master.focus()
+
+        def _step_down_by_page_by_shortcut(event):  # increase offsets by page
+            if event.state & 4:
+                return  # skip CTRL
+
+            curr_start_offset: int = 0
+            curr_end_offset: int = 0
+            curr_width: int = 1
+            curr_height: int = 1
+            block_width: int = 1
+            block_height: int = 1
+            current_pixel_format: str = self.pixel_format_combobox.get()
+            image_format: ImageFormats = ImageFormats[current_pixel_format]
+            bpp: int = get_bpp_for_image_format(image_format)
+            bytes_per_pixel: int = convert_bpp_to_bytes_per_pixel(bpp)
+
+            if is_compressed_image_format(image_format):
+                bytes_per_pixel = get_block_data_size(image_format)
+                block_width = 4
+                block_height = 4
+
+            try:
+                curr_start_offset = int(self.current_start_offset.get())
+                curr_end_offset = int(self.current_end_offset.get())
+                curr_width = int(self.current_width.get())
+                curr_height = int(self.current_height.get())
+            except Exception:
+                pass
+            page_size: int = (curr_width // block_width) * (curr_height // block_height) * bytes_per_pixel
+            new_start_offset: int = curr_start_offset + page_size
+            new_end_offset: int = curr_end_offset + page_size
+            if new_start_offset <= self.gui_params.total_file_size:
+                self.current_start_offset.set(str(new_start_offset))
+                if new_end_offset <= self.gui_params.total_file_size:
+                    self.current_end_offset.set(str(new_end_offset))
+                self.reload_image_callback(event)
+                self.master.focus()
+
         self.master.bind("<Control-Up>", _step_up_by_byte_by_shortcut)
         self.master.bind("<Control-Down>", _step_down_by_byte_by_shortcut)
 
         self.master.bind("<Shift-Up>", _step_up_by_row_by_shortcut)
         self.master.bind("<Shift-Down>", _step_down_by_row_by_shortcut)
+
+        self.master.bind("<Prior>", _step_up_by_page_by_shortcut)
+        self.master.bind("<Next>", _step_down_by_page_by_shortcut)
 
         ##########################################
         # IMAGE PARAMETERS - IMAGE END OFFSET    #
@@ -673,17 +746,17 @@ class ImageHeatGUI():
         ##########################
 
         self.controls_labelframe = tk.LabelFrame(self.main_frame, text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_CONTROLS_LABELFRAME), font=self.gui_font)
-        self.controls_labelframe.place(x=-200, y=150, width=195, height=195, relx=1)
+        self.controls_labelframe.place(x=-200, y=150, width=195, height=215, relx=1)
 
         self.controls_all_info_label = HTMLLabel(self.controls_labelframe, html=self._get_html_for_controls_label(), wrap=None)
-        self.controls_all_info_label.place(x=5, y=5, width=185, height=170)
+        self.controls_all_info_label.place(x=5, y=5, width=185, height=190)
 
         ##########################
         # POST-PROCESSING BOX #
         ##########################
 
         self.postprocessing_labelframe = tk.LabelFrame(self.main_frame, text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_POST_PROCESSING_LABELFRAME), font=self.gui_font)
-        self.postprocessing_labelframe.place(x=-200, y=345, width=195, height=150, relx=1)
+        self.postprocessing_labelframe.place(x=-200, y=365, width=195, height=150, relx=1)
 
         # zoom
         self.postprocessing_zoom_label = tk.Label(self.postprocessing_labelframe, text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_POST_PROCESSING_ZOOM), anchor="w", font=self.gui_font)
@@ -984,6 +1057,7 @@ class ImageHeatGUI():
                         {self._get_line_for_controls_html_str(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_CONTROLS_ACTION_DOUBLE_HALVE_WIDTH), self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_CONTROLS_SHORTCUT_DOUBLE_HALVE_WIDTH))}
                         {self._get_line_for_controls_html_str(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_CONTROLS_ACTION_STEP_BY_BYTE), self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_CONTROLS_SHORTCUT_STEP_BY_BYTE))}
                         {self._get_line_for_controls_html_str(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_CONTROLS_ACTION_STEP_BY_ROW), self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_CONTROLS_SHORTCUT_STEP_BY_ROW))}
+                        {self._get_line_for_controls_html_str(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_CONTROLS_ACTION_STEP_BY_PAGE), self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_CONTROLS_SHORTCUT_STEP_BY_PAGE))}
                         {self._get_line_for_controls_html_str(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_CONTROLS_ACTION_PIXEL_FORMAT), self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_CONTROLS_SHORTCUT_PIXEL_FORMAT))}
                         {self._get_line_for_controls_html_str(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_CONTROLS_ACTION_PALETTE_FORMAT), self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_CONTROLS_SHORTCUT_PALETTE_FORMAT))}
                         {self._get_line_for_controls_html_str(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_CONTROLS_ACTION_ENDIANESS), self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_CONTROLS_SHORTCUT_ENDIANESS))}
