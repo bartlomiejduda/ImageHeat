@@ -299,6 +299,10 @@ class HeatImage:
             self.decoded_image_data = image_decoder.decode_compressed_image(
                 self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_format
             )
+        elif "ASTC" in image_format.value:
+            self.decoded_image_data = image_decoder.decode_pvrtexlib_image(
+                self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_format
+            )
         elif image_format in (ImageFormats.GST121,
                               ImageFormats.GST221,
                               ImageFormats.GST421,
