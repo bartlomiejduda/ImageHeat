@@ -65,6 +65,8 @@ EXCLUDED_PIXEL_FORMATS: list[ImageFormats] = [
     ImageFormats.GST222,
     ImageFormats.GST821,
     ImageFormats.GST822,
+    ImageFormats.DXT2,
+    ImageFormats.DXT4,
 ]
 
 SUPPORTED_PIXEL_FORMATS: list[PixelFormat] = [
