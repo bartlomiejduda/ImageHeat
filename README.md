@@ -2,11 +2,11 @@
 ImageHeat is a program for viewing encoded textures.
 It's free and open source.
 
-ImageHeat supports all popular image formats like RGBA8888, RGB565, DXT1 etc.
+ImageHeat supports all popular image formats like RGBA8888, RGB888, ASTC, RGB565, DXT1 etc.
 All formats supported by **[ReverseBox](https://github.com/bartlomiejduda/ReverseBox)** should be supported by ImageHeat as well.
 
 There is also support for:
-* texture unswizzlig for platforms like PSP, PS2, PS3, PS4, XBOX etc.
+* texture unswizzling for platforms like PSP, PS2, PS3, PS4, XBOX etc.
 * decoding indexed image formats like PAL4, PAL8 and PAL16
 * decompressing data using algorithms like RLE, PackBits, ZLIB etc.
 * PS2 palette unswizzling
