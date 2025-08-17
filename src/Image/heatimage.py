@@ -198,7 +198,7 @@ class HeatImage:
         # decoding logic
         if image_format in (ImageFormats.RGB121,
                             ImageFormats.ALPHA4,
-                            ImageFormats.RAWBMP2_PS2,
+                            ImageFormats.ALPHA4_16X,
 
                             ImageFormats.RGBX2222,
                             ImageFormats.RGBA2222,
@@ -207,6 +207,7 @@ class HeatImage:
                             ImageFormats.BGR332,
                             ImageFormats.GRAY8,
                             ImageFormats.ALPHA8,
+                            ImageFormats.ALPHA8_16X,
                             ImageFormats.LA44,
                             ImageFormats.R8,
                             ImageFormats.G8,
