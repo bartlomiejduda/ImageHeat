@@ -77,9 +77,9 @@ class HeatImage:
         return ImageFormats[pixel_format]
 
     def _image_decode(self) -> bool:
-        logger.info("Image decode start...")
+        logger.info(f"Image decode with pixel_format={self.gui_params.pixel_format} start...")
         if self.gui_params.pixel_format not in PIXEL_FORMATS_NAMES:
-            logger.error("[1] Not supported pixel format!")
+            logger.error(f"[1] Not supported pixel format! Pixel_format={self.gui_params.pixel_format}")
             self.is_preview_error = True
 
         image_decoder = ImageDecoder()
@@ -247,6 +247,8 @@ class HeatImage:
 
                             ImageFormats.RGB888,
                             ImageFormats.BGR888,
+                            ImageFormats.RGBA6666,
+                            ImageFormats.RGBX6666,
 
                             ImageFormats.RGBA8888,
                             ImageFormats.BGRA8888,
