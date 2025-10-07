@@ -139,17 +139,17 @@ class HeatImage:
         elif swizzling_id == "psp":
             self.encoded_image_data = unswizzle_psp(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_bpp)
         elif swizzling_id == "morton":
-            self.encoded_image_data = unswizzle_morton(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_bpp, block_width_height=1)
+            self.encoded_image_data = unswizzle_morton(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_bpp, block_width=1, block_height=1)
         elif swizzling_id == "morton_4x4":
-            self.encoded_image_data = unswizzle_morton(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_bpp, block_width_height=4)
+            self.encoded_image_data = unswizzle_morton(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_bpp, block_width=4, block_height=4)
         elif swizzling_id == "morton_8x8":
-            self.encoded_image_data = unswizzle_morton(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_bpp, block_width_height=8)
+            self.encoded_image_data = unswizzle_morton(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_bpp, block_width=8, block_height=8)
         elif swizzling_id == "dreamcast_psvita":
-            self.encoded_image_data = unswizzle_psvita_dreamcast(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_bpp, block_width_height=1)
+            self.encoded_image_data = unswizzle_psvita_dreamcast(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_bpp, block_width=1, block_height=1)
         elif swizzling_id == "dreamcast_psvita_4x4":
-            self.encoded_image_data = unswizzle_psvita_dreamcast(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_bpp, block_width_height=4)
+            self.encoded_image_data = unswizzle_psvita_dreamcast(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_bpp, block_width=4, block_height=4)
         elif swizzling_id == "dreamcast_psvita_8x8":
-            self.encoded_image_data = unswizzle_psvita_dreamcast(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_bpp, block_width_height=8)
+            self.encoded_image_data = unswizzle_psvita_dreamcast(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_bpp, block_width=8, block_height=8)
         elif swizzling_id == "ps4":
             self.encoded_image_data = unswizzle_ps4(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, block_width=4, block_height=4, block_data_size=get_block_data_size(image_format))
         elif swizzling_id == "ps4_padding":
