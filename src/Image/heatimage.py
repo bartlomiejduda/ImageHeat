@@ -126,7 +126,7 @@ class HeatImage:
             elif compression_id == "rle_executioners":
                 self.encoded_image_data = decompress_rle_executioners(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_bpp)
             elif compression_id == "rle_emergency":
-                self.encoded_image_data = decompress_rle_emergency(self.encoded_image_data, image_bpp, self.gui_params.img_width, self.gui_params.img_height)
+                self.encoded_image_data = decompress_rle_emergency(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_bpp)
             elif compression_id == "lz4":
                 self.encoded_image_data = LZ4Handler().decompress_data(self.encoded_image_data)
             else:
