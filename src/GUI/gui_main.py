@@ -43,6 +43,7 @@ from src.Image.constants import (
     DEFAULT_COMPRESSION_NAME,
     DEFAULT_ENDIANESS_NAME,
     DEFAULT_PALETTE_FORMAT_NAME,
+    DEFAULT_PALETTE_SCALE_NAME,
     DEFAULT_PIXEL_FORMAT_NAME,
     DEFAULT_ROTATE_NAME,
     DEFAULT_SWIZZLING_NAME,
@@ -51,6 +52,7 @@ from src.Image.constants import (
     ENDIANESS_TYPES_NAMES,
     PALETTE_FORMATS_NAMES,
     PALETTE_FORMATS_REGEX_NAMES,
+    PALETTE_SCALE_TYPES_NAMES,
     PIXEL_FORMATS_NAMES,
     ROTATE_TYPES_NAMES,
     SWIZZLING_TYPES_NAMES,
@@ -61,6 +63,7 @@ from src.Image.constants import (
     TranslationEntry,
     TranslationKeys,
     get_compression_id,
+    get_palette_scale_value,
     get_resampling_type,
     get_rotate_id,
     get_zoom_value,
@@ -68,7 +71,7 @@ from src.Image.constants import (
 from src.Image.heatimage import HeatImage
 
 # default app settings
-WINDOW_HEIGHT = 575
+WINDOW_HEIGHT = 600
 WINDOW_WIDTH = 1000
 
 logger = get_logger(__name__)
@@ -582,7 +585,7 @@ class ImageHeatGUI():
         # PALETTE PARAMETERS BOX  #
         ###########################
         self.palette_parameters_labelframe = tk.LabelFrame(self.main_frame, text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_PALETTE_PARAMETERS), font=self.gui_font)
-        self.palette_parameters_labelframe.place(x=5, y=345, width=160, height=225)
+        self.palette_parameters_labelframe.place(x=5, y=345, width=160, height=250)
 
 
         ########################################
@@ -670,18 +673,31 @@ class ImageHeatGUI():
         self.palette_paloffset_spinbox.place(x=75, y=115, width=75, height=20)
         self.palette_paloffset_spinbox.configure(validate="key", validatecommand=self.validate_spinbox_command)
 
+        ###########################################
+        # PALETTE PARAMETERS BOX  - PALETTE SCALE  #
+        ###########################################
+
+        self.palette_palscale_label = tk.Label(self.palette_parameters_labelframe, text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_PAL_SCALE), anchor="w",
+                                               font=self.gui_font)
+        self.palette_palscale_label.place(x=5, y=145, width=60, height=20)
+
+        self.palette_palscale_combobox = ttk.Combobox(self.palette_parameters_labelframe, values=PALETTE_SCALE_TYPES_NAMES, font=self.gui_font, state='readonly')
+        self.palette_palscale_combobox.bind("<<ComboboxSelected>>", self.reload_image_callback)
+        self.palette_palscale_combobox.place(x=75, y=145, width=75, height=20)
+        self.palette_palscale_combobox.set(DEFAULT_PALETTE_SCALE_NAME)
+
         #################################################
         # PALETTE PARAMETERS BOX  - PALETTE ENDIANESS   #
         #################################################
 
         self.palette_endianess_label = tk.Label(self.palette_parameters_labelframe, text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_PALETTE_ENDIANESS), anchor="w", font=self.gui_font)
-        self.palette_endianess_label.place(x=5, y=140, width=100, height=20)
+        self.palette_endianess_label.place(x=5, y=170, width=100, height=20)
 
         self.palette_current_endianess = tk.StringVar(value="none")
         self.palette_endianess_combobox = ttk.Combobox(self.palette_parameters_labelframe, values=ENDIANESS_TYPES_NAMES, textvariable=self.palette_current_endianess,
                                                        font=self.gui_font, state='readonly')
         self.palette_endianess_combobox.bind("<<ComboboxSelected>>", self.reload_image_callback)
-        self.palette_endianess_combobox.place(x=5, y=160, width=145, height=20)
+        self.palette_endianess_combobox.place(x=5, y=190, width=145, height=20)
         self.palette_endianess_combobox.set(DEFAULT_ENDIANESS_NAME)
 
         ###########################################
@@ -694,7 +710,7 @@ class ImageHeatGUI():
                                                              variable=self.palette_ps2swizzle_variable,
                                                              anchor="w", onvalue="ON", offvalue="OFF",
                                                              font=self.gui_font, command=self.gui_reload_image_on_gui_element_change)
-        self.palette_ps2swizzle_checkbutton.place(x=5, y=185, width=140, height=20)
+        self.palette_ps2swizzle_checkbutton.place(x=5, y=210, width=140, height=20)
 
 
         #####################################################
@@ -958,6 +974,7 @@ class ImageHeatGUI():
         self.palette_palfile_button.config(text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_BROWSE))
         self.palette_palformat_label.config(text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_PAL_FORMAT))
         self.palette_paloffset_label.config(text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_PAL_OFFSET))
+        self.palette_palscale_label.config(text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_PAL_SCALE))
         self.palette_endianess_label.config(text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_PALETTE_ENDIANESS))
         self.palette_ps2swizzle_checkbutton.config(text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_PS2_PALETTE_SWIZZLE))
 
@@ -1113,6 +1130,7 @@ class ImageHeatGUI():
         self.gui_params.palette_loadfrom_value = self.palette_load_from_variable.get()
         self.gui_params.palette_format = self.palette_format_combobox.get()
         self.gui_params.palette_offset = self.get_spinbox_value(self.palette_paloffset_spinbox)
+        self.gui_params.palette_scale_value = get_palette_scale_value(self.palette_palscale_combobox.get())
         self.gui_params.palette_endianess = self.palette_endianess_combobox.get()
         self.gui_params.palette_ps2_swizzle_flag = self.checkbox_value_to_bool(self.palette_ps2swizzle_variable.get())
 

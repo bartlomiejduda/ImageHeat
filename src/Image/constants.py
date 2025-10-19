@@ -42,6 +42,12 @@ class ZoomType:
 
 
 @dataclass
+class PaletteScaleType:
+    display_name: str
+    scale_value: int
+
+
+@dataclass
 class ZoomResamplingType:
     display_name: str
     unique_id: str
@@ -148,6 +154,7 @@ SUPPORTED_COMPRESSION_TYPES: list[CompressionType] = [
     CompressionType(display_name="PackBits", unique_id="packbits"),  # Macintosh RLE
     CompressionType(display_name="ZLIB (Deflate)", unique_id="zlib"),
     CompressionType(display_name="Executioners RLE", unique_id="rle_executioners"),
+    CompressionType(display_name="Emergency RLE", unique_id="rle_emergency"),
     CompressionType(display_name="LZ4", unique_id="lz4"),
 ]
 
@@ -167,6 +174,14 @@ SUPPORTED_ZOOM_TYPES: list[ZoomType] = [
     ZoomType(display_name="4x", zoom_value=4.0),
     ZoomType(display_name="8x", zoom_value=8.0),
     ZoomType(display_name="16x", zoom_value=16.0),
+]
+
+SUPPORTED_PALETTE_SCALE_TYPES: list[PaletteScaleType] = [
+    PaletteScaleType(display_name="1x", scale_value=1),
+    PaletteScaleType(display_name="2x", scale_value=2),
+    PaletteScaleType(display_name="4x", scale_value=4),
+    PaletteScaleType(display_name="8x", scale_value=8),
+    PaletteScaleType(display_name="16x", scale_value=16),
 ]
 
 SUPPORTED_ZOOM_RESAMPLING_TYPES: list[ZoomResamplingType] = [
@@ -228,6 +243,14 @@ def get_zoom_value(zoom_name: str) -> float:
     raise Exception(f"Couldn't find code for zoom name: {zoom_name}")
 
 
+def get_palette_scale_value(palette_scale_name: str) -> int:
+    for palette_scale_type in SUPPORTED_PALETTE_SCALE_TYPES:
+        if palette_scale_name == palette_scale_type.display_name:
+            return palette_scale_type.scale_value
+
+    raise Exception(f"Couldn't find code for palette scale name: {palette_scale_name}")
+
+
 def get_resampling_type(zoom_resampling_name: str) -> Resampling:
     for zoom_resampling_type in SUPPORTED_ZOOM_RESAMPLING_TYPES:
         if zoom_resampling_name == zoom_resampling_type.display_name:
@@ -256,6 +279,7 @@ SWIZZLING_TYPES_NAMES: list = [swizzling_type.display_name for swizzling_type in
 COMPRESSION_TYPES_NAMES: list = [compression_type.display_name for compression_type in SUPPORTED_COMPRESSION_TYPES]
 ENDIANESS_TYPES_NAMES: list = [endianess_type.display_name for endianess_type in SUPPORTED_ENDIANESS_TYPES]
 ZOOM_TYPES_NAMES: list = [zoom_type.display_name for zoom_type in SUPPORTED_ZOOM_TYPES]
+PALETTE_SCALE_TYPES_NAMES: list = [scale_type.display_name for scale_type in SUPPORTED_PALETTE_SCALE_TYPES]
 ZOOM_RESAMPLING_TYPES_NAMES: list = [
     zoom_resampling_type.display_name for zoom_resampling_type in SUPPORTED_ZOOM_RESAMPLING_TYPES
 ]
@@ -268,6 +292,7 @@ DEFAULT_ENDIANESS_NAME: str = ENDIANESS_TYPES_NAMES[0]
 DEFAULT_SWIZZLING_NAME: str = SWIZZLING_TYPES_NAMES[0]
 DEFAULT_COMPRESSION_NAME: str = COMPRESSION_TYPES_NAMES[0]
 DEFAULT_ZOOM_NAME: str = "1x"
+DEFAULT_PALETTE_SCALE_NAME: str = "1x"
 DEFAULT_ZOOM_RESAMPLING_NAME: str = ZOOM_RESAMPLING_TYPES_NAMES[0]
 DEFAULT_ROTATE_NAME: str = ROTATE_TYPES_NAMES[0]
 
@@ -300,6 +325,7 @@ class TranslationKeys(str, Enum):
     TRANSLATION_TEXT_BROWSE = "TRANSLATION_TEXT_BROWSE"
     TRANSLATION_TEXT_PAL_FORMAT = "TRANSLATION_TEXT_PAL_FORMAT"
     TRANSLATION_TEXT_PAL_OFFSET = "TRANSLATION_TEXT_PAL_OFFSET"
+    TRANSLATION_TEXT_PAL_SCALE = "TRANSLATION_TEXT_PAL_SCALE"
     TRANSLATION_TEXT_PALETTE_ENDIANESS = "TRANSLATION_TEXT_PALETTE_ENDIANESS"
     TRANSLATION_TEXT_PS2_PALETTE_SWIZZLE = "TRANSLATION_TEXT_PS2_PALETTE_SWIZZLE"
 
@@ -401,6 +427,7 @@ TRANSLATION_MEMORY: List[TranslationEntry] = [
     TranslationEntry(id=TranslationKeys.TRANSLATION_TEXT_BROWSE, default="Browse..."),
     TranslationEntry(id=TranslationKeys.TRANSLATION_TEXT_PAL_FORMAT, default="Palette Format"),
     TranslationEntry(id=TranslationKeys.TRANSLATION_TEXT_PAL_OFFSET, default="Pal. Offset"),
+    TranslationEntry(id=TranslationKeys.TRANSLATION_TEXT_PAL_SCALE, default="Pal. Scale"),
     TranslationEntry(id=TranslationKeys.TRANSLATION_TEXT_PALETTE_ENDIANESS, default="Palette Endianess"),
     TranslationEntry(id=TranslationKeys.TRANSLATION_TEXT_PS2_PALETTE_SWIZZLE, default="PS2 Palette Swizzle"),
     TranslationEntry(id=TranslationKeys.TRANSLATION_TEXT_IMAGE_PREVIEW, default="Image Preview"),

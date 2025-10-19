@@ -8,18 +8,19 @@ from typing import Optional
 
 from reversebox.common.logger import get_logger
 from reversebox.compression.compression_lz4 import LZ4Handler
+from reversebox.compression.compression_packbits import decompress_packbits
+from reversebox.compression.compression_rle_emergency import decompress_rle_emergency
+from reversebox.compression.compression_rle_executioners import (
+    decompress_rle_executioners,
+)
+from reversebox.compression.compression_rle_tga import decompress_rle_tga
+from reversebox.compression.compression_zlib2 import decompress_zlib
 from reversebox.image.byte_swap import swap_byte_order_gamecube, swap_byte_order_x360
 from reversebox.image.common import (
     calculate_aligned_value,
     get_block_data_size,
     get_bpp_for_image_format,
 )
-from reversebox.image.compression.compression_packbits import decompress_packbits
-from reversebox.image.compression.compression_rle_executioners import (
-    decompress_rle_executioners,
-)
-from reversebox.image.compression.compression_rle_tga import decompress_rle_tga
-from reversebox.image.compression.compression_zlib import decompress_zlib
 from reversebox.image.image_decoder import ImageDecoder
 from reversebox.image.image_formats import ImageFormats
 from reversebox.image.swizzling.swizzle_3ds import unswizzle_3ds
@@ -85,6 +86,7 @@ class HeatImage:
         image_decoder = ImageDecoder()
         image_format: ImageFormats = self._get_image_format_from_str(self.gui_params.pixel_format)
         palette_format: ImageFormats = self._get_image_format_from_str(self.gui_params.palette_format)
+        palette_scale_value: int = self.gui_params.palette_scale_value
 
         # endianess logic
         endianess_id: str = get_endianess_id(self.gui_params.endianess_type)
@@ -123,6 +125,8 @@ class HeatImage:
                 self.encoded_image_data = decompress_zlib(self.encoded_image_data)
             elif compression_id == "rle_executioners":
                 self.encoded_image_data = decompress_rle_executioners(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_bpp)
+            elif compression_id == "rle_emergency":
+                self.encoded_image_data = decompress_rle_emergency(self.encoded_image_data, image_bpp, self.gui_params.img_width, self.gui_params.img_height)
             elif compression_id == "lz4":
                 self.encoded_image_data = LZ4Handler().decompress_data(self.encoded_image_data)
             else:
@@ -289,7 +293,7 @@ class HeatImage:
 
                 self.decoded_image_data = image_decoder.decode_indexed_image(
                     self.encoded_image_data, self.heat_palette.decoded_palette_data, self.gui_params.img_width, self.gui_params.img_height,
-                    image_format, palette_format, endianess_id, palette_endianess_id
+                    image_format, palette_format, endianess_id, palette_endianess_id, scale_value=palette_scale_value
                 )
             else:
                 logger.info("Palette not loaded...")

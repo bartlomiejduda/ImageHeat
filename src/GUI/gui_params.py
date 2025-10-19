@@ -32,6 +32,7 @@ class GuiParams:
         self.palette_loadfrom_value: Optional[int] = None
         self.palette_file_path: Optional[str] = None
         self.palette_offset: Optional[int] = None
+        self.palette_scale_value: Optional[int] = None
         self.palette_endianess: Optional[str] = None
         self.palette_ps2_swizzle_flag: Optional[bool] = None
         self.img_palette_name: Optional[str] = None
