@@ -13,6 +13,7 @@ from reversebox.compression.compression_rle_emergency import decompress_rle_emer
 from reversebox.compression.compression_rle_executioners import (
     decompress_rle_executioners,
 )
+from reversebox.compression.compression_rle_neversoft import decompress_rle_neversoft
 from reversebox.compression.compression_rle_tga import decompress_rle_tga
 from reversebox.compression.compression_zlib2 import decompress_zlib
 from reversebox.image.byte_swap import swap_byte_order_gamecube, swap_byte_order_x360
@@ -127,6 +128,8 @@ class HeatImage:
                 self.encoded_image_data = decompress_rle_executioners(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_bpp)
             elif compression_id == "rle_emergency":
                 self.encoded_image_data = decompress_rle_emergency(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_bpp)
+            elif compression_id == "rle_neversoft":
+                self.encoded_image_data = decompress_rle_neversoft(self.encoded_image_data, image_bpp)
             elif compression_id == "lz4":
                 self.encoded_image_data = LZ4Handler().decompress_data(self.encoded_image_data)
             else:
