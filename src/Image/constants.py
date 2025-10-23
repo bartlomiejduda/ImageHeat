@@ -156,6 +156,7 @@ SUPPORTED_COMPRESSION_TYPES: list[CompressionType] = [
     CompressionType(display_name="Executioners RLE", unique_id="rle_executioners"),
     CompressionType(display_name="Emergency RLE", unique_id="rle_emergency"),
     CompressionType(display_name="Neversoft RLE", unique_id="rle_neversoft"),
+    CompressionType(display_name="Tzar RLE", unique_id="rle_tzar"),
     CompressionType(display_name="LZ4", unique_id="lz4"),
 ]
 

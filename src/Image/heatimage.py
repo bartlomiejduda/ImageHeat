@@ -15,6 +15,7 @@ from reversebox.compression.compression_rle_executioners import (
 )
 from reversebox.compression.compression_rle_neversoft import decompress_rle_neversoft
 from reversebox.compression.compression_rle_tga import decompress_rle_tga
+from reversebox.compression.compression_rle_tzar import decompress_rle_tzar
 from reversebox.compression.compression_zlib2 import decompress_zlib
 from reversebox.image.byte_swap import swap_byte_order_gamecube, swap_byte_order_x360
 from reversebox.image.common import (
@@ -130,6 +131,8 @@ class HeatImage:
                 self.encoded_image_data = decompress_rle_emergency(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_bpp)
             elif compression_id == "rle_neversoft":
                 self.encoded_image_data = decompress_rle_neversoft(self.encoded_image_data, image_bpp)
+            elif compression_id == "rle_tzar":
+                self.encoded_image_data = decompress_rle_tzar(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_bpp)
             elif compression_id == "lz4":
                 self.encoded_image_data = LZ4Handler().decompress_data(self.encoded_image_data)
             else:
@@ -234,6 +237,7 @@ class HeatImage:
                             ImageFormats.RGBX5551,
                             ImageFormats.RGBA5551,
                             ImageFormats.RGBT5551,
+                            ImageFormats.BGRT5551,
                             ImageFormats.BGRA5551,
                             ImageFormats.BGRX5551,
                             ImageFormats.RGBA4444,
@@ -264,6 +268,7 @@ class HeatImage:
                             ImageFormats.XRGB8888,
                             ImageFormats.RGBX8888,
                             ImageFormats.BGRX8888,
+                            ImageFormats.BGRT8888,
                             ImageFormats.RGBM8888,
                             ImageFormats.R32,
                             ImageFormats.G32,
