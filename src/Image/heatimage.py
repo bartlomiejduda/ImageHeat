@@ -288,6 +288,7 @@ class HeatImage:
             )
         elif image_format in (ImageFormats.PAL4,
                               ImageFormats.PAL8,
+                              ImageFormats.PAL8_TZAR,
                               ImageFormats.PAL16,
                               ImageFormats.PAL32,
                               ImageFormats.PAL_I8A8
