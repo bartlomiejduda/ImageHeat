@@ -239,6 +239,7 @@ class HeatImage:
                             ImageFormats.RGBT5551,
                             ImageFormats.BGRT5551,
                             ImageFormats.BGRA5551,
+                            ImageFormats.BGRA5551_TZAR,
                             ImageFormats.BGRX5551,
                             ImageFormats.RGBA4444,
                             ImageFormats.ARGB4444,
@@ -263,6 +264,7 @@ class HeatImage:
 
                             ImageFormats.RGBA8888,
                             ImageFormats.BGRA8888,
+                            ImageFormats.BGRA8888_TZAR,
                             ImageFormats.ARGB8888,
                             ImageFormats.ABGR8888,
                             ImageFormats.XRGB8888,
