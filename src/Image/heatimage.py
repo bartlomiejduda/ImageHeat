@@ -13,6 +13,7 @@ from reversebox.compression.compression_rle_emergency import decompress_rle_emer
 from reversebox.compression.compression_rle_executioners import (
     decompress_rle_executioners,
 )
+from reversebox.compression.compression_rle_leapster import decompress_rle_leapster
 from reversebox.compression.compression_rle_neversoft import decompress_rle_neversoft
 from reversebox.compression.compression_rle_tga import decompress_rle_tga
 from reversebox.compression.compression_rle_tzar import decompress_rle_tzar
@@ -133,6 +134,8 @@ class HeatImage:
                 self.encoded_image_data = decompress_rle_neversoft(self.encoded_image_data, image_bpp)
             elif compression_id == "rle_tzar":
                 self.encoded_image_data = decompress_rle_tzar(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_bpp)
+            elif compression_id == "rle_leapster":
+                self.encoded_image_data = decompress_rle_leapster(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_bpp)
             elif compression_id == "lz4":
                 self.encoded_image_data = LZ4Handler().decompress_data(self.encoded_image_data)
             else:
@@ -248,6 +251,7 @@ class HeatImage:
                             ImageFormats.XBGR4444,
                             ImageFormats.RGBX4444,
                             ImageFormats.BGRA4444,
+                            ImageFormats.BGRA4444_LEAPSTER,
                             ImageFormats.BGRX4444,
                             ImageFormats.XRGB1555,
                             ImageFormats.XBGR1555,
