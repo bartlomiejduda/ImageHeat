@@ -16,6 +16,9 @@ from reversebox.compression.compression_rle_executioners import (
 from reversebox.compression.compression_rle_leapster import decompress_rle_leapster
 from reversebox.compression.compression_rle_neversoft import decompress_rle_neversoft
 from reversebox.compression.compression_rle_tga import decompress_rle_tga
+from reversebox.compression.compression_rle_tga_reversed import (
+    decompress_rle_tga_reversed,
+)
 from reversebox.compression.compression_rle_tzar import decompress_rle_tzar
 from reversebox.compression.compression_zlib2 import decompress_zlib
 from reversebox.image.byte_swap import swap_byte_order_gamecube, swap_byte_order_x360
@@ -122,6 +125,8 @@ class HeatImage:
                 pass
             elif compression_id == "rle_tga":
                 self.encoded_image_data = decompress_rle_tga(self.encoded_image_data, image_bpp)
+            elif compression_id == "rle_tga_reversed":
+                self.encoded_image_data = decompress_rle_tga_reversed(self.encoded_image_data, image_bpp)
             elif compression_id == "packbits":
                 self.encoded_image_data = decompress_packbits(self.encoded_image_data)
             elif compression_id == "zlib":
