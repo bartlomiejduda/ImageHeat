@@ -138,6 +138,7 @@ SUPPORTED_SWIZZLING_TYPES: list[SwizzlingType] = [
     SwizzlingType(display_name="Nintendo Switch (4,4)", unique_id="nintendo_switch_4_4"),
     SwizzlingType(display_name="Nintendo Switch (4,8)", unique_id="nintendo_switch_4_8"),
     SwizzlingType(display_name="Nintendo Switch (1,16)", unique_id="nintendo_switch_1_16"),
+    SwizzlingType(display_name="Nintendo Switch (2,16)", unique_id="nintendo_switch_2_16"),
     SwizzlingType(display_name="GameCube / WII", unique_id="gamecube_wii"),
     SwizzlingType(display_name="XBOX 360 (1, 1)", unique_id="x360_1_1"),
     SwizzlingType(display_name="XBOX 360 (1, 2)", unique_id="x360_1_2"),
