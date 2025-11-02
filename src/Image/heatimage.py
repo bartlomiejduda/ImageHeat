@@ -182,6 +182,8 @@ class HeatImage:
             self.encoded_image_data = unswizzle_switch(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, bytes_per_block=1, block_height=16)
         elif swizzling_id == "nintendo_switch_2_16":
             self.encoded_image_data = unswizzle_switch(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, bytes_per_block=2, block_height=16)
+        elif swizzling_id == "nintendo_switch_4_16":
+            self.encoded_image_data = unswizzle_switch(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, bytes_per_block=4, block_height=16)
         elif swizzling_id == "gamecube_wii":
             self.encoded_image_data = unswizzle_gamecube(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_bpp)
         elif swizzling_id == "x360_1_1":  # 8-bpp
