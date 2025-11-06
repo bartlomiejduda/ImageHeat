@@ -28,3 +28,7 @@ so some functionalities may not work properly.
 If you need more information, please check out
 readme file on GitHub
 https://github.com/bartlomiejduda/ImageHeat/blob/master/README.md
+
+# Support #
+If you want to support me, please take a look at funding info
+at "Sponsor this project" tab on GitHub.
