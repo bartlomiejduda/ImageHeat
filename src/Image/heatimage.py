@@ -338,6 +338,13 @@ class HeatImage:
             self.decoded_image_data = image_decoder.decode_compressed_image(
                 self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_format
             )
+        elif image_format in (ImageFormats.PSP_DXT1,
+                              ImageFormats.PSP_DXT3,
+                              ImageFormats.PSP_DXT5,
+                              ):
+            self.decoded_image_data = image_decoder.decode_psp_dxt_image(
+                self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_format
+            )
         elif "ASTC" in image_format.value\
                 or "PVRTCI" in image_format.value\
                 or "ETC" in image_format.value\
