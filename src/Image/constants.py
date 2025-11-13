@@ -118,6 +118,7 @@ SUPPORTED_PALETTE_FORMATS: list[ImageFormats] = [
     ImageFormats.N64_IA4,
     ImageFormats.N64_IA8,
     ImageFormats.N64_RGB5A3,
+    ImageFormats.N64_BGR5A3,
     ImageFormats.GRAY8,
     ImageFormats.GRAY16,
     ImageFormats.GRAY8A,

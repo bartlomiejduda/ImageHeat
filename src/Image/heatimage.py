@@ -293,6 +293,7 @@ class HeatImage:
                             ImageFormats.BGR48,
 
                             ImageFormats.N64_RGB5A3,
+                            ImageFormats.N64_BGR5A3,
                             ImageFormats.N64_I4,
                             ImageFormats.N64_I8,
                             ImageFormats.N64_IA4,
