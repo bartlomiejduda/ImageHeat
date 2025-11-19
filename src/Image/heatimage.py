@@ -233,7 +233,6 @@ class HeatImage:
                             ImageFormats.RGB121_BYTE,
                             ImageFormats.RGB332,
                             ImageFormats.BGR332,
-                            ImageFormats.GRAY8,
                             ImageFormats.ALPHA8,
                             ImageFormats.ALPHA8_17X,
                             ImageFormats.LA44,
@@ -294,8 +293,8 @@ class HeatImage:
 
                             ImageFormats.N64_RGB5A3,
                             ImageFormats.N64_BGR5A3,
-                            ImageFormats.N64_I4,
-                            ImageFormats.N64_I8,
+                            ImageFormats.GRAY4,
+                            ImageFormats.GRAY8,
                             ImageFormats.N64_IA4,
                             ImageFormats.N64_IA8
                             ):
