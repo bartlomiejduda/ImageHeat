@@ -9,6 +9,7 @@ import os
 import platform
 import sys
 import time
+import threading
 import tkinter as tk
 from configparser import ConfigParser
 from idlelib.tooltip import Hovertip
@@ -17,6 +18,7 @@ from typing import List, Optional
 
 from PIL import Image, ImageTk
 from PIL.Image import Transpose
+
 from reversebox.common.common import (
     convert_bytes_to_hex_string,
     convert_from_bytes_to_mb_string,
@@ -76,6 +78,7 @@ WINDOW_WIDTH = 1000
 
 logger = get_logger(__name__)
 
+
 # fmt: off
 
 
@@ -101,12 +104,14 @@ class ImageHeatGUI():
         self.preview_instance = None
         self.ph_img = None
         self.preview_final_pil_image = None
-        self.validate_spinbox_command = (master.register(self.validate_spinbox), '%P')
+        self.validate_spinbox_command = (master.register(lambda x: self.validate_spinbox(x, False)), '%P')
+        self.validate_spinbox_command_digit = (master.register(self.validate_spinbox), '%P')
         self.pixel_x: int = 1
         self.pixel_y: int = 1
         self.pixel_offset: int = 0
         self.pixel_value_str: str = ""
         self.pixel_value_rgba: bytearray = bytearray(10)
+        self._debounce_timer = None
 
         # drag and drop logic
         self.master.drop_target_register(DND_FILES)
@@ -138,11 +143,15 @@ class ImageHeatGUI():
         self.user_config.read(self.user_config_file_name)
         try:
             self.current_save_as_directory_path = self.user_config.get("config", ConfigKeys.SAVE_AS_DIRECTORY_PATH)
-            self.current_save_raw_data_directory_path = self.user_config.get("config", ConfigKeys.SAVE_RAW_DATA_DIRECTORY_PATH)
+            self.current_save_raw_data_directory_path = self.user_config.get("config",
+                                                                             ConfigKeys.SAVE_RAW_DATA_DIRECTORY_PATH)
             self.current_open_file_directory_path = self.user_config.get("config", ConfigKeys.OPEN_FILE_DIRECTORY_PATH)
-            self.current_open_palette_directory_path = self.user_config.get("config", ConfigKeys.OPEN_PALETTE_DIRECTORY_PATH)
-            self.current_program_language = tk.StringVar(value=self.user_config.get("config", ConfigKeys.CURRENT_PROGRAM_LANGUAGE))
-            self.current_background_color = tk.StringVar(value=self.user_config.get("config", ConfigKeys.CURRENT_CANVAS_COLOR))
+            self.current_open_palette_directory_path = self.user_config.get("config",
+                                                                            ConfigKeys.OPEN_PALETTE_DIRECTORY_PATH)
+            self.current_program_language = tk.StringVar(
+                value=self.user_config.get("config", ConfigKeys.CURRENT_PROGRAM_LANGUAGE))
+            self.current_background_color = tk.StringVar(
+                value=self.user_config.get("config", ConfigKeys.CURRENT_CANVAS_COLOR))
         except Exception as error:
             logger.error(f"Error while loading user config: {error}")
             self.current_save_as_directory_path = ""
@@ -161,20 +170,24 @@ class ImageHeatGUI():
         ########################
         # IMAGE PARAMETERS BOX #
         ########################
-        self.parameters_labelframe = tk.LabelFrame(self.main_frame, text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_IMAGE_PARAMETERS), font=self.gui_font)
+        self.parameters_labelframe = tk.LabelFrame(self.main_frame, text=self.get_translation_text(
+            TranslationKeys.TRANSLATION_TEXT_IMAGE_PARAMETERS), font=self.gui_font)
         self.parameters_labelframe.place(x=5, y=5, width=160, height=340)
 
         ###################################
         # IMAGE PARAMETERS - IMAGE WIDTH  #
         ###################################
-        self.width_label = tk.Label(self.parameters_labelframe, text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_IMAGE_WIDTH), anchor="w", font=self.gui_font)
+        self.width_label = tk.Label(self.parameters_labelframe,
+                                    text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_IMAGE_WIDTH),
+                                    anchor="w", font=self.gui_font)
         self.width_label.place(x=5, y=5, width=70, height=20)
 
         self.current_width = tk.StringVar(value="0")
-        self.width_spinbox = tk.Spinbox(self.parameters_labelframe, textvariable=self.current_width, from_=0, to=sys.maxsize,
+        self.width_spinbox = tk.Spinbox(self.parameters_labelframe, textvariable=self.current_width, from_=0,
+                                        to=sys.maxsize,
                                         command=self.gui_reload_image_on_gui_element_change)
         self.width_spinbox.place(x=5, y=25, width=70, height=20)
-        self.width_spinbox.configure(validate="key", validatecommand=self.validate_spinbox_command)
+        self.width_spinbox.configure(validate="key", validatecommand=self.validate_spinbox_command_digit)
 
         def _decrease_image_width_by_shortcut(event):
             if event.state & 5:
@@ -207,6 +220,10 @@ class ImageHeatGUI():
             self.master.focus()
 
         def _double_width_by_shortcut(event):
+            focused_widget = self.master.focus_get()
+            if isinstance(focused_widget, (tk.Spinbox, tk.Entry, ttk.Entry, ttk.Combobox)):
+                return
+
             if event.state & 5:
                 return  # skip SHIFT or CTRL
 
@@ -230,14 +247,17 @@ class ImageHeatGUI():
         ######################################
         # IMAGE PARAMETERS - IMAGE HEIGHT    #
         ######################################
-        self.height_label = tk.Label(self.parameters_labelframe, text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_IMAGE_HEIGHT), anchor="w", font=self.gui_font)
+        self.height_label = tk.Label(self.parameters_labelframe,
+                                     text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_IMAGE_HEIGHT),
+                                     anchor="w", font=self.gui_font)
         self.height_label.place(x=85, y=5, width=65, height=20)
 
         self.current_height = tk.StringVar(value="0")
-        self.height_spinbox = tk.Spinbox(self.parameters_labelframe, textvariable=self.current_height, from_=0, to=sys.maxsize,
+        self.height_spinbox = tk.Spinbox(self.parameters_labelframe, textvariable=self.current_height, from_=0,
+                                         to=sys.maxsize,
                                          command=self.gui_reload_image_on_gui_element_change)
         self.height_spinbox.place(x=85, y=25, width=65, height=20)
-        self.height_spinbox.configure(validate="key", validatecommand=self.validate_spinbox_command)
+        self.height_spinbox.configure(validate="key", validatecommand=self.validate_spinbox_command_digit)
 
         def _decrease_image_height_by_shortcut(event):
             if event.state & 5:
@@ -256,15 +276,16 @@ class ImageHeatGUI():
         self.master.bind("<Up>", _decrease_image_height_by_shortcut)
         self.master.bind("<Down>", _increase_image_height_by_shortcut)
 
-
         ###########################################
         # IMAGE PARAMETERS - IMAGE START OFFSET   #
         ###########################################
-        self.img_start_offset_label = tk.Label(self.parameters_labelframe, text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_START_OFFSET), anchor="w", font=self.gui_font)
+        self.img_start_offset_label = tk.Label(self.parameters_labelframe, text=self.get_translation_text(
+            TranslationKeys.TRANSLATION_TEXT_START_OFFSET), anchor="w", font=self.gui_font)
         self.img_start_offset_label.place(x=5, y=50, width=145, height=20)
 
         self.current_start_offset = tk.StringVar(value="0")
-        self.img_start_offset_spinbox = tk.Spinbox(self.parameters_labelframe, textvariable=self.current_start_offset, from_=0, to=sys.maxsize,
+        self.img_start_offset_spinbox = tk.Spinbox(self.parameters_labelframe, textvariable=self.current_start_offset,
+                                                   from_=0, to=sys.maxsize,
                                                    command=self.gui_reload_image_on_gui_element_change)
         self.img_start_offset_spinbox.place(x=5, y=70, width=145, height=20)
         self.img_start_offset_spinbox.configure(validate="key", validatecommand=self.validate_spinbox_command)
@@ -426,11 +447,13 @@ class ImageHeatGUI():
         ##########################################
         # IMAGE PARAMETERS - IMAGE END OFFSET    #
         ##########################################
-        self.img_end_offset_label = tk.Label(self.parameters_labelframe, text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_END_OFFSET), anchor="w", font=self.gui_font)
+        self.img_end_offset_label = tk.Label(self.parameters_labelframe, text=self.get_translation_text(
+            TranslationKeys.TRANSLATION_TEXT_END_OFFSET), anchor="w", font=self.gui_font)
         self.img_end_offset_label.place(x=5, y=90, width=145, height=20)
 
         self.current_end_offset = tk.StringVar(value="0")
-        self.img_end_offset_spinbox = tk.Spinbox(self.parameters_labelframe, textvariable=self.current_end_offset, from_=0, to=sys.maxsize,
+        self.img_end_offset_spinbox = tk.Spinbox(self.parameters_labelframe, textvariable=self.current_end_offset,
+                                                 from_=0, to=sys.maxsize,
                                                  command=self.gui_reload_image_on_gui_element_change)
         self.img_end_offset_spinbox.place(x=5, y=110, width=145, height=20)
         self.img_end_offset_spinbox.configure(validate="key", validatecommand=self.validate_spinbox_command)
@@ -439,7 +462,8 @@ class ImageHeatGUI():
         # IMAGE PARAMETERS - PIXEL FORMAT  #
         ####################################
 
-        self.pixel_format_label = tk.Label(self.parameters_labelframe, text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_PIXEL_FORMAT), anchor="w", font=self.gui_font)
+        self.pixel_format_label = tk.Label(self.parameters_labelframe, text=self.get_translation_text(
+            TranslationKeys.TRANSLATION_TEXT_PIXEL_FORMAT), anchor="w", font=self.gui_font)
         self.pixel_format_label.place(x=5, y=135, width=145, height=20)
 
         self.pixel_format_combobox = ttk.Combobox(self.parameters_labelframe,
@@ -461,6 +485,10 @@ class ImageHeatGUI():
             self.reload_image_callback(event)
 
         def _get_next_pixel_format_by_key(event):
+            focused_widget = self.master.focus_get()
+            if isinstance(focused_widget, (tk.Spinbox, tk.Entry, ttk.Entry, ttk.Combobox)):
+                return
+
             if event.state & 5:
                 return  # skip SHIFT or CTRL
 
@@ -478,17 +506,24 @@ class ImageHeatGUI():
         # IMAGE PARAMETERS - ENDIANESS     #
         ####################################
 
-        self.endianess_label = tk.Label(self.parameters_labelframe, text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_ENDIANESS_TYPE), anchor="w", font=self.gui_font)
+        self.endianess_label = tk.Label(self.parameters_labelframe,
+                                        text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_ENDIANESS_TYPE),
+                                        anchor="w", font=self.gui_font)
         self.endianess_label.place(x=5, y=180, width=145, height=20)
 
         self.current_endianess = tk.StringVar(value="none")
-        self.endianess_combobox = ttk.Combobox(self.parameters_labelframe, values=ENDIANESS_TYPES_NAMES, textvariable=self.current_endianess,
+        self.endianess_combobox = ttk.Combobox(self.parameters_labelframe, values=ENDIANESS_TYPES_NAMES,
+                                               textvariable=self.current_endianess,
                                                font=self.gui_font, state='readonly')
         self.endianess_combobox.bind("<<ComboboxSelected>>", self.reload_image_callback)
         self.endianess_combobox.place(x=5, y=200, width=145, height=20)
         self.endianess_combobox.set(DEFAULT_ENDIANESS_NAME)
 
         def _get_next_endianess_type_by_key(event):
+            focused_widget = self.master.focus_get()
+            if isinstance(focused_widget, (tk.Spinbox, tk.Entry, ttk.Entry, ttk.Combobox)):
+                return
+
             if event.state & 5:
                 return  # skip SHIFT or CTRL
 
@@ -501,16 +536,18 @@ class ImageHeatGUI():
 
         self.master.bind("<e>", _get_next_endianess_type_by_key)
 
-
         ####################################
         # IMAGE PARAMETERS - SWIZZLING     #
         ####################################
-        self.swizzling_label = tk.Label(self.parameters_labelframe, text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_SWIZZLING_TYPE), anchor="w", font=self.gui_font)
+        self.swizzling_label = tk.Label(self.parameters_labelframe,
+                                        text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_SWIZZLING_TYPE),
+                                        anchor="w", font=self.gui_font)
         self.swizzling_label.place(x=5, y=225, width=145, height=20)
 
         self.current_swizzling = tk.StringVar(value="none")
         self.swizzling_combobox = ttk.Combobox(self.parameters_labelframe,
-                                               values=SWIZZLING_TYPES_NAMES, textvariable=self.current_swizzling, font=self.gui_font, state='readonly')
+                                               values=SWIZZLING_TYPES_NAMES, textvariable=self.current_swizzling,
+                                               font=self.gui_font, state='readonly')
         self.swizzling_combobox.bind("<<ComboboxSelected>>", self.reload_image_callback)
         self.swizzling_combobox.place(x=5, y=245, width=145, height=20)
         self.swizzling_combobox.set(DEFAULT_SWIZZLING_NAME)
@@ -544,11 +581,14 @@ class ImageHeatGUI():
         ####################################
         # IMAGE PARAMETERS - COMPRESSION     #
         ####################################
-        self.compression_label = tk.Label(self.parameters_labelframe, text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_COMPRESSION_TYPE), anchor="w", font=self.gui_font)
+        self.compression_label = tk.Label(self.parameters_labelframe, text=self.get_translation_text(
+            TranslationKeys.TRANSLATION_TEXT_COMPRESSION_TYPE), anchor="w", font=self.gui_font)
         self.compression_label.place(x=5, y=270, width=145, height=20)
 
         self.current_compression = tk.StringVar(value="none")
-        self.compression_combobox = ttk.Combobox(self.parameters_labelframe, values=COMPRESSION_TYPES_NAMES, textvariable=self.current_compression, font=self.gui_font, state='readonly')
+        self.compression_combobox = ttk.Combobox(self.parameters_labelframe, values=COMPRESSION_TYPES_NAMES,
+                                                 textvariable=self.current_compression, font=self.gui_font,
+                                                 state='readonly')
         self.compression_combobox.bind("<<ComboboxSelected>>", self.reload_image_callback)
         self.compression_combobox.place(x=5, y=290, width=145, height=20)
         self.compression_combobox.set(DEFAULT_COMPRESSION_NAME)
@@ -579,42 +619,48 @@ class ImageHeatGUI():
         self.master.bind("<o>", _get_previous_compression_type_by_key)
         self.master.bind("<p>", _get_next_compression_type_by_key)
 
-
-
         ###########################
         # PALETTE PARAMETERS BOX  #
         ###########################
-        self.palette_parameters_labelframe = tk.LabelFrame(self.main_frame, text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_PALETTE_PARAMETERS), font=self.gui_font)
+        self.palette_parameters_labelframe = tk.LabelFrame(self.main_frame, text=self.get_translation_text(
+            TranslationKeys.TRANSLATION_TEXT_PALETTE_PARAMETERS), font=self.gui_font)
         self.palette_parameters_labelframe.place(x=5, y=345, width=160, height=250)
-
 
         ########################################
         # PALETTE PARAMETERS BOX  - LOAD FROM  #
         ########################################
-        self.palette_load_from_label = tk.Label(self.palette_parameters_labelframe, text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_LOAD_FROM), anchor="w", font=self.gui_font)
+        self.palette_load_from_label = tk.Label(self.palette_parameters_labelframe, text=self.get_translation_text(
+            TranslationKeys.TRANSLATION_TEXT_LOAD_FROM), anchor="w", font=self.gui_font)
         self.palette_load_from_label.place(x=5, y=0, width=60, height=20)
 
         self.palette_load_from_variable = tk.IntVar(value=1)
 
         self.palette_load_from_same_file_radio_button = tk.Radiobutton(self.palette_parameters_labelframe,
-                                                                       text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_SAME_FILE), variable=self.palette_load_from_variable,
-                                                                       value=1, command=self.gui_reload_image_on_gui_element_change,
+                                                                       text=self.get_translation_text(
+                                                                           TranslationKeys.TRANSLATION_TEXT_SAME_FILE),
+                                                                       variable=self.palette_load_from_variable,
+                                                                       value=1,
+                                                                       command=self.gui_reload_image_on_gui_element_change,
                                                                        anchor="w", font=self.gui_font)
         self.palette_load_from_same_file_radio_button.place(x=65, y=0, width=90, height=20)
         self.palette_load_from_same_file_radio_button.select()
 
         self.palette_load_from_another_file_radio_button = tk.Radiobutton(self.palette_parameters_labelframe,
-                                                                          text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_ANOTHER_FILE),
+                                                                          text=self.get_translation_text(
+                                                                              TranslationKeys.TRANSLATION_TEXT_ANOTHER_FILE),
                                                                           variable=self.palette_load_from_variable,
-                                                                          value=2, command=self.gui_reload_image_on_gui_element_change,
+                                                                          value=2,
+                                                                          command=self.gui_reload_image_on_gui_element_change,
                                                                           anchor="w", font=self.gui_font)
         self.palette_load_from_another_file_radio_button.place(x=65, y=15, width=90, height=20)
 
-        self.palette_palfile_label = tk.Label(self.palette_parameters_labelframe, text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_PALETTE_FILE), anchor="w",
+        self.palette_palfile_label = tk.Label(self.palette_parameters_labelframe, text=self.get_translation_text(
+            TranslationKeys.TRANSLATION_TEXT_PALETTE_FILE), anchor="w",
                                               font=self.gui_font)
         self.palette_palfile_label.place(x=5, y=40, width=60, height=20)
 
-        self.palette_palfile_button = tk.Button(self.palette_parameters_labelframe, text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_BROWSE),
+        self.palette_palfile_button = tk.Button(self.palette_parameters_labelframe,
+                                                text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_BROWSE),
                                                 command=self.open_palette_file, font=self.gui_font)
         self.palette_palfile_button.place(x=70, y=40, width=80, height=20)
 
@@ -627,7 +673,8 @@ class ImageHeatGUI():
         self.palette_palformat_label.place(x=5, y=65, width=90, height=20)
 
         self.palette_current_palformat = tk.StringVar(value="none")
-        self.palette_format_combobox = ttk.Combobox(self.palette_parameters_labelframe, values=PALETTE_FORMATS_NAMES, textvariable=self.palette_current_palformat,
+        self.palette_format_combobox = ttk.Combobox(self.palette_parameters_labelframe, values=PALETTE_FORMATS_NAMES,
+                                                    textvariable=self.palette_current_palformat,
                                                     font=self.gui_font, state='readonly')
         self.palette_format_combobox.bind("<<ComboboxSelected>>", self.reload_image_callback)
         self.palette_format_combobox.place(x=5, y=85, width=145, height=20)
@@ -663,12 +710,15 @@ class ImageHeatGUI():
         # PALETTE PARAMETERS BOX  - PAL OFFSET  #
         ###########################################
 
-        self.palette_paloffset_label = tk.Label(self.palette_parameters_labelframe, text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_PAL_OFFSET), anchor="w",
+        self.palette_paloffset_label = tk.Label(self.palette_parameters_labelframe, text=self.get_translation_text(
+            TranslationKeys.TRANSLATION_TEXT_PAL_OFFSET), anchor="w",
                                                 font=self.gui_font)
         self.palette_paloffset_label.place(x=5, y=115, width=60, height=20)
 
         self.palette_current_paloffset = tk.StringVar(value="0")
-        self.palette_paloffset_spinbox = tk.Spinbox(self.palette_parameters_labelframe, textvariable=self.palette_current_paloffset, from_=0, to=sys.maxsize,
+        self.palette_paloffset_spinbox = tk.Spinbox(self.palette_parameters_labelframe,
+                                                    textvariable=self.palette_current_paloffset, from_=0,
+                                                    to=sys.maxsize,
                                                     command=self.gui_reload_image_on_gui_element_change)
         self.palette_paloffset_spinbox.place(x=75, y=115, width=75, height=20)
         self.palette_paloffset_spinbox.configure(validate="key", validatecommand=self.validate_spinbox_command)
@@ -677,11 +727,14 @@ class ImageHeatGUI():
         # PALETTE PARAMETERS BOX  - PALETTE SCALE  #
         ###########################################
 
-        self.palette_palscale_label = tk.Label(self.palette_parameters_labelframe, text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_PAL_SCALE), anchor="w",
+        self.palette_palscale_label = tk.Label(self.palette_parameters_labelframe, text=self.get_translation_text(
+            TranslationKeys.TRANSLATION_TEXT_PAL_SCALE), anchor="w",
                                                font=self.gui_font)
         self.palette_palscale_label.place(x=5, y=145, width=60, height=20)
 
-        self.palette_palscale_combobox = ttk.Combobox(self.palette_parameters_labelframe, values=PALETTE_SCALE_TYPES_NAMES, font=self.gui_font, state='readonly')
+        self.palette_palscale_combobox = ttk.Combobox(self.palette_parameters_labelframe,
+                                                      values=PALETTE_SCALE_TYPES_NAMES, font=self.gui_font,
+                                                      state='readonly')
         self.palette_palscale_combobox.bind("<<ComboboxSelected>>", self.reload_image_callback)
         self.palette_palscale_combobox.place(x=75, y=145, width=75, height=20)
         self.palette_palscale_combobox.set(DEFAULT_PALETTE_SCALE_NAME)
@@ -690,11 +743,13 @@ class ImageHeatGUI():
         # PALETTE PARAMETERS BOX  - PALETTE ENDIANESS   #
         #################################################
 
-        self.palette_endianess_label = tk.Label(self.palette_parameters_labelframe, text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_PALETTE_ENDIANESS), anchor="w", font=self.gui_font)
+        self.palette_endianess_label = tk.Label(self.palette_parameters_labelframe, text=self.get_translation_text(
+            TranslationKeys.TRANSLATION_TEXT_PALETTE_ENDIANESS), anchor="w", font=self.gui_font)
         self.palette_endianess_label.place(x=5, y=170, width=100, height=20)
 
         self.palette_current_endianess = tk.StringVar(value="none")
-        self.palette_endianess_combobox = ttk.Combobox(self.palette_parameters_labelframe, values=ENDIANESS_TYPES_NAMES, textvariable=self.palette_current_endianess,
+        self.palette_endianess_combobox = ttk.Combobox(self.palette_parameters_labelframe, values=ENDIANESS_TYPES_NAMES,
+                                                       textvariable=self.palette_current_endianess,
                                                        font=self.gui_font, state='readonly')
         self.palette_endianess_combobox.bind("<<ComboboxSelected>>", self.reload_image_callback)
         self.palette_endianess_combobox.place(x=5, y=190, width=145, height=20)
@@ -706,12 +761,13 @@ class ImageHeatGUI():
 
         self.palette_ps2swizzle_variable = tk.StringVar(value="OFF")
         self.palette_ps2swizzle_checkbutton = tk.Checkbutton(self.palette_parameters_labelframe,
-                                                             text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_PS2_PALETTE_SWIZZLE),
+                                                             text=self.get_translation_text(
+                                                                 TranslationKeys.TRANSLATION_TEXT_PS2_PALETTE_SWIZZLE),
                                                              variable=self.palette_ps2swizzle_variable,
                                                              anchor="w", onvalue="ON", offvalue="OFF",
-                                                             font=self.gui_font, command=self.gui_reload_image_on_gui_element_change)
+                                                             font=self.gui_font,
+                                                             command=self.gui_reload_image_on_gui_element_change)
         self.palette_ps2swizzle_checkbutton.place(x=5, y=210, width=140, height=20)
-
 
         #####################################################
         # PALETTE PARAMETERS BOX  - INITIAL DISABLE LOGIC   #
@@ -735,50 +791,63 @@ class ImageHeatGUI():
         # INFO BOX #
         ##########################
 
-        self.info_labelframe = tk.LabelFrame(self.main_frame, text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_LABELFRAME), font=self.gui_font)
+        self.info_labelframe = tk.LabelFrame(self.main_frame, text=self.get_translation_text(
+            TranslationKeys.TRANSLATION_TEXT_INFO_LABELFRAME), font=self.gui_font)
         self.info_labelframe.place(x=-200, y=5, width=195, height=145, relx=1)
 
-        self.infobox_file_name_label = HTMLLabel(self.info_labelframe, html=self._get_html_for_infobox_label(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_FILENAME_LABEL), ""), wrap=None)
-        self.infobox_file_name_tooltip = Hovertip(self.infobox_file_name_label, self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_FILENAME_LABEL))
+        self.infobox_file_name_label = HTMLLabel(self.info_labelframe, html=self._get_html_for_infobox_label(
+            self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_FILENAME_LABEL), ""), wrap=None)
+        self.infobox_file_name_tooltip = Hovertip(self.infobox_file_name_label, self.get_translation_text(
+            TranslationKeys.TRANSLATION_TEXT_INFO_FILENAME_LABEL))
         self.infobox_file_name_label.place(x=5, y=5, width=185, height=18)
 
-        self.infobox_file_size_label = HTMLLabel(self.info_labelframe, html=self._get_html_for_infobox_label(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_FILE_SIZE), ""), wrap=None)
+        self.infobox_file_size_label = HTMLLabel(self.info_labelframe, html=self._get_html_for_infobox_label(
+            self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_FILE_SIZE), ""), wrap=None)
         self.infobox_file_size_label.place(x=5, y=25, width=175, height=18)
 
-        self.infobox_pixel_x_label = HTMLLabel(self.info_labelframe, html=self._get_html_for_infobox_label(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_PIXEL_X), ""), wrap=None)
+        self.infobox_pixel_x_label = HTMLLabel(self.info_labelframe, html=self._get_html_for_infobox_label(
+            self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_PIXEL_X), ""), wrap=None)
         self.infobox_pixel_x_label.place(x=5, y=45, width=175, height=18)
 
-        self.infobox_pixel_y_label = HTMLLabel(self.info_labelframe, html=self._get_html_for_infobox_label(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_PIXEL_Y), ""), wrap=None)
+        self.infobox_pixel_y_label = HTMLLabel(self.info_labelframe, html=self._get_html_for_infobox_label(
+            self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_PIXEL_Y), ""), wrap=None)
         self.infobox_pixel_y_label.place(x=5, y=65, width=175, height=18)
 
-        self.infobox_pixel_offset_label = HTMLLabel(self.info_labelframe, html=self._get_html_for_infobox_label(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_PIXEL_OFFSET), ""), wrap=None)
+        self.infobox_pixel_offset_label = HTMLLabel(self.info_labelframe, html=self._get_html_for_infobox_label(
+            self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_PIXEL_OFFSET), ""), wrap=None)
         self.infobox_pixel_offset_label.place(x=5, y=85, width=175, height=18)
 
-        self.infobox_pixel_value_hex_label = HTMLLabel(self.info_labelframe, html=self._get_html_for_infobox_label(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_PIXEL_VALUE), ""), wrap=None)
+        self.infobox_pixel_value_hex_label = HTMLLabel(self.info_labelframe, html=self._get_html_for_infobox_label(
+            self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_PIXEL_VALUE), ""), wrap=None)
         self.infobox_pixel_value_hex_label.place(x=5, y=105, width=175, height=18)
 
         ##########################
         # CONTROLS BOX #
         ##########################
 
-        self.controls_labelframe = tk.LabelFrame(self.main_frame, text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_CONTROLS_LABELFRAME), font=self.gui_font)
+        self.controls_labelframe = tk.LabelFrame(self.main_frame, text=self.get_translation_text(
+            TranslationKeys.TRANSLATION_TEXT_CONTROLS_LABELFRAME), font=self.gui_font)
         self.controls_labelframe.place(x=-200, y=150, width=195, height=215, relx=1)
 
-        self.controls_all_info_label = HTMLLabel(self.controls_labelframe, html=self._get_html_for_controls_label(), wrap=None)
+        self.controls_all_info_label = HTMLLabel(self.controls_labelframe, html=self._get_html_for_controls_label(),
+                                                 wrap=None)
         self.controls_all_info_label.place(x=5, y=5, width=185, height=190)
 
         ##########################
         # POST-PROCESSING BOX #
         ##########################
 
-        self.postprocessing_labelframe = tk.LabelFrame(self.main_frame, text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_POST_PROCESSING_LABELFRAME), font=self.gui_font)
+        self.postprocessing_labelframe = tk.LabelFrame(self.main_frame, text=self.get_translation_text(
+            TranslationKeys.TRANSLATION_TEXT_POST_PROCESSING_LABELFRAME), font=self.gui_font)
         self.postprocessing_labelframe.place(x=-200, y=365, width=195, height=150, relx=1)
 
         # zoom
-        self.postprocessing_zoom_label = tk.Label(self.postprocessing_labelframe, text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_POST_PROCESSING_ZOOM), anchor="w", font=self.gui_font)
+        self.postprocessing_zoom_label = tk.Label(self.postprocessing_labelframe, text=self.get_translation_text(
+            TranslationKeys.TRANSLATION_TEXT_POST_PROCESSING_ZOOM), anchor="w", font=self.gui_font)
         self.postprocessing_zoom_label.place(x=5, y=5, width=60, height=20)
 
-        self.postprocessing_zoom_combobox = ttk.Combobox(self.postprocessing_labelframe, values=ZOOM_TYPES_NAMES, font=self.gui_font, state='readonly')
+        self.postprocessing_zoom_combobox = ttk.Combobox(self.postprocessing_labelframe, values=ZOOM_TYPES_NAMES,
+                                                         font=self.gui_font, state='readonly')
         self.postprocessing_zoom_combobox.bind("<<ComboboxSelected>>", self.reload_image_callback)
         self.postprocessing_zoom_combobox.place(x=45, y=5, width=70, height=20)
         self.postprocessing_zoom_combobox.set(DEFAULT_ZOOM_NAME)
@@ -803,18 +872,26 @@ class ImageHeatGUI():
         self.master.bind("<MouseWheel>", _zoom_by_shortcut)
 
         # zoom resampling
-        self.postprocessing_zoom_resampling_label = tk.Label(self.postprocessing_labelframe, text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_POST_PROCESSING_RESAMPLING), anchor="w", font=self.gui_font)
+        self.postprocessing_zoom_resampling_label = tk.Label(self.postprocessing_labelframe,
+                                                             text=self.get_translation_text(
+                                                                 TranslationKeys.TRANSLATION_TEXT_POST_PROCESSING_RESAMPLING),
+                                                             anchor="w", font=self.gui_font)
         self.postprocessing_zoom_resampling_label.place(x=5, y=30, width=60, height=20)
 
-        self.postprocessing_zoom_resampling_combobox = ttk.Combobox(self.postprocessing_labelframe, values=ZOOM_RESAMPLING_TYPES_NAMES, font=self.gui_font, state='readonly')
+        self.postprocessing_zoom_resampling_combobox = ttk.Combobox(self.postprocessing_labelframe,
+                                                                    values=ZOOM_RESAMPLING_TYPES_NAMES,
+                                                                    font=self.gui_font, state='readonly')
         self.postprocessing_zoom_resampling_combobox.bind("<<ComboboxSelected>>", self.reload_image_callback)
         self.postprocessing_zoom_resampling_combobox.place(x=70, y=30, width=90, height=20)
         self.postprocessing_zoom_resampling_combobox.set(DEFAULT_ZOOM_RESAMPLING_NAME)
 
         # vertical flip
         self.postprocessing_vertical_flip_variable = tk.StringVar(value="OFF")
-        self.postprocessing_vertical_flip_checkbutton = tk.Checkbutton(self.postprocessing_labelframe, text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_POST_PROCESSING_VERTICAL_FLIP),
-                                                                       variable=self.postprocessing_vertical_flip_variable, anchor="w",
+        self.postprocessing_vertical_flip_checkbutton = tk.Checkbutton(self.postprocessing_labelframe,
+                                                                       text=self.get_translation_text(
+                                                                           TranslationKeys.TRANSLATION_TEXT_POST_PROCESSING_VERTICAL_FLIP),
+                                                                       variable=self.postprocessing_vertical_flip_variable,
+                                                                       anchor="w",
                                                                        onvalue="ON", offvalue="OFF", font=self.gui_font,
                                                                        command=self.gui_reload_image_on_gui_element_change)
         self.postprocessing_vertical_flip_checkbutton.place(x=5, y=55, width=150, height=20)
@@ -822,18 +899,23 @@ class ImageHeatGUI():
         # horizontal flip
         self.postprocessing_horizontal_flip_variable = tk.StringVar(value="OFF")
         self.postprocessing_horizontal_flip_checkbutton = tk.Checkbutton(self.postprocessing_labelframe,
-                                                                         text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_POST_PROCESSING_HORIZONTAL_FLIP),
-                                                                         variable=self.postprocessing_horizontal_flip_variable, anchor="w",
-                                                                         onvalue="ON", offvalue="OFF", font=self.gui_font,
+                                                                         text=self.get_translation_text(
+                                                                             TranslationKeys.TRANSLATION_TEXT_POST_PROCESSING_HORIZONTAL_FLIP),
+                                                                         variable=self.postprocessing_horizontal_flip_variable,
+                                                                         anchor="w",
+                                                                         onvalue="ON", offvalue="OFF",
+                                                                         font=self.gui_font,
                                                                          command=self.gui_reload_image_on_gui_element_change)
         self.postprocessing_horizontal_flip_checkbutton.place(x=5, y=75, width=170, height=20)
 
         # rotate
-        self.postprocessing_rotate_label = tk.Label(self.postprocessing_labelframe, text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_POST_PROCESSING_ROTATE), anchor="w",
+        self.postprocessing_rotate_label = tk.Label(self.postprocessing_labelframe, text=self.get_translation_text(
+            TranslationKeys.TRANSLATION_TEXT_POST_PROCESSING_ROTATE), anchor="w",
                                                     font=self.gui_font)
         self.postprocessing_rotate_label.place(x=5, y=100, width=60, height=20)
         self.postprocessing_rotate_combobox = ttk.Combobox(self.postprocessing_labelframe,
-                                                           values=ROTATE_TYPES_NAMES, font=self.gui_font, state='readonly')
+                                                           values=ROTATE_TYPES_NAMES, font=self.gui_font,
+                                                           state='readonly')
         self.postprocessing_rotate_combobox.bind("<<ComboboxSelected>>", self.reload_image_callback)
         self.postprocessing_rotate_combobox.place(x=50, y=100, width=110, height=20)
         self.postprocessing_rotate_combobox.set(DEFAULT_ROTATE_NAME)
@@ -841,16 +923,12 @@ class ImageHeatGUI():
         ########################
         # IMAGE BOX            #
         ########################
-        self.image_preview_labelframe = tk.LabelFrame(self.main_frame, text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_IMAGE_PREVIEW), font=self.gui_font)
+        self.image_preview_labelframe = tk.LabelFrame(self.main_frame, text=self.get_translation_text(
+            TranslationKeys.TRANSLATION_TEXT_IMAGE_PREVIEW), font=self.gui_font)
         self.image_preview_labelframe.place(x=170, y=5, relwidth=1, relheight=1, height=-10, width=-375)
 
         self.image_preview_canvasframe = tk.Frame(self.image_preview_labelframe)
         self.image_preview_canvasframe.place(x=5, y=5, relwidth=1, relheight=1, height=-10, width=-10)
-
-
-
-
-
 
         ###############################################################################################################
         ############ menu
@@ -886,31 +964,45 @@ class ImageHeatGUI():
         self.filemenu.add_command(label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_FILEMENU_QUIT),
                                   command=lambda: self.quit_program(), accelerator="Ctrl+Q")
         master.bind_all("<Control-q>", lambda x: self.quit_program())
-        self.menubar.add_cascade(label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_FILEMENU_FILE), menu=self.filemenu)
+        self.menubar.add_cascade(label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_FILEMENU_FILE),
+                                 menu=self.filemenu)
 
         # options submenu
         self.optionsmenu = tk.Menu(self.menubar, tearoff=0)
 
         self.languagemenu = tk.Menu(self.optionsmenu, tearoff=0)
-        self.optionsmenu.add_cascade(label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_LANGUAGE), menu=self.languagemenu)
+        self.optionsmenu.add_cascade(
+            label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_LANGUAGE),
+            menu=self.languagemenu)
 
         self.languagemenu.add_radiobutton(label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_LANGUAGE_EN), variable=self.current_program_language, value="EN", command=lambda: self.set_program_language())
         self.languagemenu.add_radiobutton(label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_LANGUAGE_PL), variable=self.current_program_language, value="PL", command=lambda: self.set_program_language())
         self.languagemenu.add_radiobutton(label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_LANGUAGE_UA),variable=self.current_program_language, value="UA", command=lambda: self.set_program_language())
 
         self.backgroundmenu = tk.Menu(self.optionsmenu, tearoff=0)
-        self.optionsmenu.add_cascade(label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_BACKGROUND_COLOR), menu=self.backgroundmenu)
-        self.backgroundmenu.add_radiobutton(label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_BACKGROUND_GRAY), variable=self.current_background_color, value="#595959", command=lambda: self.reload_image_callback(None))
-        self.backgroundmenu.add_radiobutton(label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_BACKGROUND_BLACK), variable=self.current_background_color, value="#000000", command=lambda: self.reload_image_callback(None))
-        self.backgroundmenu.add_radiobutton(label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_BACKGROUND_WHITE), variable=self.current_background_color, value="#FFFFFF", command=lambda: self.reload_image_callback(None))
+        self.optionsmenu.add_cascade(
+            label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_BACKGROUND_COLOR),
+            menu=self.backgroundmenu)
+        self.backgroundmenu.add_radiobutton(
+            label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_BACKGROUND_GRAY),
+            variable=self.current_background_color, value="#595959", command=lambda: self.reload_image_callback(None))
+        self.backgroundmenu.add_radiobutton(
+            label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_BACKGROUND_BLACK),
+            variable=self.current_background_color, value="#000000", command=lambda: self.reload_image_callback(None))
+        self.backgroundmenu.add_radiobutton(
+            label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_BACKGROUND_WHITE),
+            variable=self.current_background_color, value="#FFFFFF", command=lambda: self.reload_image_callback(None))
 
-        self.menubar.add_cascade(label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_OPTIONS), menu=self.optionsmenu)
+        self.menubar.add_cascade(label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_OPTIONS),
+                                 menu=self.optionsmenu)
 
         # help submenu
         self.helpmenu = tk.Menu(self.menubar, tearoff=0)
-        self.helpmenu.add_command(label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_HELPMENU_ABOUT), command=lambda: self.show_about_window(), accelerator="Ctrl+H")
+        self.helpmenu.add_command(label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_HELPMENU_ABOUT),
+                                  command=lambda: self.show_about_window(), accelerator="Ctrl+H")
         master.bind_all("<Control-h>", lambda x: self.show_about_window())
-        self.menubar.add_cascade(label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_HELPMENU_HELP), menu=self.helpmenu)
+        self.menubar.add_cascade(label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_HELPMENU_HELP),
+                                 menu=self.helpmenu)
 
         master.config(menu=self.menubar)
 
@@ -938,7 +1030,7 @@ class ImageHeatGUI():
         logger.info("Setting program's language to: " + self.current_program_language.get())
 
         json_path = os.path.join(self.MAIN_DIRECTORY, "data", "lang",
-                                                      self.current_program_language.get() + ".json")
+                                 self.current_program_language.get() + ".json")
         try:
             new_translation_memory: List[TranslationEntry] = []
             translation_json_file = open(json_path, "rt", encoding="utf8")
@@ -957,51 +1049,82 @@ class ImageHeatGUI():
             logger.error(f"Couldn't load language strings from path: {json_path}. Error: {error}")
             return
 
-        self.parameters_labelframe.config(text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_IMAGE_PARAMETERS))
+        self.parameters_labelframe.config(
+            text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_IMAGE_PARAMETERS))
         self.width_label.config(text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_IMAGE_WIDTH))
         self.height_label.config(text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_IMAGE_HEIGHT))
-        self.img_start_offset_label.config(text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_START_OFFSET))
+        self.img_start_offset_label.config(
+            text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_START_OFFSET))
         self.img_end_offset_label.config(text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_END_OFFSET))
         self.pixel_format_label.config(text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_PIXEL_FORMAT))
         self.endianess_label.config(text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_ENDIANESS_TYPE))
         self.swizzling_label.config(text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_SWIZZLING_TYPE))
         self.compression_label.config(text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_COMPRESSION_TYPE))
 
-        self.palette_parameters_labelframe.config(text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_PALETTE_PARAMETERS))
+        self.palette_parameters_labelframe.config(
+            text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_PALETTE_PARAMETERS))
         self.palette_load_from_label.config(text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_LOAD_FROM))
-        self.palette_load_from_same_file_radio_button.config(text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_SAME_FILE))
-        self.palette_load_from_another_file_radio_button.config(text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_ANOTHER_FILE))
+        self.palette_load_from_same_file_radio_button.config(
+            text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_SAME_FILE))
+        self.palette_load_from_another_file_radio_button.config(
+            text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_ANOTHER_FILE))
         self.palette_palfile_label.config(text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_PALETTE_FILE))
         self.palette_palfile_button.config(text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_BROWSE))
         self.palette_palformat_label.config(text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_PAL_FORMAT))
         self.palette_paloffset_label.config(text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_PAL_OFFSET))
         self.palette_palscale_label.config(text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_PAL_SCALE))
-        self.palette_endianess_label.config(text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_PALETTE_ENDIANESS))
-        self.palette_ps2swizzle_checkbutton.config(text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_PS2_PALETTE_SWIZZLE))
+        self.palette_endianess_label.config(
+            text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_PALETTE_ENDIANESS))
+        self.palette_ps2swizzle_checkbutton.config(
+            text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_PS2_PALETTE_SWIZZLE))
 
-        self.image_preview_labelframe.config(text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_IMAGE_PREVIEW))
+        self.image_preview_labelframe.config(
+            text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_IMAGE_PREVIEW))
 
         self.info_labelframe.config(text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_LABELFRAME))
-        self.infobox_file_name_label.set_html(self._get_html_for_infobox_label(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_FILENAME_LABEL), self.gui_params.img_file_name if self.opened_image else ""))
-        self.infobox_file_size_label.set_html(self._get_html_for_infobox_label(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_FILE_SIZE), self.get_info_file_size_str() if self.opened_image else ""))
-        self.infobox_pixel_x_label.set_html(self._get_html_for_infobox_label(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_PIXEL_X), str(self.pixel_x) if self.opened_image else ""))
-        self.infobox_pixel_y_label.set_html(self._get_html_for_infobox_label(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_PIXEL_Y), str(self.pixel_y) if self.opened_image else ""))
-        self.infobox_pixel_offset_label.set_html(self._get_html_for_infobox_label(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_PIXEL_OFFSET), str(self.pixel_offset) if self.opened_image else ""))
-        self.infobox_pixel_value_hex_label.set_html(self._get_html_for_infobox_pixel_value_label(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_PIXEL_VALUE), self.pixel_value_str, self.pixel_value_rgba) if self.opened_image else self._get_html_for_infobox_label(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_PIXEL_VALUE), ""))
+        self.infobox_file_name_label.set_html(self._get_html_for_infobox_label(
+            self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_FILENAME_LABEL),
+            self.gui_params.img_file_name if self.opened_image else ""))
+        self.infobox_file_size_label.set_html(
+            self._get_html_for_infobox_label(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_FILE_SIZE),
+                                             self.get_info_file_size_str() if self.opened_image else ""))
+        self.infobox_pixel_x_label.set_html(
+            self._get_html_for_infobox_label(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_PIXEL_X),
+                                             str(self.pixel_x) if self.opened_image else ""))
+        self.infobox_pixel_y_label.set_html(
+            self._get_html_for_infobox_label(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_PIXEL_Y),
+                                             str(self.pixel_y) if self.opened_image else ""))
+        self.infobox_pixel_offset_label.set_html(self._get_html_for_infobox_label(
+            self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_PIXEL_OFFSET),
+            str(self.pixel_offset) if self.opened_image else ""))
+        self.infobox_pixel_value_hex_label.set_html(self._get_html_for_infobox_pixel_value_label(
+            self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_PIXEL_VALUE), self.pixel_value_str,
+            self.pixel_value_rgba) if self.opened_image else self._get_html_for_infobox_label(
+            self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_PIXEL_VALUE), ""))
 
-        self.controls_labelframe.config(text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_CONTROLS_LABELFRAME))
+        self.controls_labelframe.config(
+            text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_CONTROLS_LABELFRAME))
         self.controls_all_info_label.set_html(self._get_html_for_controls_label())
 
-        self.postprocessing_labelframe.config(text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_POST_PROCESSING_LABELFRAME))
-        self.postprocessing_zoom_label.config(text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_POST_PROCESSING_ZOOM))
-        self.postprocessing_zoom_resampling_label.config(text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_POST_PROCESSING_RESAMPLING))
-        self.postprocessing_vertical_flip_checkbutton.config(text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_POST_PROCESSING_VERTICAL_FLIP))
-        self.postprocessing_horizontal_flip_checkbutton.config(text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_POST_PROCESSING_HORIZONTAL_FLIP))
-        self.postprocessing_rotate_label.config(text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_POST_PROCESSING_ROTATE))
+        self.postprocessing_labelframe.config(
+            text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_POST_PROCESSING_LABELFRAME))
+        self.postprocessing_zoom_label.config(
+            text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_POST_PROCESSING_ZOOM))
+        self.postprocessing_zoom_resampling_label.config(
+            text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_POST_PROCESSING_RESAMPLING))
+        self.postprocessing_vertical_flip_checkbutton.config(
+            text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_POST_PROCESSING_VERTICAL_FLIP))
+        self.postprocessing_horizontal_flip_checkbutton.config(
+            text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_POST_PROCESSING_HORIZONTAL_FLIP))
+        self.postprocessing_rotate_label.config(
+            text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_POST_PROCESSING_ROTATE))
 
-        self.filemenu.entryconfigure(0, label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_FILEMENU_OPEN_FILE))
-        self.filemenu.entryconfigure(1, label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_FILEMENU_SAVE_AS))
-        self.filemenu.entryconfigure(2, label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_FILEMENU_SAVE_RAW_DATA))
+        self.filemenu.entryconfigure(0, label=self.get_translation_text(
+            TranslationKeys.TRANSLATION_TEXT_FILEMENU_OPEN_FILE))
+        self.filemenu.entryconfigure(1,
+                                     label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_FILEMENU_SAVE_AS))
+        self.filemenu.entryconfigure(2, label=self.get_translation_text(
+            TranslationKeys.TRANSLATION_TEXT_FILEMENU_SAVE_RAW_DATA))
         self.filemenu.entryconfigure(4, label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_FILEMENU_QUIT))
         self.menubar.entryconfigure(1, label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_FILEMENU_FILE))
 
@@ -1024,14 +1147,23 @@ class ImageHeatGUI():
             self.user_config.write(configfile)
 
     def reload_image_callback(self, event):
+        if self._debounce_timer is not None:
+            self.master.after_cancel(self._debounce_timer)
+
+        self._debounce_timer = self.master.after(300, self._perform_image_reload)
+
+    def _perform_image_reload(self):
         self.gui_reload_image_on_gui_element_change()
         self.parameters_box_disable_enable_logic()
-        self.master.focus()
 
-        # save current canvas color to config file
-        self.user_config.set("config", ConfigKeys.CURRENT_CANVAS_COLOR, self.current_background_color.get())
-        with open(self.user_config_file_name, "w") as configfile:
-            self.user_config.write(configfile)
+        try:
+            self.user_config.set("config", ConfigKeys.CURRENT_CANVAS_COLOR, self.current_background_color.get())
+            with open(self.user_config_file_name, "w") as configfile:
+                self.user_config.write(configfile)
+        except Exception:
+            pass
+
+        self._debounce_timer = None
 
     def check_if_paletted_format_chosen(self, pixel_format: str) -> bool:
         for format_name in PALETTE_FORMATS_REGEX_NAMES:
@@ -1051,7 +1183,6 @@ class ImageHeatGUI():
             for child in self.palette_parameters_labelframe.winfo_children():
                 child.configure(state='disable')
             self.palette_parameters_labelframe.configure(fg='grey')
-
 
     def quit_program(self) -> bool:
         logger.info("Quit GUI...")
@@ -1103,14 +1234,33 @@ class ImageHeatGUI():
         '''
         return html
 
-    def validate_spinbox(self, new_value):
-        return new_value.isdigit() or new_value == ""
+    def validate_spinbox(self, new_value, is_only_digits: bool = True) -> bool:
+        if new_value == "":
+            return True
+        if is_only_digits:
+            return new_value.isdigit()
+
+        if new_value.isdigit():
+            return True
+
+        if new_value.lower().startswith("0x"):
+            hex_part = new_value[2:]
+            if hex_part == "":
+                return True
+            valid_hex_chars = "0123456789abcdefABCDEF"
+            return all(c in valid_hex_chars for c in hex_part)
+
+        return False
 
     def get_spinbox_value(self, spinbox: tk.Spinbox) -> int:
         if spinbox.get() == "":
             return 0
         else:
-            return int(spinbox.get())
+            value = spinbox.get()
+            if value.startswith("0x"):
+                return int(value, 16)
+            else:
+                return int(value)
 
     def checkbox_value_to_bool(self, checkbox_value: str) -> bool:
         if checkbox_value.upper() == "ON":
@@ -1139,8 +1289,10 @@ class ImageHeatGUI():
         # post-processing
         self.gui_params.zoom_name = self.postprocessing_zoom_combobox.get()
         self.gui_params.zoom_resampling_name = self.postprocessing_zoom_resampling_combobox.get()
-        self.gui_params.vertical_flip_flag = self.checkbox_value_to_bool(self.postprocessing_vertical_flip_variable.get())
-        self.gui_params.horizontal_flip_flag = self.checkbox_value_to_bool(self.postprocessing_horizontal_flip_variable.get())
+        self.gui_params.vertical_flip_flag = self.checkbox_value_to_bool(
+            self.postprocessing_vertical_flip_variable.get())
+        self.gui_params.horizontal_flip_flag = self.checkbox_value_to_bool(
+            self.postprocessing_horizontal_flip_variable.get())
         self.gui_params.rotate_name = self.postprocessing_rotate_combobox.get()
 
         return True
@@ -1157,7 +1309,8 @@ class ImageHeatGUI():
         return file_size
 
     def get_info_file_size_str(self) -> str:
-        return str(self.gui_params.total_file_size) + " (" + convert_from_bytes_to_mb_string(self.gui_params.total_file_size) + ")"
+        return str(self.gui_params.total_file_size) + " (" + convert_from_bytes_to_mb_string(
+            self.gui_params.total_file_size) + ")"
 
     def set_gui_elements_at_file_open(self) -> bool:
         # image parameters
@@ -1184,13 +1337,23 @@ class ImageHeatGUI():
         self.parameters_box_disable_enable_logic()
 
         # info labels
-        self.infobox_file_name_label.set_html(self._get_html_for_infobox_label(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_FILENAME_LABEL), self.gui_params.img_file_name))
+        self.infobox_file_name_label.set_html(self._get_html_for_infobox_label(
+            self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_FILENAME_LABEL),
+            self.gui_params.img_file_name))
         self.infobox_file_name_tooltip.text = self.gui_params.img_file_name
-        self.infobox_file_size_label.set_html(self._get_html_for_infobox_label(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_FILE_SIZE), self.get_info_file_size_str()))
-        self.infobox_pixel_x_label.set_html(self._get_html_for_infobox_label(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_PIXEL_X), ""))
-        self.infobox_pixel_y_label.set_html(self._get_html_for_infobox_label(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_PIXEL_Y), ""))
-        self.infobox_pixel_offset_label.set_html(self._get_html_for_infobox_label(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_PIXEL_OFFSET), ""))
-        self.infobox_pixel_value_hex_label.set_html(self._get_html_for_infobox_label(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_PIXEL_VALUE), ""))
+        self.infobox_file_size_label.set_html(
+            self._get_html_for_infobox_label(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_FILE_SIZE),
+                                             self.get_info_file_size_str()))
+        self.infobox_pixel_x_label.set_html(
+            self._get_html_for_infobox_label(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_PIXEL_X),
+                                             ""))
+        self.infobox_pixel_y_label.set_html(
+            self._get_html_for_infobox_label(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_PIXEL_Y),
+                                             ""))
+        self.infobox_pixel_offset_label.set_html(self._get_html_for_infobox_label(
+            self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_PIXEL_OFFSET), ""))
+        self.infobox_pixel_value_hex_label.set_html(self._get_html_for_infobox_label(
+            self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_PIXEL_VALUE), ""))
 
         # post-processing
         self.postprocessing_zoom_combobox.set(DEFAULT_ZOOM_NAME)
@@ -1230,7 +1393,8 @@ class ImageHeatGUI():
                 try:
                     selected_directory = os.path.dirname(in_file.name)
                     self.current_open_file_directory_path = selected_directory  # set directory path from history
-                    self.user_config.set("config", ConfigKeys.OPEN_FILE_DIRECTORY_PATH, selected_directory)  # save directory path to config file
+                    self.user_config.set("config", ConfigKeys.OPEN_FILE_DIRECTORY_PATH,
+                                         selected_directory)  # save directory path to config file
                     with open(self.user_config_file_name, "w") as configfile:
                         self.user_config.write(configfile)
                 except Exception:
@@ -1239,7 +1403,8 @@ class ImageHeatGUI():
                 in_file_name = in_file_path.split("/")[-1]
             except Exception as error:
                 logger.error("Failed to open file! Error: %s", error)
-                messagebox.showwarning("Warning", self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_POPUPS_FAILED_TO_OPEN_FILE))
+                messagebox.showwarning("Warning", self.get_translation_text(
+                    TranslationKeys.TRANSLATION_TEXT_POPUPS_FAILED_TO_OPEN_FILE))
                 return False
         else:
             logger.info("Init drag and drop logic")
@@ -1275,7 +1440,8 @@ class ImageHeatGUI():
             try:
                 selected_directory = os.path.dirname(in_file.name)
                 self.current_open_palette_directory_path = selected_directory  # set directory path from history
-                self.user_config.set("config", ConfigKeys.OPEN_PALETTE_DIRECTORY_PATH, selected_directory)  # save directory path to config file
+                self.user_config.set("config", ConfigKeys.OPEN_PALETTE_DIRECTORY_PATH,
+                                     selected_directory)  # save directory path to config file
                 with open(self.user_config_file_name, "w") as configfile:
                     self.user_config.write(configfile)
             except Exception:
@@ -1284,7 +1450,8 @@ class ImageHeatGUI():
             in_file_name = in_file_path.split("/")[-1]
         except Exception as error:
             logger.error("Failed to open file! Error: %s", error)
-            messagebox.showwarning("Warning", self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_POPUPS_FAILED_TO_OPEN_FILE))
+            messagebox.showwarning("Warning", self.get_translation_text(
+                TranslationKeys.TRANSLATION_TEXT_POPUPS_FAILED_TO_OPEN_FILE))
             return False
 
         # gui params logic
@@ -1310,14 +1477,16 @@ class ImageHeatGUI():
                     defaultextension="" if platform.uname().system == "Linux" else ".dds",
                     initialfile="exported_image",
                     initialdir=self.current_save_as_directory_path,
-                    filetypes=((self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_EXPORT_FILETYPES_DDS), "*.dds"),
-                               (self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_EXPORT_FILETYPES_PNG), "*.png"),
-                               (self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_EXPORT_FILETYPES_BMP), "*.bmp")),
+                    filetypes=(
+                        (self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_EXPORT_FILETYPES_DDS), "*.dds"),
+                        (self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_EXPORT_FILETYPES_PNG), "*.png"),
+                        (self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_EXPORT_FILETYPES_BMP), "*.bmp")),
                 )
                 try:
                     selected_directory = os.path.dirname(out_file.name)
                     self.current_save_as_directory_path = selected_directory  # set directory path from history
-                    self.user_config.set("config", ConfigKeys.SAVE_AS_DIRECTORY_PATH, selected_directory)  # save directory path to config file
+                    self.user_config.set("config", ConfigKeys.SAVE_AS_DIRECTORY_PATH,
+                                         selected_directory)  # save directory path to config file
                     with open(self.user_config_file_name, "w") as configfile:
                         self.user_config.write(configfile)
                 except Exception:
@@ -1325,7 +1494,8 @@ class ImageHeatGUI():
 
             except Exception as error:
                 logger.error(f"Error: {error}")
-                messagebox.showwarning("Warning", self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_POPUPS_FAILED_TO_SAVE_FILE))
+                messagebox.showwarning("Warning", self.get_translation_text(
+                    TranslationKeys.TRANSLATION_TEXT_POPUPS_FAILED_TO_SAVE_FILE))
             if out_file is None:
                 return False  # user closed file dialog on purpose
 
@@ -1337,12 +1507,14 @@ class ImageHeatGUI():
             )
             if not out_data:
                 logger.error("Empty data to export!")
-                messagebox.showwarning("Warning", self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_POPUPS_EMPTY_IMAGE_DATA))
+                messagebox.showwarning("Warning", self.get_translation_text(
+                    TranslationKeys.TRANSLATION_TEXT_POPUPS_EMPTY_IMAGE_DATA))
                 return False
 
             out_file.write(out_data)
             out_file.close()
-            messagebox.showinfo("Info", self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_POPUPS_FILE_SAVED_SUCCESSFULLY))
+            messagebox.showinfo("Info", self.get_translation_text(
+                TranslationKeys.TRANSLATION_TEXT_POPUPS_FILE_SAVED_SUCCESSFULLY))
             logger.info(f"Image has been exported successfully to {out_file.name}")
         else:
             logger.info("Image is not opened yet...")
@@ -1359,19 +1531,22 @@ class ImageHeatGUI():
                     defaultextension=".bin",
                     initialfile="exported_raw_data",
                     initialdir=self.current_save_raw_data_directory_path,
-                    filetypes=((self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_EXPORT_FILETYPES_BINARY), "*.bin"), ),
+                    filetypes=((self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_EXPORT_FILETYPES_BINARY),
+                                "*.bin"),),
                 )
                 try:
                     selected_directory = os.path.dirname(out_file.name)
                     self.current_save_raw_data_directory_path = selected_directory  # set directory path from history
-                    self.user_config.set("config", ConfigKeys.SAVE_RAW_DATA_DIRECTORY_PATH, selected_directory)  # save directory path to config file
+                    self.user_config.set("config", ConfigKeys.SAVE_RAW_DATA_DIRECTORY_PATH,
+                                         selected_directory)  # save directory path to config file
                     with open(self.user_config_file_name, "w") as configfile:
                         self.user_config.write(configfile)
                 except Exception:
                     pass
             except Exception as error:
                 logger.error(f"Error: {error}")
-                messagebox.showwarning("Warning", self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_POPUPS_FAILED_TO_SAVE_FILE))
+                messagebox.showwarning("Warning", self.get_translation_text(
+                    TranslationKeys.TRANSLATION_TEXT_POPUPS_FAILED_TO_SAVE_FILE))
             if out_file is None:
                 return False  # user closed file dialog on purpose
 
@@ -1379,7 +1554,8 @@ class ImageHeatGUI():
 
             out_file.write(out_data)
             out_file.close()
-            messagebox.showinfo("Info", self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_POPUPS_RAW_DATA_SAVED_SUCCESSFULLY))
+            messagebox.showinfo("Info", self.get_translation_text(
+                TranslationKeys.TRANSLATION_TEXT_POPUPS_RAW_DATA_SAVED_SUCCESSFULLY))
             logger.info(f"Raw data has been exported successfully to {out_file.name}")
         else:
             logger.info("Image is not opened yet...")
@@ -1438,14 +1614,34 @@ class ImageHeatGUI():
     def execute_image_preview_logic(self) -> bool:
         logger.info("[PREVIEW] Init image preview...")
         start_time = time.time()
-        preview_img_width: int = int(self.gui_params.img_width)
-        preview_img_height: int = int(self.gui_params.img_height)
-        preview_data_size: int = preview_img_width * preview_img_height * 4
-        preview_data: bytes = self.opened_image.decoded_image_data[:preview_data_size]
-        pil_img: Optional[Image] = None
 
+        self.master.config(cursor="watch")
+
+        threading.Thread(
+            target=self._threaded_image_processing,
+            args=(start_time,),
+            daemon=True
+        ).start()
+        return True
+
+    def _threaded_image_processing(self, start_time):
         try:
-            logger.info("[PREVIEW] Creating PIL image...")
+            logger.info("[PREVIEW] Background thread started...")
+
+            preview_img_width = int(self.gui_params.img_width)
+            preview_img_height = int(self.gui_params.img_height)
+
+            if preview_img_width <= 0 or preview_img_height <= 0:
+                self.master.after(0, lambda: self.master.config(cursor=""))
+                return
+
+            preview_data_size = preview_img_width * preview_img_height * 4
+
+            if preview_data_size > len(self.opened_image.decoded_image_data):
+                preview_data = self.opened_image.decoded_image_data
+            else:
+                preview_data = self.opened_image.decoded_image_data[:preview_data_size]
+
             pil_img = Image.frombuffer(
                 "RGBA",
                 (preview_img_width, preview_img_height),
@@ -1456,135 +1652,142 @@ class ImageHeatGUI():
                 1,
             )
 
-            # post-processing logic start
-            # zoom
-            logger.info("[PREVIEW] Post-processing logic...")
-            self.preview_zoom_value: float = get_zoom_value(self.gui_params.zoom_name)
-            preview_img_width = int(self.preview_zoom_value * preview_img_width)
-            preview_img_height = int(self.preview_zoom_value * preview_img_height)
-            if self.preview_zoom_value != 1.0:
-                pil_img = pil_img.resize((preview_img_width, preview_img_height), get_resampling_type(self.gui_params.zoom_resampling_name))
+            self.preview_zoom_value = get_zoom_value(self.gui_params.zoom_name)
 
-            # flipping
+            if self.preview_zoom_value != 1.0:
+                target_width = int(self.preview_zoom_value * preview_img_width)
+                target_height = int(self.preview_zoom_value * preview_img_height)
+
+                pil_img = pil_img.resize((target_width, target_height),
+                                         get_resampling_type(self.gui_params.zoom_resampling_name))
+                preview_img_width, preview_img_height = target_width, target_height
+
+
             if self.gui_params.vertical_flip_flag:
                 pil_img = pil_img.transpose(Transpose.FLIP_TOP_BOTTOM)
             if self.gui_params.horizontal_flip_flag:
                 pil_img = pil_img.transpose(Transpose.FLIP_LEFT_RIGHT)
 
-            # rotating
             rotate_id = get_rotate_id(self.gui_params.rotate_name)
-            if rotate_id == "none":
-                pass
-            elif rotate_id == "rotate_90_left":
-                temp_width = preview_img_width
-                preview_img_width = preview_img_height
-                preview_img_height = temp_width
+            if rotate_id == "rotate_90_left":
+                preview_img_width, preview_img_height = preview_img_height, preview_img_width
                 pil_img = pil_img.transpose(Transpose.ROTATE_90)
             elif rotate_id == "rotate_90_right":
-                temp_width = preview_img_width
-                preview_img_width = preview_img_height
-                preview_img_height = temp_width
+                preview_img_width, preview_img_height = preview_img_height, preview_img_width
                 pil_img = pil_img.transpose(Transpose.ROTATE_270)
             elif rotate_id == "rotate_180":
                 pil_img = pil_img.transpose(Transpose.ROTATE_180)
-            else:
-                logger.warning(f"Not supported rotate type selected! Rotate_id: {rotate_id}")
 
-            def _mask_pillow_image(image: Image):  # massive performance boost after masking!
-                mask = image.copy()
-                mask.putalpha(1)
-                mask.paste(image, (0, 0), image)
-                image = mask.copy()
-                return image
+            mask = pil_img.copy()
+            mask.putalpha(1)
+            mask.paste(pil_img, (0, 0), pil_img)
+            final_pil_image = mask.copy()
 
-            logger.info("[PREVIEW] Creating photo image...")
-            self.ph_img = ImageTk.PhotoImage(_mask_pillow_image(pil_img))
+            self.master.after(0, self._update_canvas_on_main_thread, final_pil_image, preview_img_width,
+                              preview_img_height, start_time)
 
-            logger.info("[PREVIEW] Canvas logic...")
+        except Exception as error:
+            logger.error(f"Error in background thread: {error}")
+            self.master.after(0, lambda: self.master.config(cursor=""))
+
+
+    def _update_canvas_on_main_thread(self, pil_img, width, height, start_time):
+        try:
+            self.ph_img = ImageTk.PhotoImage(pil_img)
+            self.preview_final_pil_image = pil_img
+
             if self.preview_instance:
-                self.preview_instance.destroy()  # destroy canvas to prevent memory leak
+                self.preview_instance.destroy()
 
             self.preview_instance = tk.Canvas(
                 self.image_preview_canvasframe,
                 bg=self.current_background_color.get(),
-                width=preview_img_width,
-                height=preview_img_height,
+                width=width,
+                height=height,
                 highlightthickness=0
             )
 
             self.preview_instance.create_image(
-                preview_img_width,
-                preview_img_height,
+                width,
+                height,
                 anchor="se",
                 image=self.ph_img,
             )
             self.preview_instance.place(x=0, y=0)
+            self.preview_instance.bind('<Motion>', self._mouse_motion_handler)
+            execution_time = time.time() - start_time
+            logger.info(
+                f"[PREVIEW] Image preview for pixel_format={self.gui_params.pixel_format} finished successfully. Time: {round(execution_time, 2)} seconds.")
 
-        except Exception as error:
-            logger.error(f"Error occurred while generating preview... Error: {error}")
+        except Exception as e:
+            logger.error(f"Error updating canvas: {e}")
+        finally:
+            self.master.config(cursor="")
 
-        def _mouse_motion(event):
+    def _mouse_motion_handler(self, event):
 
-            # getting params
-            image_format: ImageFormats = ImageFormats[self.gui_params.pixel_format]
-            compression_id: str = get_compression_id(self.gui_params.compression_type)
-            m_rotate_id = get_rotate_id(self.gui_params.rotate_name)
-            bpp: int = get_bpp_for_image_format(image_format)
-            bytes_per_pixel: float = convert_bpp_to_bytes_per_pixel_float(bpp)
+        # getting params
+        image_format: ImageFormats = ImageFormats[self.gui_params.pixel_format]
+        compression_id: str = get_compression_id(self.gui_params.compression_type)
+        m_rotate_id = get_rotate_id(self.gui_params.rotate_name)
+        bpp: int = get_bpp_for_image_format(image_format)
+        bytes_per_pixel: float = convert_bpp_to_bytes_per_pixel_float(bpp)
 
-            # post-processing logic
-            x = int(math.ceil((event.x + 1) / self.preview_zoom_value))
-            y = int(math.ceil((event.y + 1) / self.preview_zoom_value))
+        # post-processing logic
+        x = int(math.ceil((event.x + 1) / self.preview_zoom_value))
+        y = int(math.ceil((event.y + 1) / self.preview_zoom_value))
 
-            if self.gui_params.vertical_flip_flag:
-                y = self.gui_params.img_height - y + 1
-            if self.gui_params.horizontal_flip_flag:
-                x = self.gui_params.img_width - x + 1
+        if self.gui_params.vertical_flip_flag:
+            y = self.gui_params.img_height - y + 1
+        if self.gui_params.horizontal_flip_flag:
+            x = self.gui_params.img_width - x + 1
 
-            if m_rotate_id == "none":
-                pass
-            elif m_rotate_id == "rotate_90_left":
-                temp_x = x
-                x = self.gui_params.img_width - y + 1
-                y = temp_x
-            elif m_rotate_id == "rotate_90_right":
-                temp_x = x
-                x = y
-                y = self.gui_params.img_height - temp_x + 1
-            elif m_rotate_id == "rotate_180":
-                x = self.gui_params.img_width - x + 1
-                y = self.gui_params.img_height - y + 1
+        if m_rotate_id == "none":
+            pass
+        elif m_rotate_id == "rotate_90_left":
+            temp_x = x
+            x = self.gui_params.img_width - y + 1
+            y = temp_x
+        elif m_rotate_id == "rotate_90_right":
+            temp_x = x
+            x = y
+            y = self.gui_params.img_height - temp_x + 1
+        elif m_rotate_id == "rotate_180":
+            x = self.gui_params.img_width - x + 1
+            y = self.gui_params.img_height - y + 1
+        else:
+            logger.warning(f"Not supported rotate type selected! Rotate_id: {m_rotate_id}")
+
+        self.pixel_x = x
+        self.pixel_y = y
+
+        # pixel offset logic
+        self.pixel_offset = int((
+                                            self.pixel_y - 1) * self.gui_params.img_width * bytes_per_pixel + self.pixel_x * bytes_per_pixel - bytes_per_pixel)
+        pixel_offset_rgba: int = int((self.pixel_y - 1) * self.gui_params.img_width * 4 + self.pixel_x * 4 - 4)
+
+        if self.pixel_offset + bytes_per_pixel <= (self.gui_params.img_end_offset - self.gui_params.img_start_offset):
+
+            self.infobox_pixel_x_label.set_html(self._get_html_for_infobox_label(
+                self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_PIXEL_X), str(self.pixel_x)))
+            self.infobox_pixel_y_label.set_html(self._get_html_for_infobox_label(
+                self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_PIXEL_Y), str(self.pixel_y)))
+
+            if not is_compressed_image_format(image_format) and compression_id == "none":
+                pixel_value: bytearray = self.opened_image.encoded_image_data[
+                    self.pixel_offset: self.pixel_offset + int(bytes_per_pixel)]
+                self.pixel_value_str = convert_bytes_to_hex_string(pixel_value)
+                self.pixel_value_rgba = self.opened_image.decoded_image_data[pixel_offset_rgba: pixel_offset_rgba + 4]
+                self.infobox_pixel_offset_label.set_html(self._get_html_for_infobox_label(
+                    self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_PIXEL_OFFSET),
+                    str(self.pixel_offset)))
+                self.infobox_pixel_value_hex_label.set_html(self._get_html_for_infobox_pixel_value_label(
+                    self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_PIXEL_VALUE), self.pixel_value_str,
+                    self.pixel_value_rgba))
             else:
-                logger.warning(f"Not supported rotate type selected! Rotate_id: {m_rotate_id}")
-
-            self.pixel_x = x
-            self.pixel_y = y
-
-            # pixel offset logic
-            self.pixel_offset = int((self.pixel_y - 1) * self.gui_params.img_width * bytes_per_pixel + self.pixel_x * bytes_per_pixel - bytes_per_pixel)
-            pixel_offset_rgba: int = int((self.pixel_y - 1) * self.gui_params.img_width * 4 + self.pixel_x * 4 - 4)
-
-            if self.pixel_offset + bytes_per_pixel <= (self.gui_params.img_end_offset - self.gui_params.img_start_offset):
-
-                self.infobox_pixel_x_label.set_html(self._get_html_for_infobox_label(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_PIXEL_X), str(self.pixel_x)))
-                self.infobox_pixel_y_label.set_html(self._get_html_for_infobox_label(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_PIXEL_Y), str(self.pixel_y)))
-
-                if not is_compressed_image_format(image_format) and compression_id == "none":
-                    pixel_value: bytearray = self.opened_image.encoded_image_data[self.pixel_offset: self.pixel_offset + int(bytes_per_pixel)]
-                    self.pixel_value_str = convert_bytes_to_hex_string(pixel_value)
-                    self.pixel_value_rgba = self.opened_image.decoded_image_data[pixel_offset_rgba: pixel_offset_rgba + 4]
-                    self.infobox_pixel_offset_label.set_html(self._get_html_for_infobox_label(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_PIXEL_OFFSET), str(self.pixel_offset)))
-                    self.infobox_pixel_value_hex_label.set_html(self._get_html_for_infobox_pixel_value_label(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_PIXEL_VALUE), self.pixel_value_str, self.pixel_value_rgba))
-                else:
-                    self.infobox_pixel_offset_label.set_html(self._get_html_for_infobox_label(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_PIXEL_OFFSET), "n/a"))
-                    self.infobox_pixel_value_hex_label.set_html(self._get_html_for_infobox_label(self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_PIXEL_VALUE), "n/a"))
-
-        # assign final preview values
-        self.preview_final_pil_image = pil_img
-
-        self.preview_instance.bind('<Motion>', _mouse_motion)
-        execution_time = time.time() - start_time
-        logger.info(f"[PREVIEW] Image preview for pixel_format={self.gui_params.pixel_format} finished successfully. Time: {round(execution_time, 2)} seconds.")
-        return True
+                self.infobox_pixel_offset_label.set_html(self._get_html_for_infobox_label(
+                    self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_PIXEL_OFFSET), "n/a"))
+                self.infobox_pixel_value_hex_label.set_html(self._get_html_for_infobox_label(
+                    self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_PIXEL_VALUE), "n/a"))
 
 # fmt: on
