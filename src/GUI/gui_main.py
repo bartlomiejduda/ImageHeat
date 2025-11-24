@@ -975,12 +975,9 @@ class ImageHeatGUI():
             label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_LANGUAGE),
             menu=self.languagemenu)
 
-        self.languagemenu.add_radiobutton(
-            label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_LANGUAGE_EN),
-            variable=self.current_program_language, value="EN", command=lambda: self.set_program_language())
-        self.languagemenu.add_radiobutton(
-            label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_LANGUAGE_PL),
-            variable=self.current_program_language, value="PL", command=lambda: self.set_program_language())
+        self.languagemenu.add_radiobutton(label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_LANGUAGE_EN), variable=self.current_program_language, value="EN", command=lambda: self.set_program_language())
+        self.languagemenu.add_radiobutton(label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_LANGUAGE_PL), variable=self.current_program_language, value="PL", command=lambda: self.set_program_language())
+        self.languagemenu.add_radiobutton(label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_LANGUAGE_UA),variable=self.current_program_language, value="UA", command=lambda: self.set_program_language())
 
         self.backgroundmenu = tk.Menu(self.optionsmenu, tearoff=0)
         self.optionsmenu.add_cascade(
@@ -1131,25 +1128,17 @@ class ImageHeatGUI():
         self.filemenu.entryconfigure(4, label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_FILEMENU_QUIT))
         self.menubar.entryconfigure(1, label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_FILEMENU_FILE))
 
-        self.optionsmenu.entryconfigure(0, label=self.get_translation_text(
-            TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_LANGUAGE))
-        self.optionsmenu.entryconfigure(1, label=self.get_translation_text(
-            TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_BACKGROUND_COLOR))
-        self.languagemenu.entryconfigure(0, label=self.get_translation_text(
-            TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_LANGUAGE_EN))
-        self.languagemenu.entryconfigure(1, label=self.get_translation_text(
-            TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_LANGUAGE_PL))
-        self.backgroundmenu.entryconfigure(0, label=self.get_translation_text(
-            TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_BACKGROUND_GRAY))
-        self.backgroundmenu.entryconfigure(1, label=self.get_translation_text(
-            TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_BACKGROUND_BLACK))
-        self.backgroundmenu.entryconfigure(2, label=self.get_translation_text(
-            TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_BACKGROUND_WHITE))
-        self.menubar.entryconfigure(2, label=self.get_translation_text(
-            TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_OPTIONS))
+        self.optionsmenu.entryconfigure(0, label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_LANGUAGE))
+        self.optionsmenu.entryconfigure(1, label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_BACKGROUND_COLOR))
+        self.languagemenu.entryconfigure(0, label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_LANGUAGE_EN))
+        self.languagemenu.entryconfigure(1, label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_LANGUAGE_PL))
+        self.languagemenu.entryconfigure(2, label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_LANGUAGE_UA))
+        self.backgroundmenu.entryconfigure(0, label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_BACKGROUND_GRAY))
+        self.backgroundmenu.entryconfigure(1, label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_BACKGROUND_BLACK))
+        self.backgroundmenu.entryconfigure(2, label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_BACKGROUND_WHITE))
+        self.menubar.entryconfigure(2, label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_OPTIONS))
 
-        self.helpmenu.entryconfigure(0,
-                                     label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_HELPMENU_ABOUT))
+        self.helpmenu.entryconfigure(0, label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_HELPMENU_ABOUT))
         self.menubar.entryconfigure(3, label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_HELPMENU_HELP))
 
         # save current language to config file
