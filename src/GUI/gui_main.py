@@ -1624,7 +1624,7 @@ class ImageHeatGUI():
 
     def execute_image_preview_logic(self) -> bool:
         logger.info("[PREVIEW] Init image preview...")
-        start_time = time.time()  # 1. Фіксуємо час старту
+        start_time = time.time()
 
         self.master.config(cursor="watch")
 
