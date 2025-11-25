@@ -8,8 +8,8 @@ import math
 import os
 import platform
 import sys
-import time
 import threading
+import time
 import tkinter as tk
 from configparser import ConfigParser
 from idlelib.tooltip import Hovertip
@@ -18,7 +18,6 @@ from typing import List, Optional
 
 from PIL import Image, ImageTk
 from PIL.Image import Transpose
-
 from reversebox.common.common import (
     convert_bytes_to_hex_string,
     convert_from_bytes_to_mb_string,
@@ -220,10 +219,6 @@ class ImageHeatGUI():
             self.master.focus()
 
         def _double_width_by_shortcut(event):
-            focused_widget = self.master.focus_get()
-            if isinstance(focused_widget, (tk.Spinbox, tk.Entry, ttk.Entry, ttk.Combobox)):
-                return
-
             if event.state & 5:
                 return  # skip SHIFT or CTRL
 
@@ -975,9 +970,12 @@ class ImageHeatGUI():
             label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_LANGUAGE),
             menu=self.languagemenu)
 
-        self.languagemenu.add_radiobutton(label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_LANGUAGE_EN), variable=self.current_program_language, value="EN", command=lambda: self.set_program_language())
-        self.languagemenu.add_radiobutton(label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_LANGUAGE_PL), variable=self.current_program_language, value="PL", command=lambda: self.set_program_language())
-        self.languagemenu.add_radiobutton(label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_LANGUAGE_UA),variable=self.current_program_language, value="UA", command=lambda: self.set_program_language())
+        self.languagemenu.add_radiobutton(label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_LANGUAGE_EN),
+                                          variable=self.current_program_language, value="EN", command=lambda: self.set_program_language())
+        self.languagemenu.add_radiobutton(label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_LANGUAGE_PL),
+                                          variable=self.current_program_language, value="PL", command=lambda: self.set_program_language())
+        self.languagemenu.add_radiobutton(label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_LANGUAGE_UA),
+                                          variable=self.current_program_language, value="UA", command=lambda: self.set_program_language())
 
         self.backgroundmenu = tk.Menu(self.optionsmenu, tearoff=0)
         self.optionsmenu.add_cascade(
