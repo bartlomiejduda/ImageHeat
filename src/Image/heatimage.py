@@ -141,8 +141,10 @@ class HeatImage:
                 self.encoded_image_data = decompress_rle_tzar(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_bpp)
             elif compression_id == "rle_leapster":
                 self.encoded_image_data = decompress_rle_leapster(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_bpp)
-            elif compression_id == "lz4":
+            elif compression_id == "lz4_frame":
                 self.encoded_image_data = LZ4Handler().decompress_data(self.encoded_image_data)
+            elif compression_id == "lz4_block":
+                self.encoded_image_data = LZ4Handler().decompress_raw_block_data(self.encoded_image_data)
             else:
                 logger.error(f"Compression type not supported! Type: {compression_id}")
         except Exception as error:

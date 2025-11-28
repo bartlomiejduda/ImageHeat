@@ -166,7 +166,8 @@ SUPPORTED_COMPRESSION_TYPES: list[CompressionType] = [
     CompressionType(display_name="Neversoft RLE", unique_id="rle_neversoft"),
     CompressionType(display_name="Tzar RLE", unique_id="rle_tzar"),
     CompressionType(display_name="Leapster RLE", unique_id="rle_leapster"),
-    CompressionType(display_name="LZ4", unique_id="lz4"),
+    CompressionType(display_name="LZ4 (Frame)", unique_id="lz4_frame"),
+    CompressionType(display_name="LZ4 (Block)", unique_id="lz4_block"),
 ]
 
 SUPPORTED_ENDIANESS_TYPES: list[EndianessType] = [
