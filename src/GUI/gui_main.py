@@ -490,8 +490,8 @@ class ImageHeatGUI():
                 self.pixel_format_combobox.current(0)
             self.reload_image_callback(event)
 
-        self.master.bind("<z>", _get_previous_pixel_format_by_key)
-        self.master.bind("<x>", _get_next_pixel_format_by_key)
+        self.master.bind("<r>", _get_previous_pixel_format_by_key)
+        self.master.bind("<t>", _get_next_pixel_format_by_key)
 
         ####################################
         # IMAGE PARAMETERS - ENDIANESS     #
@@ -521,7 +521,7 @@ class ImageHeatGUI():
                 self.endianess_combobox.current(0)
             self.reload_image_callback(event)
 
-        self.master.bind("<e>", _get_next_endianess_type_by_key)
+        self.master.bind("<y>", _get_next_endianess_type_by_key)
 
         ####################################
         # IMAGE PARAMETERS - SWIZZLING     #
