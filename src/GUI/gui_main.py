@@ -480,10 +480,6 @@ class ImageHeatGUI():
             self.reload_image_callback(event)
 
         def _get_next_pixel_format_by_key(event):
-            focused_widget = self.master.focus_get()
-            if isinstance(focused_widget, (tk.Spinbox, tk.Entry, ttk.Entry, ttk.Combobox)):
-                return
-
             if event.state & 5:
                 return  # skip SHIFT or CTRL
 
@@ -515,10 +511,6 @@ class ImageHeatGUI():
         self.endianess_combobox.set(DEFAULT_ENDIANESS_NAME)
 
         def _get_next_endianess_type_by_key(event):
-            focused_widget = self.master.focus_get()
-            if isinstance(focused_widget, (tk.Spinbox, tk.Entry, ttk.Entry, ttk.Combobox)):
-                return
-
             if event.state & 5:
                 return  # skip SHIFT or CTRL
 
