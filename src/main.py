@@ -6,6 +6,7 @@ License: GPL-3.0 License
 # Program tested on Python 3.11.6
 
 import os
+import sys
 from typing import Final
 
 import center_tk_window
@@ -14,11 +15,14 @@ from reversebox.common.logger import get_logger
 from src.GUI.gui_main import ImageHeatGUI
 from src.GUI.gui_root import ImageHeatRoot
 
-VERSION_NUM: Final[str] = "v0.39.2"
+VERSION_NUM: Final[str] = "v0.39.3"
 
 logger = get_logger("main")
 
-MAIN_DIRECTORY = os.getcwd()
+if getattr(sys, "frozen", False):
+    MAIN_DIRECTORY = os.path.dirname(sys.executable)
+else:
+    MAIN_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 
 
 def main():

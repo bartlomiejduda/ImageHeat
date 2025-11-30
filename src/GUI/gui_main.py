@@ -127,7 +127,7 @@ class ImageHeatGUI():
 
         # user config logic
         self.user_config = ConfigParser()
-        self.user_config_file_name: str = "config.ini"
+        self.user_config_file_path: str = os.path.join(self.MAIN_DIRECTORY, "config.ini")
         self.user_config.add_section("config")
         self.user_config.set("config", ConfigKeys.SAVE_AS_DIRECTORY_PATH, "")
         self.user_config.set("config", ConfigKeys.SAVE_RAW_DATA_DIRECTORY_PATH, "")
@@ -135,11 +135,11 @@ class ImageHeatGUI():
         self.user_config.set("config", ConfigKeys.OPEN_PALETTE_DIRECTORY_PATH, "")
         self.user_config.set("config", ConfigKeys.CURRENT_PROGRAM_LANGUAGE, "EN")
         self.user_config.set("config", ConfigKeys.CURRENT_CANVAS_COLOR, "#595959")
-        if not os.path.exists(self.user_config_file_name):
-            with open(self.user_config_file_name, "w") as configfile:
+        if not os.path.exists(self.user_config_file_path):
+            with open(self.user_config_file_path, "w") as configfile:
                 self.user_config.write(configfile)
 
-        self.user_config.read(self.user_config_file_name)
+        self.user_config.read(self.user_config_file_path)
         try:
             self.current_save_as_directory_path = self.user_config.get("config", ConfigKeys.SAVE_AS_DIRECTORY_PATH)
             self.current_save_raw_data_directory_path = self.user_config.get("config",
@@ -1136,7 +1136,7 @@ class ImageHeatGUI():
 
         # save current language to config file
         self.user_config.set("config", ConfigKeys.CURRENT_PROGRAM_LANGUAGE, self.current_program_language.get())
-        with open(self.user_config_file_name, "w") as configfile:
+        with open(self.user_config_file_path, "w") as configfile:
             self.user_config.write(configfile)
 
     def reload_image_callback(self, event):
@@ -1151,7 +1151,7 @@ class ImageHeatGUI():
 
         try:
             self.user_config.set("config", ConfigKeys.CURRENT_CANVAS_COLOR, self.current_background_color.get())
-            with open(self.user_config_file_name, "w") as configfile:
+            with open(self.user_config_file_path, "w") as configfile:
                 self.user_config.write(configfile)
         except Exception:
             pass
@@ -1388,7 +1388,7 @@ class ImageHeatGUI():
                     self.current_open_file_directory_path = selected_directory  # set directory path from history
                     self.user_config.set("config", ConfigKeys.OPEN_FILE_DIRECTORY_PATH,
                                          selected_directory)  # save directory path to config file
-                    with open(self.user_config_file_name, "w") as configfile:
+                    with open(self.user_config_file_path, "w") as configfile:
                         self.user_config.write(configfile)
                 except Exception:
                     pass
@@ -1435,7 +1435,7 @@ class ImageHeatGUI():
                 self.current_open_palette_directory_path = selected_directory  # set directory path from history
                 self.user_config.set("config", ConfigKeys.OPEN_PALETTE_DIRECTORY_PATH,
                                      selected_directory)  # save directory path to config file
-                with open(self.user_config_file_name, "w") as configfile:
+                with open(self.user_config_file_path, "w") as configfile:
                     self.user_config.write(configfile)
             except Exception:
                 pass
@@ -1480,7 +1480,7 @@ class ImageHeatGUI():
                     self.current_save_as_directory_path = selected_directory  # set directory path from history
                     self.user_config.set("config", ConfigKeys.SAVE_AS_DIRECTORY_PATH,
                                          selected_directory)  # save directory path to config file
-                    with open(self.user_config_file_name, "w") as configfile:
+                    with open(self.user_config_file_path, "w") as configfile:
                         self.user_config.write(configfile)
                 except Exception:
                     pass
@@ -1532,7 +1532,7 @@ class ImageHeatGUI():
                     self.current_save_raw_data_directory_path = selected_directory  # set directory path from history
                     self.user_config.set("config", ConfigKeys.SAVE_RAW_DATA_DIRECTORY_PATH,
                                          selected_directory)  # save directory path to config file
-                    with open(self.user_config_file_name, "w") as configfile:
+                    with open(self.user_config_file_path, "w") as configfile:
                         self.user_config.write(configfile)
                 except Exception:
                     pass
