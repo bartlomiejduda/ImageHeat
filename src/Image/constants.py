@@ -135,6 +135,7 @@ SUPPORTED_SWIZZLING_TYPES: list[SwizzlingType] = [
     SwizzlingType(display_name="DC / PS Vita (8x8)", unique_id="dreamcast_psvita_8x8"),
     SwizzlingType(display_name="PS4 (Morton)", unique_id="ps4"),
     SwizzlingType(display_name="PS4 (padding)", unique_id="ps4_padding"),
+    SwizzlingType(display_name="PS5", unique_id="ps5"),
     SwizzlingType(display_name="Nintendo Switch (4,4)", unique_id="nintendo_switch_4_4"),
     SwizzlingType(display_name="Nintendo Switch (4,8)", unique_id="nintendo_switch_4_8"),
     SwizzlingType(display_name="Nintendo Switch (1,16)", unique_id="nintendo_switch_1_16"),

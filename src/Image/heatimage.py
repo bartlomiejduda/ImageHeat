@@ -34,6 +34,7 @@ from reversebox.image.swizzling.swizzle_bc import unswizzle_bc
 from reversebox.image.swizzling.swizzle_gamecube import unswizzle_gamecube
 from reversebox.image.swizzling.swizzle_morton import unswizzle_morton
 from reversebox.image.swizzling.swizzle_morton_ps4 import unswizzle_ps4
+from reversebox.image.swizzling.swizzle_morton_ps5 import unswizzle_ps5
 from reversebox.image.swizzling.swizzle_ps2 import unswizzle_ps2
 from reversebox.image.swizzling.swizzle_psp import unswizzle_psp
 from reversebox.image.swizzling.swizzle_psvita_dreamcast import (
@@ -176,6 +177,8 @@ class HeatImage:
             self.gui_params.img_width = calculate_aligned_value(self.gui_params.img_width, 32)
             self.gui_params.img_height = calculate_aligned_value(self.gui_params.img_height, 32)
             self.encoded_image_data = unswizzle_ps4(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, block_width=4, block_height=4, block_data_size=get_block_data_size(image_format))
+        elif swizzling_id == "ps5":
+            self.encoded_image_data = unswizzle_ps5(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, block_width=4, block_height=4, block_data_size=get_block_data_size(image_format))
         elif swizzling_id == "nintendo_switch_4_4":
             self.encoded_image_data = unswizzle_switch(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, bytes_per_block=4, block_height=4)
         elif swizzling_id == "nintendo_switch_4_8":
