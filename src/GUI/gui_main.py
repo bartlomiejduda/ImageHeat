@@ -917,6 +917,35 @@ class ImageHeatGUI():
         self.image_preview_canvasframe = tk.Frame(self.image_preview_labelframe)
         self.image_preview_canvasframe.place(x=5, y=5, relwidth=1, relheight=1, height=-10, width=-10)
 
+        # --- SCROLLBAR LOGIC ---
+        # set grid configuration
+        self.image_preview_canvasframe.grid_rowconfigure(0, weight=1)
+        self.image_preview_canvasframe.grid_columnconfigure(0, weight=1)
+
+        # create canvas
+        self.preview_instance = tk.Canvas(
+            self.image_preview_canvasframe,
+            bg="#f0f0f0",
+            highlightthickness=0
+        )
+        self.preview_instance.grid(row=0, column=0, sticky="nsew")
+
+        # vertical scrollbar
+        self.v_scroll = tk.Scrollbar(self.image_preview_canvasframe, orient="vertical",
+                                     command=self.preview_instance.yview)
+        self.v_scroll.grid(row=0, column=1, sticky="ns")
+
+        # horizontal scrollbar
+        self.h_scroll = tk.Scrollbar(self.image_preview_canvasframe, orient="horizontal",
+                                     command=self.preview_instance.xview)
+        self.h_scroll.grid(row=1, column=0, sticky="ew")
+
+        # bind scrollbars to canvas
+        self.preview_instance.configure(yscrollcommand=self.v_scroll.set, xscrollcommand=self.h_scroll.set)
+
+        # bind mouse wheel to scroll
+        self.preview_instance.bind('<Motion>', self._mouse_motion_handler)
+
         ###############################################################################################################
         ############ menu
         ###############################################################################################################
@@ -1625,26 +1654,25 @@ class ImageHeatGUI():
         pil_img = Image.open(self.preview_image_path)
         pil_img = pil_img.resize((500, 367))
 
-        if self.preview_instance:
-            self.preview_instance.destroy()  # destroy canvas to prevent memory leak
-
-        self.preview_instance = tk.Canvas(
-            self.image_preview_canvasframe,
-            bg="#595959",
-            width=pil_img.width,
-            height=pil_img.height,
-            highlightthickness=0
-        )
+        self.preview_instance.delete("all")
+        # canvas image must be kept as instance variable to prevent garbage collection
 
         self.ph_img = ImageTk.PhotoImage(pil_img)
 
+        # drawing rectangle as background
+        self.preview_instance.create_rectangle(
+            0, 0, pil_img.width, pil_img.height,
+            fill="#595959",
+            outline=""
+        )
+
         self.preview_instance.create_image(
-            int(pil_img.width),
-            int(pil_img.height),
-            anchor="se",
+            0,
+            0,
+            anchor="nw",
             image=self.ph_img,
         )
-        self.preview_instance.place(x=0, y=0)
+        self.preview_instance.configure(scrollregion=(0, 0, pil_img.width, pil_img.height))
 
         return True
 
@@ -1727,34 +1755,38 @@ class ImageHeatGUI():
             logger.error(f"Error in background thread: {error}")
             self.master.after(0, lambda: self.master.config(cursor=""))
 
-
     def _update_canvas_on_main_thread(self, pil_img, width, height, start_time):
         try:
             self.ph_img = ImageTk.PhotoImage(pil_img)
             self.preview_final_pil_image = pil_img
 
-            if self.preview_instance:
-                self.preview_instance.destroy()
+            # clearing the canvas instead of destroying
+            self.preview_instance.delete("all")
 
-            self.preview_instance = tk.Canvas(
-                self.image_preview_canvasframe,
-                bg=self.current_background_color.get(),
-                width=width,
-                height=height,
-                highlightthickness=0
+            # updating background color
+            user_chosen_bg = self.current_background_color.get()
+
+            # drawing rectangle as background
+            self.preview_instance.create_rectangle(
+                0, 0, width, height,
+                fill=user_chosen_bg,
+                outline=""  # Без рамок
             )
 
+            # creating image at top-left corner (nw) at point 0,0
             self.preview_instance.create_image(
                 width,
                 height,
                 anchor="se",
                 image=self.ph_img,
             )
-            self.preview_instance.place(x=0, y=0)
-            self.preview_instance.bind('<Motion>', self._mouse_motion_handler)
+
+            # setting scroll region to image size
+            self.preview_instance.configure(scrollregion=(0, 0, width, height))
+
             execution_time = time.time() - start_time
-            logger.info(
-                f"[PREVIEW] Image preview for pixel_format={self.gui_params.pixel_format} finished successfully. Time: {round(execution_time, 2)} seconds.")
+            logger.info(f"[PREVIEW] Image preview for pixel_format={self.gui_params.pixel_format}"
+                        f" finished successfully. Time: {round(execution_time, 2)} seconds.")
 
         except Exception as e:
             logger.error(f"Error updating canvas: {e}")
@@ -1762,7 +1794,8 @@ class ImageHeatGUI():
             self.master.config(cursor="")
 
     def _mouse_motion_handler(self, event):
-
+        if self.opened_image is None or not self.gui_params.pixel_format:
+            return
         # getting params
         image_format: ImageFormats = ImageFormats[self.gui_params.pixel_format]
         compression_id: str = get_compression_id(self.gui_params.compression_type)
@@ -1771,8 +1804,11 @@ class ImageHeatGUI():
         bytes_per_pixel: float = convert_bpp_to_bytes_per_pixel_float(bpp)
 
         # post-processing logic
-        x = int(math.ceil((event.x + 1) / self.preview_zoom_value))
-        y = int(math.ceil((event.y + 1) / self.preview_zoom_value))
+        canvas_x = self.preview_instance.canvasx(event.x)
+        canvas_y = self.preview_instance.canvasy(event.y)
+
+        x = int(math.ceil((canvas_x + 1) / self.preview_zoom_value))
+        y = int(math.ceil((canvas_y + 1) / self.preview_zoom_value))
 
         if self.gui_params.vertical_flip_flag:
             y = self.gui_params.img_height - y + 1
@@ -1799,8 +1835,8 @@ class ImageHeatGUI():
         self.pixel_y = y
 
         # pixel offset logic
-        self.pixel_offset = int((
-                                            self.pixel_y - 1) * self.gui_params.img_width * bytes_per_pixel + self.pixel_x * bytes_per_pixel - bytes_per_pixel)
+        self.pixel_offset = int((self.pixel_y - 1) * self.gui_params.img_width * bytes_per_pixel +
+                                self.pixel_x * bytes_per_pixel - bytes_per_pixel)
         pixel_offset_rgba: int = int((self.pixel_y - 1) * self.gui_params.img_width * 4 + self.pixel_x * 4 - 4)
 
         if self.pixel_offset + bytes_per_pixel <= (self.gui_params.img_end_offset - self.gui_params.img_start_offset):
