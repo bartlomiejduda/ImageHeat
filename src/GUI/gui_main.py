@@ -1540,11 +1540,19 @@ class ImageHeatGUI():
                         TranslationKeys.TRANSLATION_TEXT_POPUPS_EMPTY_IMAGE_DATA))
                     return False
 
-            out_file.write(out_data)
-            out_file.close()
-            messagebox.showinfo("Info", self.get_translation_text(
-                TranslationKeys.TRANSLATION_TEXT_POPUPS_FILE_SAVED_SUCCESSFULLY))
-            logger.info(f"Image has been exported successfully to {out_file.name}")
+                out_file.write(out_data)
+                out_file.close()
+                messagebox.showinfo("Info", self.get_translation_text(
+                    TranslationKeys.TRANSLATION_TEXT_POPUPS_FILE_SAVED_SUCCESSFULLY))
+                logger.info(f"Image has been exported successfully to {out_file.name}")
+
+            except Exception as e:
+                logger.error(f"Failed to process image for export: {e}")
+                messagebox.showerror("Error", f"Failed to export image: {e}")
+                if out_file:
+                    out_file.close()
+                return False
+
         else:
             logger.info("Image is not opened yet...")
 
