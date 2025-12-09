@@ -1775,9 +1775,9 @@ class ImageHeatGUI():
 
             # creating image at top-left corner (nw) at point 0,0
             self.preview_instance.create_image(
-                width,
-                height,
-                anchor="se",
+                0,
+                0,
+                anchor="nw",
                 image=self.ph_img,
             )
 
