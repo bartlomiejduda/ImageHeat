@@ -1495,17 +1495,50 @@ class ImageHeatGUI():
             if out_file is None:
                 return False  # user closed file dialog on purpose
 
-            # pack converted RGBA data
-            file_extension: str = get_file_extension_uppercase(out_file.name)
-            pillow_wrapper = PillowWrapper()
-            out_data = pillow_wrapper.get_pil_image_file_data_for_export2(
-                self.preview_final_pil_image, pillow_format=file_extension
-            )
-            if not out_data:
-                logger.error("Empty data to export!")
-                messagebox.showwarning("Warning", self.get_translation_text(
-                    TranslationKeys.TRANSLATION_TEXT_POPUPS_EMPTY_IMAGE_DATA))
-                return False
+            try:
+                 # generate full size image from raw data
+                orig_width = int(self.gui_params.img_width)
+                orig_height = int(self.gui_params.img_height)
+                raw_data = self.opened_image.decoded_image_data
+
+                # create a new PIL image from raw data not scaling it
+                # pack converted RGBA data
+                export_pil_img = Image.frombuffer(
+                        "RGBA",
+                        (orig_width, orig_height),
+                        raw_data,
+                        "raw",
+                        "RGBA",
+                        0,
+                        1,
+                )
+
+                # apply post-processing transformations
+                if self.gui_params.vertical_flip_flag:
+                        export_pil_img = export_pil_img.transpose(Transpose.FLIP_TOP_BOTTOM)
+                if self.gui_params.horizontal_flip_flag:
+                        export_pil_img = export_pil_img.transpose(Transpose.FLIP_LEFT_RIGHT)
+
+                rotate_id = get_rotate_id(self.gui_params.rotate_name)
+                if rotate_id == "rotate_90_left":
+                    export_pil_img = export_pil_img.transpose(Transpose.ROTATE_90)
+                elif rotate_id == "rotate_90_right":
+                    export_pil_img = export_pil_img.transpose(Transpose.ROTATE_270)
+                elif rotate_id == "rotate_180":
+                    export_pil_img = export_pil_img.transpose(Transpose.ROTATE_180)
+
+                # exporting
+                file_extension: str = get_file_extension_uppercase(out_file.name)
+                pillow_wrapper = PillowWrapper()
+
+                out_data = pillow_wrapper.get_pil_image_file_data_for_export2(
+                    export_pil_img, pillow_format=file_extension)
+
+                if not out_data:
+                    logger.error("Empty data to export!")
+                    messagebox.showwarning("Warning", self.get_translation_text(
+                        TranslationKeys.TRANSLATION_TEXT_POPUPS_EMPTY_IMAGE_DATA))
+                    return False
 
             out_file.write(out_data)
             out_file.close()
