@@ -828,7 +828,7 @@ class ImageHeatGUI():
 
         self.postprocessing_labelframe = tk.LabelFrame(self.main_frame, text=self.get_translation_text(
             TranslationKeys.TRANSLATION_TEXT_POST_PROCESSING_LABELFRAME), font=self.gui_font)
-        self.postprocessing_labelframe.place(x=-200, y=365, width=195, height=150, relx=1)
+        self.postprocessing_labelframe.place(x=-200, y=365, width=195, height=180, relx=1)
 
         # zoom
         self.postprocessing_zoom_label = tk.Label(self.postprocessing_labelframe, text=self.get_translation_text(
@@ -908,6 +908,44 @@ class ImageHeatGUI():
         self.postprocessing_rotate_combobox.bind("<<ComboboxSelected>>", self.reload_image_callback)
         self.postprocessing_rotate_combobox.place(x=50, y=100, width=110, height=20)
         self.postprocessing_rotate_combobox.set(DEFAULT_ROTATE_NAME)
+
+        # channels
+        self.postprocessing_channels_label = tk.Label(self.postprocessing_labelframe,
+                                                      text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_POST_PROCESSING_CHANNELS),
+                                                      anchor="w", font=self.gui_font)
+        self.postprocessing_channels_label.place(x=5, y=125, width=60, height=20)
+
+        self.postprocessing_channel_var = tk.StringVar(value="RGBA")
+
+        # all channels button
+        self.rb_all = tk.Radiobutton(self.postprocessing_labelframe, text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_POST_PROCESSING_CHANNELS_ALL), variable=self.postprocessing_channel_var,
+                                value="RGBA", font=('Arial', 7), indicatoron=False,
+                                command=self.gui_reload_image_on_gui_element_change)
+        self.rb_all.place(x=60, y=125, width=25, height=20)
+
+        # red button
+        rb_r = tk.Radiobutton(self.postprocessing_labelframe, text="R", variable=self.postprocessing_channel_var,
+                              value="R", font=('Arial', 7), indicatoron=False, fg="red",
+                              command=self.gui_reload_image_on_gui_element_change)
+        rb_r.place(x=87, y=125, width=20, height=20)
+
+        # green button
+        rb_g = tk.Radiobutton(self.postprocessing_labelframe, text="G", variable=self.postprocessing_channel_var,
+                              value="G", font=('Arial', 7), indicatoron=False, fg="green",
+                              command=self.gui_reload_image_on_gui_element_change)
+        rb_g.place(x=109, y=125, width=20, height=20)
+
+        # blue button
+        rb_b = tk.Radiobutton(self.postprocessing_labelframe, text="B", variable=self.postprocessing_channel_var,
+                              value="B", font=('Arial', 7), indicatoron=False, fg="blue",
+                              command=self.gui_reload_image_on_gui_element_change)
+        rb_b.place(x=131, y=125, width=20, height=20)
+
+        # alpha button
+        rb_a = tk.Radiobutton(self.postprocessing_labelframe, text="A", variable=self.postprocessing_channel_var,
+                              value="A", font=('Arial', 7), indicatoron=False,
+                              command=self.gui_reload_image_on_gui_element_change)
+        rb_a.place(x=153, y=125, width=20, height=20)
 
         ########################
         # IMAGE BOX            #
@@ -1147,6 +1185,10 @@ class ImageHeatGUI():
             text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_POST_PROCESSING_HORIZONTAL_FLIP))
         self.postprocessing_rotate_label.config(
             text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_POST_PROCESSING_ROTATE))
+        self.postprocessing_channels_label.config(
+            text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_POST_PROCESSING_CHANNELS))
+        self.rb_all.config(
+            text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_POST_PROCESSING_CHANNELS_ALL))
 
         self.filemenu.entryconfigure(0, label=self.get_translation_text(
             TranslationKeys.TRANSLATION_TEXT_FILEMENU_OPEN_FILE))
@@ -1326,6 +1368,7 @@ class ImageHeatGUI():
         self.gui_params.horizontal_flip_flag = self.checkbox_value_to_bool(
             self.postprocessing_horizontal_flip_variable.get())
         self.gui_params.rotate_name = self.postprocessing_rotate_combobox.get()
+        self.gui_params.view_channel_mode = self.postprocessing_channel_var.get()
 
         return True
 
@@ -1395,6 +1438,7 @@ class ImageHeatGUI():
         self.postprocessing_horizontal_flip_variable.set("OFF")
         self.postprocessing_horizontal_flip_checkbutton.deselect()
         self.postprocessing_rotate_combobox.set(DEFAULT_ROTATE_NAME)
+        self.postprocessing_channel_var.set("RGBA")
 
         return True
 
@@ -1786,10 +1830,42 @@ class ImageHeatGUI():
             elif rotate_id == "rotate_180":
                 pil_img = pil_img.transpose(Transpose.ROTATE_180)
 
-            mask = pil_img.copy()
-            mask.putalpha(1)
-            mask.paste(pil_img, (0, 0), pil_img)
-            final_pil_image = mask.copy()
+            channel_mode = getattr(self.gui_params, 'view_channel_mode', 'RGBA')
+
+            final_pil_image = None
+
+            if channel_mode == "RGBA":
+                # default logic for normal viewing
+                mask = pil_img.copy()
+                mask.putalpha(1)
+                mask.paste(pil_img, (0, 0), pil_img)
+                final_pil_image = mask.copy()
+            else:
+                # logic for single channel viewing
+                try:
+                    # check if channel exists in image
+                    bands = pil_img.getbands()
+                    if channel_mode in bands:
+                        # getchannel returns a single band image
+                        final_pil_image = pil_img.getchannel(channel_mode)
+
+                        # convert to RGB to display properly
+                        # for R, G, B channels, we create an RGB image with only that channel
+                        final_pil_image = final_pil_image.convert("RGB")
+
+                    elif channel_mode == "A":
+                        # if alpha channel not found, create a white image
+                        final_pil_image = Image.new("RGB", pil_img.size, (255, 255, 255))
+
+                    else:
+                        # if channel not found, fallback to normal image
+                        temp_rgb = pil_img.convert("RGB")
+                        final_pil_image = temp_rgb.getchannel(channel_mode).convert("RGB")
+
+                except Exception as e:
+                    logger.error(f"Error extracting channel {channel_mode}: {e}")
+                    # Fallback to normal image
+                    final_pil_image = pil_img.convert("RGB")
 
             self.master.after(0, self._update_canvas_on_main_thread, final_pil_image, preview_img_width,
                               preview_img_height, start_time)

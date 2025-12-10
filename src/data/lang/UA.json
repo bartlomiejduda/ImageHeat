@@ -79,6 +79,8 @@
     "TRANSLATION_TEXT_POST_PROCESSING_VERTICAL_FLIP": "Вертикальне відображення (зверху/вниз)",
     "TRANSLATION_TEXT_POST_PROCESSING_HORIZONTAL_FLIP": "Горизонтальне відображення (ліворуч/праворуч)",
     "TRANSLATION_TEXT_POST_PROCESSING_ROTATE": "Повернути",
+    "TRANSLATION_TEXT_POST_PROCESSING_CHANNELS" : "Канали:",
+    "TRANSLATION_TEXT_POST_PROCESSING_CHANNELS_ALL": "Всі",
 
     "TRANSLATION_TEXT_FILEMENU_OPEN_FILE": "Відкрити файл",
     "TRANSLATION_TEXT_FILEMENU_SAVE_AS": "Зберегти як...",
