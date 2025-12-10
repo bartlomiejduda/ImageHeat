@@ -16,7 +16,7 @@ from idlelib.tooltip import Hovertip
 from tkinter import filedialog, messagebox, ttk
 from typing import List, Optional
 
-from PIL import Image, ImageTk
+from PIL import Image, ImageTk, ImageDraw
 from PIL.Image import Transpose
 from reversebox.common.common import (
     convert_bytes_to_hex_string,
@@ -103,6 +103,8 @@ class ImageHeatGUI():
         self.preview_instance = None
         self.ph_img = None
         self.preview_final_pil_image = None
+        self.checkerboard_cache = None  # checkerboard pattern cache
+        self.bg_ph_img = None  # reference to background image
         self.validate_spinbox_command = (master.register(lambda x: self.validate_spinbox(x, False)), '%P')
         self.validate_spinbox_command_digit = (master.register(self.validate_spinbox), '%P')
         self.pixel_x: int = 1
@@ -1015,6 +1017,10 @@ class ImageHeatGUI():
         self.backgroundmenu.add_radiobutton(
             label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_BACKGROUND_WHITE),
             variable=self.current_background_color, value="#FFFFFF", command=lambda: self.reload_image_callback(None))
+        self.backgroundmenu.add_radiobutton(
+            label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_BACKGROUND_CHECKERBOARD),
+            variable=self.current_background_color, value="checkerboard", command=lambda: self.reload_image_callback(None)
+        )
 
         self.menubar.add_cascade(label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_OPTIONS),
                                  menu=self.optionsmenu)
@@ -1161,6 +1167,7 @@ class ImageHeatGUI():
         self.backgroundmenu.entryconfigure(0, label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_BACKGROUND_GRAY))
         self.backgroundmenu.entryconfigure(1, label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_BACKGROUND_BLACK))
         self.backgroundmenu.entryconfigure(2, label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_BACKGROUND_WHITE))
+        self.backgroundmenu.entryconfigure(3, label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_BACKGROUND_CHECKERBOARD))
         self.menubar.entryconfigure(2, label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_OPTIONS))
 
         self.helpmenu.entryconfigure(0, label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_HELPMENU_ABOUT))
@@ -1650,6 +1657,42 @@ class ImageHeatGUI():
             self.execute_image_preview_logic()
         return True
 
+    def _get_checkerboard_pattern(self, width: int, height: int) -> Image.Image:
+        """
+        Generates or retrieves a cached checkerboard pattern PIL Image.
+        """
+
+        if self.checkerboard_cache and self.checkerboard_cache.width >= width and \
+                self.checkerboard_cache.height >= height:
+            return self.checkerboard_cache.crop((0, 0, width, height))
+
+        # if not cached or too small, create a new one
+        new_w = max(width, 2048)
+        new_h = max(height, 2048)
+
+        square_size = 10  # cell size
+        color1 = "#8f8f8f"
+        color2 = "#bababa"
+
+        # create single 2x2 tile
+        tile = Image.new("RGB", (square_size * 2, square_size * 2), color1)
+        draw = ImageDraw.Draw(tile)
+        draw.rectangle((square_size, 0, square_size * 2 - 1, square_size - 1), fill=color2)
+        draw.rectangle((0, square_size, square_size - 1, square_size * 2 - 1), fill=color2)
+
+        # create a row by repeating the tile
+        row = Image.new("RGB", (new_w, square_size * 2))
+        for x in range(0, new_w, square_size * 2):
+            row.paste(tile, (x, 0))
+
+        # create final image by stacking rows
+        final_bg = Image.new("RGB", (new_w, new_h))
+        for y in range(0, new_h, square_size * 2):
+            final_bg.paste(row, (0, y))
+
+        self.checkerboard_cache = final_bg
+        return final_bg.crop((0, 0, width, height))
+
     def execute_error_preview_logic(self) -> bool:
         pil_img = Image.open(self.preview_image_path)
         pil_img = pil_img.resize((500, 367))
@@ -1766,12 +1809,23 @@ class ImageHeatGUI():
             # updating background color
             user_chosen_bg = self.current_background_color.get()
 
-            # drawing rectangle as background
-            self.preview_instance.create_rectangle(
-                0, 0, width, height,
-                fill=user_chosen_bg,
-                outline=""  # Без рамок
-            )
+            # drawing background
+            if user_chosen_bg == "checkerboard":
+                # logic for checkerboard background
+                bg_pil = self._get_checkerboard_pattern(width, height)
+                self.bg_ph_img = ImageTk.PhotoImage(bg_pil)
+                self.preview_instance.create_image(
+                    0, 0,
+                    anchor="nw",
+                    image=self.bg_ph_img
+                )
+            else:
+                # drawing rectangle as background
+                self.preview_instance.create_rectangle(
+                    0, 0, width, height,
+                    fill=user_chosen_bg,
+                    outline=""
+                )
 
             # creating image at top-left corner (nw) at point 0,0
             self.preview_instance.create_image(
