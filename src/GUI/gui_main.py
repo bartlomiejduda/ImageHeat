@@ -16,7 +16,7 @@ from idlelib.tooltip import Hovertip
 from tkinter import filedialog, messagebox, ttk
 from typing import List, Optional
 
-from PIL import Image, ImageTk
+from PIL import Image, ImageTk, ImageDraw
 from PIL.Image import Transpose
 from reversebox.common.common import (
     convert_bytes_to_hex_string,
@@ -103,6 +103,8 @@ class ImageHeatGUI():
         self.preview_instance = None
         self.ph_img = None
         self.preview_final_pil_image = None
+        self.checkerboard_cache = None  # checkerboard pattern cache
+        self.bg_ph_img = None  # reference to background image
         self.validate_spinbox_command = (master.register(lambda x: self.validate_spinbox(x, False)), '%P')
         self.validate_spinbox_command_digit = (master.register(self.validate_spinbox), '%P')
         self.pixel_x: int = 1
@@ -826,7 +828,7 @@ class ImageHeatGUI():
 
         self.postprocessing_labelframe = tk.LabelFrame(self.main_frame, text=self.get_translation_text(
             TranslationKeys.TRANSLATION_TEXT_POST_PROCESSING_LABELFRAME), font=self.gui_font)
-        self.postprocessing_labelframe.place(x=-200, y=365, width=195, height=150, relx=1)
+        self.postprocessing_labelframe.place(x=-200, y=365, width=195, height=180, relx=1)
 
         # zoom
         self.postprocessing_zoom_label = tk.Label(self.postprocessing_labelframe, text=self.get_translation_text(
@@ -907,6 +909,44 @@ class ImageHeatGUI():
         self.postprocessing_rotate_combobox.place(x=50, y=100, width=110, height=20)
         self.postprocessing_rotate_combobox.set(DEFAULT_ROTATE_NAME)
 
+        # channels
+        self.postprocessing_channels_label = tk.Label(self.postprocessing_labelframe,
+                                                      text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_POST_PROCESSING_CHANNELS),
+                                                      anchor="w", font=self.gui_font)
+        self.postprocessing_channels_label.place(x=5, y=125, width=60, height=20)
+
+        self.postprocessing_channel_var = tk.StringVar(value="RGBA")
+
+        # all channels button
+        self.rb_all = tk.Radiobutton(self.postprocessing_labelframe, text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_POST_PROCESSING_CHANNELS_ALL), variable=self.postprocessing_channel_var,
+                                value="RGBA", font=('Arial', 7), indicatoron=False,
+                                command=self.gui_reload_image_on_gui_element_change)
+        self.rb_all.place(x=60, y=125, width=25, height=20)
+
+        # red button
+        rb_r = tk.Radiobutton(self.postprocessing_labelframe, text="R", variable=self.postprocessing_channel_var,
+                              value="R", font=('Arial', 7), indicatoron=False, fg="red",
+                              command=self.gui_reload_image_on_gui_element_change)
+        rb_r.place(x=87, y=125, width=20, height=20)
+
+        # green button
+        rb_g = tk.Radiobutton(self.postprocessing_labelframe, text="G", variable=self.postprocessing_channel_var,
+                              value="G", font=('Arial', 7), indicatoron=False, fg="green",
+                              command=self.gui_reload_image_on_gui_element_change)
+        rb_g.place(x=109, y=125, width=20, height=20)
+
+        # blue button
+        rb_b = tk.Radiobutton(self.postprocessing_labelframe, text="B", variable=self.postprocessing_channel_var,
+                              value="B", font=('Arial', 7), indicatoron=False, fg="blue",
+                              command=self.gui_reload_image_on_gui_element_change)
+        rb_b.place(x=131, y=125, width=20, height=20)
+
+        # alpha button
+        rb_a = tk.Radiobutton(self.postprocessing_labelframe, text="A", variable=self.postprocessing_channel_var,
+                              value="A", font=('Arial', 7), indicatoron=False,
+                              command=self.gui_reload_image_on_gui_element_change)
+        rb_a.place(x=153, y=125, width=20, height=20)
+
         ########################
         # IMAGE BOX            #
         ########################
@@ -916,6 +956,35 @@ class ImageHeatGUI():
 
         self.image_preview_canvasframe = tk.Frame(self.image_preview_labelframe)
         self.image_preview_canvasframe.place(x=5, y=5, relwidth=1, relheight=1, height=-10, width=-10)
+
+        # --- SCROLLBAR LOGIC ---
+        # set grid configuration
+        self.image_preview_canvasframe.grid_rowconfigure(0, weight=1)
+        self.image_preview_canvasframe.grid_columnconfigure(0, weight=1)
+
+        # create canvas
+        self.preview_instance = tk.Canvas(
+            self.image_preview_canvasframe,
+            bg="#f0f0f0",
+            highlightthickness=0
+        )
+        self.preview_instance.grid(row=0, column=0, sticky="nsew")
+
+        # vertical scrollbar
+        self.v_scroll = tk.Scrollbar(self.image_preview_canvasframe, orient="vertical",
+                                     command=self.preview_instance.yview)
+        self.v_scroll.grid(row=0, column=1, sticky="ns")
+
+        # horizontal scrollbar
+        self.h_scroll = tk.Scrollbar(self.image_preview_canvasframe, orient="horizontal",
+                                     command=self.preview_instance.xview)
+        self.h_scroll.grid(row=1, column=0, sticky="ew")
+
+        # bind scrollbars to canvas
+        self.preview_instance.configure(yscrollcommand=self.v_scroll.set, xscrollcommand=self.h_scroll.set)
+
+        # bind mouse wheel to scroll
+        self.preview_instance.bind('<Motion>', self._mouse_motion_handler)
 
         ###############################################################################################################
         ############ menu
@@ -986,6 +1055,10 @@ class ImageHeatGUI():
         self.backgroundmenu.add_radiobutton(
             label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_BACKGROUND_WHITE),
             variable=self.current_background_color, value="#FFFFFF", command=lambda: self.reload_image_callback(None))
+        self.backgroundmenu.add_radiobutton(
+            label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_BACKGROUND_CHECKERBOARD),
+            variable=self.current_background_color, value="checkerboard", command=lambda: self.reload_image_callback(None)
+        )
 
         self.menubar.add_cascade(label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_OPTIONS),
                                  menu=self.optionsmenu)
@@ -1112,6 +1185,10 @@ class ImageHeatGUI():
             text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_POST_PROCESSING_HORIZONTAL_FLIP))
         self.postprocessing_rotate_label.config(
             text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_POST_PROCESSING_ROTATE))
+        self.postprocessing_channels_label.config(
+            text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_POST_PROCESSING_CHANNELS))
+        self.rb_all.config(
+            text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_POST_PROCESSING_CHANNELS_ALL))
 
         self.filemenu.entryconfigure(0, label=self.get_translation_text(
             TranslationKeys.TRANSLATION_TEXT_FILEMENU_OPEN_FILE))
@@ -1132,6 +1209,7 @@ class ImageHeatGUI():
         self.backgroundmenu.entryconfigure(0, label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_BACKGROUND_GRAY))
         self.backgroundmenu.entryconfigure(1, label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_BACKGROUND_BLACK))
         self.backgroundmenu.entryconfigure(2, label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_BACKGROUND_WHITE))
+        self.backgroundmenu.entryconfigure(3, label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_BACKGROUND_CHECKERBOARD))
         self.menubar.entryconfigure(2, label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_OPTIONS))
 
         self.helpmenu.entryconfigure(0, label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_HELPMENU_ABOUT))
@@ -1290,6 +1368,7 @@ class ImageHeatGUI():
         self.gui_params.horizontal_flip_flag = self.checkbox_value_to_bool(
             self.postprocessing_horizontal_flip_variable.get())
         self.gui_params.rotate_name = self.postprocessing_rotate_combobox.get()
+        self.gui_params.view_channel_mode = self.postprocessing_channel_var.get()
 
         return True
 
@@ -1359,6 +1438,7 @@ class ImageHeatGUI():
         self.postprocessing_horizontal_flip_variable.set("OFF")
         self.postprocessing_horizontal_flip_checkbutton.deselect()
         self.postprocessing_rotate_combobox.set(DEFAULT_ROTATE_NAME)
+        self.postprocessing_channel_var.set("RGBA")
 
         return True
 
@@ -1495,23 +1575,64 @@ class ImageHeatGUI():
             if out_file is None:
                 return False  # user closed file dialog on purpose
 
-            # pack converted RGBA data
-            file_extension: str = get_file_extension_uppercase(out_file.name)
-            pillow_wrapper = PillowWrapper()
-            out_data = pillow_wrapper.get_pil_image_file_data_for_export2(
-                self.preview_final_pil_image, pillow_format=file_extension
-            )
-            if not out_data:
-                logger.error("Empty data to export!")
-                messagebox.showwarning("Warning", self.get_translation_text(
-                    TranslationKeys.TRANSLATION_TEXT_POPUPS_EMPTY_IMAGE_DATA))
+            try:
+                 # generate full size image from raw data
+                orig_width = int(self.gui_params.img_width)
+                orig_height = int(self.gui_params.img_height)
+                raw_data = self.opened_image.decoded_image_data
+
+                # create a new PIL image from raw data not scaling it
+                # pack converted RGBA data
+                export_pil_img = Image.frombuffer(
+                        "RGBA",
+                        (orig_width, orig_height),
+                        raw_data,
+                        "raw",
+                        "RGBA",
+                        0,
+                        1,
+                )
+
+                # apply post-processing transformations
+                if self.gui_params.vertical_flip_flag:
+                        export_pil_img = export_pil_img.transpose(Transpose.FLIP_TOP_BOTTOM)
+                if self.gui_params.horizontal_flip_flag:
+                        export_pil_img = export_pil_img.transpose(Transpose.FLIP_LEFT_RIGHT)
+
+                rotate_id = get_rotate_id(self.gui_params.rotate_name)
+                if rotate_id == "rotate_90_left":
+                    export_pil_img = export_pil_img.transpose(Transpose.ROTATE_90)
+                elif rotate_id == "rotate_90_right":
+                    export_pil_img = export_pil_img.transpose(Transpose.ROTATE_270)
+                elif rotate_id == "rotate_180":
+                    export_pil_img = export_pil_img.transpose(Transpose.ROTATE_180)
+
+                # exporting
+                file_extension: str = get_file_extension_uppercase(out_file.name)
+                pillow_wrapper = PillowWrapper()
+
+                out_data = pillow_wrapper.get_pil_image_file_data_for_export2(
+                    export_pil_img, pillow_format=file_extension)
+
+                if not out_data:
+                    logger.error("Empty data to export!")
+                    messagebox.showwarning("Warning", self.get_translation_text(
+                        TranslationKeys.TRANSLATION_TEXT_POPUPS_EMPTY_IMAGE_DATA))
+                    return False
+
+                out_file.write(out_data)
+                out_file.close()
+                messagebox.showinfo("Info", self.get_translation_text(
+                    TranslationKeys.TRANSLATION_TEXT_POPUPS_FILE_SAVED_SUCCESSFULLY))
+                logger.info(f"Image has been exported successfully to {out_file.name}")
+
+            except Exception as e:
+                logger.error(f"Failed to process image for export: {e}")
+                messagebox.showerror("Error", f"Failed to export image: {e}")
+                if out_file:
+                    out_file.close()
                 return False
 
-            out_file.write(out_data)
-            out_file.close()
-            messagebox.showinfo("Info", self.get_translation_text(
-                TranslationKeys.TRANSLATION_TEXT_POPUPS_FILE_SAVED_SUCCESSFULLY))
-            logger.info(f"Image has been exported successfully to {out_file.name}")
         else:
             logger.info("Image is not opened yet...")
 
@@ -1580,30 +1701,65 @@ class ImageHeatGUI():
             self.execute_image_preview_logic()
         return True
 
+    def _get_checkerboard_pattern(self, width: int, height: int) -> Image.Image:
+        """
+        Generates or retrieves a cached checkerboard pattern PIL Image.
+        """
+
+        if self.checkerboard_cache and self.checkerboard_cache.width >= width and \
+                self.checkerboard_cache.height >= height:
+            return self.checkerboard_cache.crop((0, 0, width, height))
+
+        # if not cached or too small, create a new one
+        new_w = max(width, 2048)
+        new_h = max(height, 2048)
+
+        square_size = 10  # cell size
+        color1 = "#8f8f8f"
+        color2 = "#bababa"
+
+        # create single 2x2 tile
+        tile = Image.new("RGB", (square_size * 2, square_size * 2), color1)
+        draw = ImageDraw.Draw(tile)
+        draw.rectangle((square_size, 0, square_size * 2 - 1, square_size - 1), fill=color2)
+        draw.rectangle((0, square_size, square_size - 1, square_size * 2 - 1), fill=color2)
+
+        # create a row by repeating the tile
+        row = Image.new("RGB", (new_w, square_size * 2))
+        for x in range(0, new_w, square_size * 2):
+            row.paste(tile, (x, 0))
+
+        # create final image by stacking rows
+        final_bg = Image.new("RGB", (new_w, new_h))
+        for y in range(0, new_h, square_size * 2):
+            final_bg.paste(row, (0, y))
+
+        self.checkerboard_cache = final_bg
+        return final_bg.crop((0, 0, width, height))
+
     def execute_error_preview_logic(self) -> bool:
         pil_img = Image.open(self.preview_image_path)
         pil_img = pil_img.resize((500, 367))
 
-        if self.preview_instance:
-            self.preview_instance.destroy()  # destroy canvas to prevent memory leak
-
-        self.preview_instance = tk.Canvas(
-            self.image_preview_canvasframe,
-            bg="#595959",
-            width=pil_img.width,
-            height=pil_img.height,
-            highlightthickness=0
-        )
+        self.preview_instance.delete("all")
+        # canvas image must be kept as instance variable to prevent garbage collection
 
         self.ph_img = ImageTk.PhotoImage(pil_img)
 
+        # drawing rectangle as background
+        self.preview_instance.create_rectangle(
+            0, 0, pil_img.width, pil_img.height,
+            fill="#595959",
+            outline=""
+        )
+
         self.preview_instance.create_image(
-            int(pil_img.width),
-            int(pil_img.height),
-            anchor="se",
+            0,
+            0,
+            anchor="nw",
             image=self.ph_img,
         )
-        self.preview_instance.place(x=0, y=0)
+        self.preview_instance.configure(scrollregion=(0, 0, pil_img.width, pil_img.height))
 
         return True
 
@@ -1674,10 +1830,42 @@ class ImageHeatGUI():
             elif rotate_id == "rotate_180":
                 pil_img = pil_img.transpose(Transpose.ROTATE_180)
 
-            mask = pil_img.copy()
-            mask.putalpha(1)
-            mask.paste(pil_img, (0, 0), pil_img)
-            final_pil_image = mask.copy()
+            channel_mode = getattr(self.gui_params, 'view_channel_mode', 'RGBA')
+
+            final_pil_image = None
+
+            if channel_mode == "RGBA":
+                # default logic for normal viewing
+                mask = pil_img.copy()
+                mask.putalpha(1)
+                mask.paste(pil_img, (0, 0), pil_img)
+                final_pil_image = mask.copy()
+            else:
+                # logic for single channel viewing
+                try:
+                    # check if channel exists in image
+                    bands = pil_img.getbands()
+                    if channel_mode in bands:
+                        # getchannel returns a single band image
+                        final_pil_image = pil_img.getchannel(channel_mode)
+
+                        # convert to RGB to display properly
+                        # for R, G, B channels, we create an RGB image with only that channel
+                        final_pil_image = final_pil_image.convert("RGB")
+
+                    elif channel_mode == "A":
+                        # if alpha channel not found, create a white image
+                        final_pil_image = Image.new("RGB", pil_img.size, (255, 255, 255))
+
+                    else:
+                        # if channel not found, fallback to normal image
+                        temp_rgb = pil_img.convert("RGB")
+                        final_pil_image = temp_rgb.getchannel(channel_mode).convert("RGB")
+
+                except Exception as e:
+                    logger.error(f"Error extracting channel {channel_mode}: {e}")
+                    # Fallback to normal image
+                    final_pil_image = pil_img.convert("RGB")
 
             self.master.after(0, self._update_canvas_on_main_thread, final_pil_image, preview_img_width,
                               preview_img_height, start_time)
@@ -1686,34 +1874,49 @@ class ImageHeatGUI():
             logger.error(f"Error in background thread: {error}")
             self.master.after(0, lambda: self.master.config(cursor=""))
 
-
     def _update_canvas_on_main_thread(self, pil_img, width, height, start_time):
         try:
             self.ph_img = ImageTk.PhotoImage(pil_img)
             self.preview_final_pil_image = pil_img
 
-            if self.preview_instance:
-                self.preview_instance.destroy()
+            # clearing the canvas instead of destroying
+            self.preview_instance.delete("all")
 
-            self.preview_instance = tk.Canvas(
-                self.image_preview_canvasframe,
-                bg=self.current_background_color.get(),
-                width=width,
-                height=height,
-                highlightthickness=0
-            )
+            # updating background color
+            user_chosen_bg = self.current_background_color.get()
 
+            # drawing background
+            if user_chosen_bg == "checkerboard":
+                # logic for checkerboard background
+                bg_pil = self._get_checkerboard_pattern(width, height)
+                self.bg_ph_img = ImageTk.PhotoImage(bg_pil)
+                self.preview_instance.create_image(
+                    0, 0,
+                    anchor="nw",
+                    image=self.bg_ph_img
+                )
+            else:
+                # drawing rectangle as background
+                self.preview_instance.create_rectangle(
+                    0, 0, width, height,
+                    fill=user_chosen_bg,
+                    outline=""
+                )
+
+            # creating image at top-left corner (nw) at point 0,0
             self.preview_instance.create_image(
-                width,
-                height,
-                anchor="se",
+                0,
+                0,
+                anchor="nw",
                 image=self.ph_img,
             )
-            self.preview_instance.place(x=0, y=0)
-            self.preview_instance.bind('<Motion>', self._mouse_motion_handler)
+
+            # setting scroll region to image size
+            self.preview_instance.configure(scrollregion=(0, 0, width, height))
+
             execution_time = time.time() - start_time
-            logger.info(
-                f"[PREVIEW] Image preview for pixel_format={self.gui_params.pixel_format} finished successfully. Time: {round(execution_time, 2)} seconds.")
+            logger.info(f"[PREVIEW] Image preview for pixel_format={self.gui_params.pixel_format}"
+                        f" finished successfully. Time: {round(execution_time, 2)} seconds.")
 
         except Exception as e:
             logger.error(f"Error updating canvas: {e}")
@@ -1721,7 +1924,8 @@ class ImageHeatGUI():
             self.master.config(cursor="")
 
     def _mouse_motion_handler(self, event):
-
+        if self.opened_image is None or not self.gui_params.pixel_format:
+            return
         # getting params
         image_format: ImageFormats = ImageFormats[self.gui_params.pixel_format]
         compression_id: str = get_compression_id(self.gui_params.compression_type)
@@ -1730,8 +1934,11 @@ class ImageHeatGUI():
         bytes_per_pixel: float = convert_bpp_to_bytes_per_pixel_float(bpp)
 
         # post-processing logic
-        x = int(math.ceil((event.x + 1) / self.preview_zoom_value))
-        y = int(math.ceil((event.y + 1) / self.preview_zoom_value))
+        canvas_x = self.preview_instance.canvasx(event.x)
+        canvas_y = self.preview_instance.canvasy(event.y)
+
+        x = int(math.ceil((canvas_x + 1) / self.preview_zoom_value))
+        y = int(math.ceil((canvas_y + 1) / self.preview_zoom_value))
 
         if self.gui_params.vertical_flip_flag:
             y = self.gui_params.img_height - y + 1
@@ -1758,8 +1965,8 @@ class ImageHeatGUI():
         self.pixel_y = y
 
         # pixel offset logic
-        self.pixel_offset = int((
-                                            self.pixel_y - 1) * self.gui_params.img_width * bytes_per_pixel + self.pixel_x * bytes_per_pixel - bytes_per_pixel)
+        self.pixel_offset = int((self.pixel_y - 1) * self.gui_params.img_width * bytes_per_pixel +
+                                self.pixel_x * bytes_per_pixel - bytes_per_pixel)
         pixel_offset_rgba: int = int((self.pixel_y - 1) * self.gui_params.img_width * 4 + self.pixel_x * 4 - 4)
 
         if self.pixel_offset + bytes_per_pixel <= (self.gui_params.img_end_offset - self.gui_params.img_start_offset):
