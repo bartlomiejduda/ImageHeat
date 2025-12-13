@@ -498,7 +498,7 @@ TRANSLATION_MEMORY: List[TranslationEntry] = [
     ),
     TranslationEntry(id=TranslationKeys.TRANSLATION_TEXT_POST_PROCESSING_ROTATE, default="Rotate"),
     TranslationEntry(id=TranslationKeys.TRANSLATION_TEXT_POST_PROCESSING_CHANNELS, default="Channels:"),
-TranslationEntry(id=TranslationKeys.TRANSLATION_TEXT_POST_PROCESSING_CHANNELS_ALL, default="All"),
+    TranslationEntry(id=TranslationKeys.TRANSLATION_TEXT_POST_PROCESSING_CHANNELS_ALL, default="All"),
     TranslationEntry(id=TranslationKeys.TRANSLATION_TEXT_FILEMENU_OPEN_FILE, default="Open File"),
     TranslationEntry(id=TranslationKeys.TRANSLATION_TEXT_FILEMENU_SAVE_AS, default="Save As..."),
     TranslationEntry(id=TranslationKeys.TRANSLATION_TEXT_FILEMENU_SAVE_RAW_DATA, default="Save Raw Data"),
@@ -510,6 +510,7 @@ TranslationEntry(id=TranslationKeys.TRANSLATION_TEXT_POST_PROCESSING_CHANNELS_AL
     TranslationEntry(id=TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_LANGUAGE_UA, default="Ukrainian"),
     TranslationEntry(id=TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_LANGUAGE_PTBR, default="Brazilian Portuguese"),
     TranslationEntry(id=TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_LANGUAGE_ES, default="Spanish"),
+    TranslationEntry(id=TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_LANGUAGE_ZH, default="Chinese"),
     TranslationEntry(id=TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_OPTIONS, default="Options"),
     TranslationEntry(id=TranslationKeys.TRANSLATION_TEXT_HELPMENU_ABOUT, default="About..."),
     TranslationEntry(id=TranslationKeys.TRANSLATION_TEXT_HELPMENU_HELP, default="Help"),
@@ -538,5 +539,7 @@ TranslationEntry(id=TranslationKeys.TRANSLATION_TEXT_POST_PROCESSING_CHANNELS_AL
     TranslationEntry(id=TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_BACKGROUND_GRAY, default="Gray (Default)"),
     TranslationEntry(id=TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_BACKGROUND_BLACK, default="Black"),
     TranslationEntry(id=TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_BACKGROUND_WHITE, default="White"),
-    TranslationEntry(id=TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_BACKGROUND_CHECKERBOARD, default="Checkerboard (Alpha)"),
+    TranslationEntry(
+        id=TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_BACKGROUND_CHECKERBOARD, default="Checkerboard (Alpha)"
+    ),
 ]

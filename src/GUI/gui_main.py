@@ -16,7 +16,7 @@ from idlelib.tooltip import Hovertip
 from tkinter import filedialog, messagebox, ttk
 from typing import List, Optional
 
-from PIL import Image, ImageTk, ImageDraw
+from PIL import Image, ImageDraw, ImageTk
 from PIL.Image import Transpose
 from reversebox.common.common import (
     convert_bytes_to_hex_string,
@@ -919,8 +919,8 @@ class ImageHeatGUI():
 
         # all channels button
         self.rb_all = tk.Radiobutton(self.postprocessing_labelframe, text=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_POST_PROCESSING_CHANNELS_ALL), variable=self.postprocessing_channel_var,
-                                value="RGBA", font=('Arial', 7), indicatoron=False,
-                                command=self.gui_reload_image_on_gui_element_change)
+                                     value="RGBA", font=('Arial', 7), indicatoron=False,
+                                     command=self.gui_reload_image_on_gui_element_change)
         self.rb_all.place(x=60, y=125, width=25, height=20)
 
         # red button
@@ -1208,6 +1208,7 @@ class ImageHeatGUI():
         self.languagemenu.entryconfigure(2, label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_LANGUAGE_UA))
         self.languagemenu.entryconfigure(3, label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_LANGUAGE_PTBR))
         self.languagemenu.entryconfigure(4, label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_LANGUAGE_ES))
+        self.languagemenu.entryconfigure(5, label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_LANGUAGE_ZH))
         self.backgroundmenu.entryconfigure(0, label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_BACKGROUND_GRAY))
         self.backgroundmenu.entryconfigure(1, label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_BACKGROUND_BLACK))
         self.backgroundmenu.entryconfigure(2, label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_BACKGROUND_WHITE))
@@ -1578,7 +1579,7 @@ class ImageHeatGUI():
                 return False  # user closed file dialog on purpose
 
             try:
-                 # generate full size image from raw data
+                # generate full size image from raw data
                 orig_width = int(self.gui_params.img_width)
                 orig_height = int(self.gui_params.img_height)
                 raw_data = self.opened_image.decoded_image_data
@@ -1597,9 +1598,9 @@ class ImageHeatGUI():
 
                 # apply post-processing transformations
                 if self.gui_params.vertical_flip_flag:
-                        export_pil_img = export_pil_img.transpose(Transpose.FLIP_TOP_BOTTOM)
+                    export_pil_img = export_pil_img.transpose(Transpose.FLIP_TOP_BOTTOM)
                 if self.gui_params.horizontal_flip_flag:
-                        export_pil_img = export_pil_img.transpose(Transpose.FLIP_LEFT_RIGHT)
+                    export_pil_img = export_pil_img.transpose(Transpose.FLIP_LEFT_RIGHT)
 
                 rotate_id = get_rotate_id(self.gui_params.rotate_name)
                 if rotate_id == "rotate_90_left":
@@ -1967,8 +1968,7 @@ class ImageHeatGUI():
         self.pixel_y = y
 
         # pixel offset logic
-        self.pixel_offset = int((self.pixel_y - 1) * self.gui_params.img_width * bytes_per_pixel +
-                                self.pixel_x * bytes_per_pixel - bytes_per_pixel)
+        self.pixel_offset = int((self.pixel_y - 1) * self.gui_params.img_width * bytes_per_pixel + self.pixel_x * bytes_per_pixel - bytes_per_pixel)
         pixel_offset_rgba: int = int((self.pixel_y - 1) * self.gui_params.img_width * 4 + self.pixel_x * 4 - 4)
 
         if self.pixel_offset + bytes_per_pixel <= (self.gui_params.img_end_offset - self.gui_params.img_start_offset):
