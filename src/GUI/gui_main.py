@@ -1041,6 +1041,8 @@ class ImageHeatGUI():
                                           variable=self.current_program_language, value="PTBR", command=lambda: self.set_program_language())
         self.languagemenu.add_radiobutton(label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_LANGUAGE_ES),
                                           variable=self.current_program_language, value="ES", command=lambda: self.set_program_language())
+        self.languagemenu.add_radiobutton(label=self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_OPTIONSMENU_LANGUAGE_ZH),
+                                          variable=self.current_program_language, value="ZH", command=lambda: self.set_program_language())
 
         self.backgroundmenu = tk.Menu(self.optionsmenu, tearoff=0)
         self.optionsmenu.add_cascade(
