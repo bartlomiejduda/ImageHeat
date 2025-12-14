@@ -15,7 +15,8 @@ from reversebox.common.logger import get_logger
 from src.GUI.gui_main import ImageHeatGUI
 from src.GUI.gui_root import ImageHeatRoot
 
-VERSION_NUM: Final[str] = "v0.41.0"
+NIGHTLY_STR: str = os.getenv("NIGHTLY_STR", default="(NIGHTLY)")
+VERSION_NUM: Final[str] = "v0.41.1"
 
 logger = get_logger("main")
 
@@ -34,7 +35,7 @@ def main():
     logger.info("Starting main...")
 
     root: ImageHeatRoot = ImageHeatRoot(className="ImageHeat")
-    ImageHeatGUI(root, VERSION_NUM, MAIN_DIRECTORY)  # start GUI
+    ImageHeatGUI(root, VERSION_NUM + " " + NIGHTLY_STR, MAIN_DIRECTORY)  # start GUI
     root.lift()
     center_tk_window.center_on_screen(root)
     try:

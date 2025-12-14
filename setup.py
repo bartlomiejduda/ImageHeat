@@ -2,16 +2,16 @@ import sys
 
 from cx_Freeze import Executable, setup
 
-from src.main import VERSION_NUM
+from src.main import NIGHTLY_STR, VERSION_NUM
 
 base = None
 if sys.platform == "win32":
     base = "Win32GUI"
 
 if sys.platform == "linux":
-    target_name = "ImageHeat-" + VERSION_NUM + ".elf"
+    target_name = "ImageHeat-" + VERSION_NUM + " " + NIGHTLY_STR + ".elf"
 else:
-    target_name = "ImageHeat-" + VERSION_NUM + ".exe"
+    target_name = "ImageHeat-" + VERSION_NUM + " " + NIGHTLY_STR + ".exe"
 
 executables = [
     Executable(
