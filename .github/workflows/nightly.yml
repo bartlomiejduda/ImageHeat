@@ -57,7 +57,7 @@ jobs:
 
           Commit: ${{ github.sha }}
         files: |
-          **\build_final\ImageHeat\**
+          **\build_final\**
         prerelease: true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
