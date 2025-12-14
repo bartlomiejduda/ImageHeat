@@ -1,5 +1,8 @@
 name: ImageHeat Nightly Build
 
+permissions:
+  contents: write
+
 on:
   push:
     branches: [ "master", "main" ]
