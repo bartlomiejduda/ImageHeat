@@ -1,0 +1,39 @@
+name: ImageHeat Nightly Build
+
+on:
+  push:
+    branches: [ "master", "main" ]
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Upgrade pip
+      run: python -m pip install --upgrade pip
+
+    - name: Install requirements
+      run: |
+        pip install -r requirements.txt
+
+    - name: Build EXE (make_exe.bat)
+      run: |
+        cd src\scripts
+        make_exe.bat
+      shell: cmd
+
+    - name: Upload NIGHTLY artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ImageHeat-Nightly
+        path: |
+          **\dist\*.exe
