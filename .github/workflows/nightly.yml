@@ -42,6 +42,9 @@ jobs:
 #        path: |
 #          **\build_final\ImageHeat\**
 
+    - name: Zip build
+      run: |
+        powershell Compress-Archive -Path build_final\* -DestinationPath build_final\ImageHeat.zip
 
     - name: Create or update Nightly Release
       uses: softprops/action-gh-release@v2
@@ -57,7 +60,7 @@ jobs:
 
           Commit: ${{ github.sha }}
         files: |
-          **\build_final\**
+          build_final/ImageHeat.zip
         prerelease: true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
