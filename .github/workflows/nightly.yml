@@ -27,11 +27,8 @@ jobs:
 
     - name: Build EXE (make_exe.bat)
       run: |
-        cd src\scripts
-        ls
-        pwd
         echo Running make_exe script...
-        make_exe.bat
+        src\scripts\make_exe.bat
       shell: cmd
 
     - name: Upload NIGHTLY artifact
