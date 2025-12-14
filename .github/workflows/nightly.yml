@@ -36,4 +36,4 @@ jobs:
       with:
         name: ImageHeat-Nightly
         path: |
-          **\dist\*.exe
+          **\build_final\**
