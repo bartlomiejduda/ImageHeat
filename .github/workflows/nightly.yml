@@ -38,6 +38,11 @@ jobs:
       run: |
         powershell Compress-Archive -Path build_final\* -DestinationPath build_final\ImageHeat.zip
 
+    - name: Move nightly tag to latest commit
+      run: |
+        git tag -f nightly
+        git push origin nightly --force
+
     - name: Create or update Nightly Release
       uses: softprops/action-gh-release@v2
       with:
