@@ -34,14 +34,6 @@ jobs:
         src\scripts\make_exe.bat
       shell: cmd
 
-#    - name: Upload NIGHTLY artifact
-#      uses: actions/upload-artifact@v4
-#      with:
-#        name: ImageHeat-Nightly
-#        retention-days: 14
-#        path: |
-#          **\build_final\ImageHeat\**
-
     - name: Zip build
       run: |
         powershell Compress-Archive -Path build_final\* -DestinationPath build_final\ImageHeat.zip
