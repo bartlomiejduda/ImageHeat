@@ -24,10 +24,10 @@ if getattr(sys, "frozen", False):
         NIGHTLY_STR = "(NIGHTLY)" if "nightly" in os.path.abspath(sys.executable).lower() else ""
 else:
     MAIN_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
-    NIGHTLY_STR: str = ""
+    NIGHTLY_STR: str = os.getenv("NIGHTLY_STR", default="")
 
 
-VERSION_NUM: Final[str] = "v0.41.3"
+VERSION_NUM: Final[str] = "v0.41.4"
 
 
 def main():
