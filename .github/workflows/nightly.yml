@@ -35,6 +35,11 @@ jobs:
       run: |
         pip install -r requirements.txt
 
+    - name: Set NIGHTLY_STR env variable
+      shell: pwsh
+      run: |
+        "NIGHTLY_STR=(NIGHTLY)" >> $env:GITHUB_ENV
+
     - name: Build EXE (make_exe.bat)
       run: |
         echo Running make_exe script...

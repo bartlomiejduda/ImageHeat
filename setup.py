@@ -9,9 +9,9 @@ if sys.platform == "win32":
     base = "Win32GUI"
 
 if sys.platform == "linux":
-    target_name = "ImageHeat-" + VERSION_NUM + " " + NIGHTLY_STR + ".elf"
+    target_name = "ImageHeat-" + VERSION_NUM + ("_" + NIGHTLY_STR if len(NIGHTLY_STR) > 0 else "") + ".elf"
 else:
-    target_name = "ImageHeat-" + VERSION_NUM + " " + NIGHTLY_STR + ".exe"
+    target_name = "ImageHeat-" + VERSION_NUM + ("_" + NIGHTLY_STR if len(NIGHTLY_STR) > 0 else "") + ".exe"
 
 executables = [
     Executable(
