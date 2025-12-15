@@ -43,11 +43,16 @@ jobs:
         git tag -f nightly
         git push origin nightly --force
 
+    - name: Set build date
+      shell: pwsh
+      run: |
+        "BUILD_DATE=$(Get-Date -Format yyyy-MM-dd)" >> $env:GITHUB_ENV
+
     - name: Create or update Nightly Release
       uses: softprops/action-gh-release@v2
       with:
         tag_name: nightly
-        name: Nightly Build
+        name: Nightly Build (${{ env.BUILD_DATE }})
         body: |
           ⚠️ This is an **automatically generated nightly build**.
 
