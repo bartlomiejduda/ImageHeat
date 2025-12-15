@@ -7,6 +7,13 @@ on:
   push:
     branches: [ "master", "main" ]
   workflow_dispatch:
+  pull_request:
+    types: [closed]
+    branches: [ "master", "main" ]
+
+concurrency:
+  group: nightly
+  cancel-in-progress: true
 
 jobs:
   build-windows:
@@ -34,14 +41,16 @@ jobs:
         src\scripts\make_exe.bat
       shell: cmd
 
-#    - name: Zip build
-#      run: |
-#        powershell Compress-Archive -Path build_final\* -DestinationPath build_final\ImageHeat.zip
-
     - name: Zip build (7-Zip with progress)
       shell: cmd
       run: |
         7z a build_final\ImageHeat.zip build_final\*
+
+    - name: Generate SHA256 checksum
+      shell: pwsh
+      run: |
+        $hash = Get-FileHash build_final\ImageHeat.zip -Algorithm SHA256
+        "$($hash.Hash)  ImageHeat.zip" | Out-File build_final\ImageHeat.zip.sha256 -Encoding ASCII
 
     - name: Move nightly tag to latest commit
       run: |
@@ -68,6 +77,7 @@ jobs:
           Commit: ${{ github.sha }}
         files: |
           build_final/ImageHeat.zip
+          build_final/ImageHeat.zip.sha256
         prerelease: true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
