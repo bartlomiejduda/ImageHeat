@@ -34,9 +34,14 @@ jobs:
         src\scripts\make_exe.bat
       shell: cmd
 
-    - name: Zip build
+#    - name: Zip build
+#      run: |
+#        powershell Compress-Archive -Path build_final\* -DestinationPath build_final\ImageHeat.zip
+
+    - name: Zip build (7-Zip with progress)
+      shell: cmd
       run: |
-        powershell Compress-Archive -Path build_final\* -DestinationPath build_final\ImageHeat.zip
+        7z a build_final\ImageHeat.zip build_final\*
 
     - name: Move nightly tag to latest commit
       run: |
