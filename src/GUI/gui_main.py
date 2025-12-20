@@ -1302,6 +1302,8 @@ class ImageHeatGUI():
         for i in range(3):
             hex_byte_str: str = convert_bytes_to_hex_string(pixel_rgba_value[i:i + 1]).strip()
             hex_result_str += hex_byte_str
+        if len(hex_result_str) < 1:
+            hex_result_str = '000000'
 
         html: str = f'''<div style="font-family: Arial; font-size: 8px;">
                         <span>{text_header}</span>
