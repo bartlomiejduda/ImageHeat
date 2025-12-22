@@ -27,7 +27,7 @@ else:
     NIGHTLY_STR: str = os.getenv("NIGHTLY_STR", default="")
 
 
-VERSION_NUM: Final[str] = "v0.41.5"
+VERSION_NUM: Final[str] = "v0.42.0"
 
 
 def main():

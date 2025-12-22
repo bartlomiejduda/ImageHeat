@@ -210,8 +210,6 @@ class HeatImage:
             self.encoded_image_data = unswizzle_ps2(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_bpp, swizzle_type=1)
         elif swizzling_id == "ps2_type2":
             self.encoded_image_data = unswizzle_ps2(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_bpp, swizzle_type=2)
-        elif swizzling_id == "ps2_type3":
-            self.encoded_image_data = unswizzle_ps2(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_bpp, swizzle_type=3)
         elif swizzling_id == "wii_u_linear":
             self.encoded_image_data = unswizzle_wii_u(self.gui_params.img_width, self.gui_params.img_height, image_format=0x0000001a,
                                                       tile_mode=0, swizzle_type=0, pitch=64, input_data=self.encoded_image_data)
