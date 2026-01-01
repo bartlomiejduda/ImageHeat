@@ -56,11 +56,15 @@ class HeatPalette:
         else:
             palette_end_offset = len(self.loaded_palette_data)
 
+        # set initial (encoded) palette data
+        encoded_palette_data: bytes = self.encoded_palette_data[self.gui_params.palette_offset:palette_end_offset]
+
         # unswizzle palette
         if self.gui_params.palette_ps2_swizzle_flag:
-            self.decoded_palette_data = unswizzle_ps2_palette(self.encoded_palette_data[self.gui_params.palette_offset:palette_end_offset])
+            self.decoded_palette_data = unswizzle_ps2_palette(palette_data=encoded_palette_data,
+                                                              bpp=16 if len(encoded_palette_data) < 1024 else 32)
         else:
-            self.decoded_palette_data = self.encoded_palette_data[self.gui_params.palette_offset:palette_end_offset]  # no decoding needed
+            self.decoded_palette_data = encoded_palette_data  # no decoding needed
 
         # fill small palette logic
         if len(self.decoded_palette_data) < self.MAX_PALETTE_SIZE:
