@@ -1972,6 +1972,12 @@ class ImageHeatGUI():
         self.pixel_x = x
         self.pixel_y = y
 
+        if (self.pixel_x > self.gui_params.img_width
+                or self.pixel_y > self.gui_params.img_height
+                or self.pixel_x < 0
+                or self.pixel_y < 0):
+            return  # mouse cursor is in canvas, but it's not in image data
+
         # pixel offset logic
         self.pixel_offset = int((self.pixel_y - 1) * self.gui_params.img_width * bytes_per_pixel + self.pixel_x * bytes_per_pixel - bytes_per_pixel)
         pixel_offset_rgba: int = int((self.pixel_y - 1) * self.gui_params.img_width * 4 + self.pixel_x * 4 - 4)
@@ -1999,5 +2005,3 @@ class ImageHeatGUI():
                     self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_PIXEL_OFFSET), "n/a"))
                 self.infobox_pixel_value_hex_label.set_html(self._get_html_for_infobox_label(
                     self.get_translation_text(TranslationKeys.TRANSLATION_TEXT_INFO_PIXEL_VALUE), "n/a"))
-
-# fmt: on
