@@ -1407,7 +1407,9 @@ class ImageHeatGUI():
         self.compression_combobox.set(DEFAULT_COMPRESSION_NAME)
         self.current_start_offset.set("0")
         self.current_end_offset.set(str(self._calculate_end_offset_at_file_open(self.gui_params.total_file_size)))
+        self.img_start_offset_spinbox.config(to=self.gui_params.total_file_size)  # set max value for start offset
         self.img_end_offset_spinbox.config(to=self.gui_params.total_file_size)  # set max value for end offset
+        self.palette_paloffset_spinbox.config(to=self.gui_params.total_file_size)  # set max value for palette offset
 
         # palette parameters
         self.palette_load_from_variable.set(1)
