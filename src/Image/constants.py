@@ -122,6 +122,7 @@ SUPPORTED_PALETTE_FORMATS: list[ImageFormats] = [
     ImageFormats.GRAY16,
     ImageFormats.GRAY8A,
     ImageFormats.RGBX2222,
+    ImageFormats.IA_X2,
 ]
 
 SUPPORTED_SWIZZLING_TYPES: list[SwizzlingType] = [
