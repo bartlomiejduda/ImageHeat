@@ -1,5 +1,5 @@
 """
-Copyright © 2024-2025  Bartłomiej Duda
+Copyright © 2024-2026  Bartłomiej Duda
 License: GPL-3.0 License
 """
 
@@ -27,7 +27,7 @@ else:
     NIGHTLY_STR: str = os.getenv("NIGHTLY_STR", default="")
 
 
-VERSION_NUM: Final[str] = "v0.44.0"
+VERSION_NUM: Final[str] = "v0.44.1"
 
 
 def main():
