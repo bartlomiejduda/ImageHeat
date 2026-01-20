@@ -104,6 +104,8 @@ SUPPORTED_PALETTE_FORMATS: list[ImageFormats] = [
     ImageFormats.XBGR4444,
     ImageFormats.RGB888,
     ImageFormats.BGR888,
+    ImageFormats.RGBA6666,
+    ImageFormats.RGBX6666,
     ImageFormats.RGBA8888,
     ImageFormats.RGBX8888,
     ImageFormats.BGRA8888,
