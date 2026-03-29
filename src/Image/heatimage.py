@@ -330,6 +330,7 @@ class HeatImage:
                 self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_format
             )
         elif image_format in (ImageFormats.BC1_DXT1,
+                              ImageFormats.BC2_DXT2,
                               ImageFormats.BC2_DXT3,
                               ImageFormats.BC3_DXT5,
                               ImageFormats.BC4_UNORM,
@@ -352,7 +353,7 @@ class HeatImage:
                 or "PVRTCI" in image_format.value\
                 or "ETC" in image_format.value\
                 or "EAC" in image_format.value\
-                or image_format in (ImageFormats.DXT2, ImageFormats.DXT4, ImageFormats.BW1bpp,
+                or image_format in (ImageFormats.BW1bpp,
                                     ImageFormats.SharedExponentR9G9B9E5, ImageFormats.RGBG8888, ImageFormats.GRGB8888,
                                     ImageFormats.RGBM, ImageFormats.RGBD):
             self.decoded_image_data = image_decoder.decode_pvrtexlib_image(
