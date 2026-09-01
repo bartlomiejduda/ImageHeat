@@ -21,7 +21,11 @@ from reversebox.compression.compression_rle_tga_reversed import (
 )
 from reversebox.compression.compression_rle_tzar import decompress_rle_tzar
 from reversebox.compression.compression_zlib2 import decompress_zlib
-from reversebox.image.byte_swap import swap_byte_order_gamecube, swap_byte_order_x360
+from reversebox.image.byte_swap import (
+    swap_byte_order_etc1,
+    swap_byte_order_gamecube,
+    swap_byte_order_x360,
+)
 from reversebox.image.common import (
     calculate_aligned_value,
     get_block_data_size,
@@ -29,7 +33,7 @@ from reversebox.image.common import (
 )
 from reversebox.image.image_decoder import ImageDecoder
 from reversebox.image.image_formats import ImageFormats
-from reversebox.image.swizzling.swizzle_3ds import unswizzle_3ds
+from reversebox.image.swizzling.swizzle_3ds import unswizzle_3ds, unswizzle_3ds_blocks
 from reversebox.image.swizzling.swizzle_bc import unswizzle_bc
 from reversebox.image.swizzling.swizzle_gamecube import unswizzle_gamecube
 from reversebox.image.swizzling.swizzle_morton import unswizzle_morton
@@ -97,6 +101,12 @@ class HeatImage:
 
         # endianess logic
         endianess_id: str = get_endianess_id(self.gui_params.endianess_type)
+
+        if endianess_id == "little" and image_format == ImageFormats.ETC1:
+            try:
+                self.encoded_image_data = swap_byte_order_etc1(self.encoded_image_data)
+            except Exception as error:
+                logger.warning(f"ETC1 byte swap function failed! Error: {error}")
 
         if endianess_id == "byte_swap_x360":
             endianess_id = "little"
@@ -219,7 +229,15 @@ class HeatImage:
         elif swizzling_id == "bc":
             self.encoded_image_data = unswizzle_bc(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, 8, 8, image_bpp)
         elif swizzling_id == "3ds":
-            self.encoded_image_data = unswizzle_3ds(self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_bpp)
+            if image_format == ImageFormats.ETC1:
+                self.encoded_image_data = unswizzle_3ds_blocks(
+                    self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height,
+                    4, block_width=4, block_height=4
+                )
+            else:
+                self.encoded_image_data = unswizzle_3ds(
+                    self.encoded_image_data, self.gui_params.img_width, self.gui_params.img_height, image_bpp
+                )
         else:
             logger.error(f"Swizzling type not supported! Type: {swizzling_id}")
 
